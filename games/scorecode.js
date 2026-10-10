@@ -32,9 +32,9 @@ var SET_TOPICS={ mult:['f03','f46','f79','f1012'], slope:['write','slope','yint'
 var TOPIC_NAMES={ mult:['Facts 0–3','Facts 4–6','Facts 7–9','Facts 10–12'], slope:['Write the equation','Find the slope','Find the y-intercept','Read a graph'],
   point:['Write the equation','Find the point','Find the slope'], hoy:['Describe the line','Match the graph','Find the slope'], shift:['Vertical shifts','Horizontal shifts','Graphs','New equations'] };
 
-/* Google Form for score submissions. Paste the form's pre-filled link pieces here to turn on the
-   "Send my score" button: url = the viewform link, name/code = the entry.NNNN ids of the two questions. */
-var FORM={ url:'', name:'', code:'' };
+/* Google Form for score submissions. With only url, the button copies the code and opens the form.
+   Add the entry.NNNN ids of the Name and Score code questions (from a pre-filled link) to fill both in for the student. */
+var FORM={ url:'https://docs.google.com/forms/d/117PeTh-trNH6GQbGTRlyUHhxr6qat_FGoPFjKV_e3qY/viewform', name:'', code:'' };
 
 var ALPH='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', SECRET='spitz|burger|arcade', BASE=Date.UTC(2026,7,1);
 var MASK=BigInt('0xB4E1C93A5D7F02E68C1A');            /* 80 bits */
@@ -85,23 +85,28 @@ function css(){ if(document.getElementById('spz-code-css')) return; var st=docum
   '.spz-code .l{ font:800 20px/1 var(--body,Inter,sans-serif); letter-spacing:.12em; text-transform:uppercase; color:var(--muted,#9AA3B8); }'+
   '.spz-code .v{ font:800 46px/1 ui-monospace,Menlo,Consolas,monospace; letter-spacing:.05em; color:var(--text,#fff); -webkit-user-select:all; user-select:all; }'+
   '.spz-code .n{ flex-basis:100%; text-align:center; font:600 20px/1.3 var(--body,Inter,sans-serif); color:var(--muted,#9AA3B8); }'+
-  '.spz-code a{ font:800 22px/1 var(--body,Inter,sans-serif); color:var(--paper,#0E1016); background:var(--accent,#FFB020); padding:12px 20px; border-radius:12px; text-decoration:none; }';
+  '.spz-code a,a.spz-send{ font:800 22px/1 var(--body,Inter,sans-serif); color:var(--paper,#0E1016); background:var(--accent,#FFB020); padding:12px 20px; border-radius:12px; text-decoration:none; } a.spz-send{ display:inline-block; margin-top:6px; }';
   document.head.appendChild(st); }
-function formLink(name,code){ if(!FORM.url||!FORM.name||!FORM.code) return '';
+function prefilled(){ return !!(FORM.url&&FORM.name&&FORM.code); }
+function formLink(name,code){ if(!FORM.url) return ''; if(!prefilled()) return FORM.url;
   return FORM.url+(FORM.url.indexOf('?')<0?'?':'&')+'usp=pp_url&'+FORM.name+'='+encodeURIComponent(name)+'&'+FORM.code+'='+encodeURIComponent(code); }
+function button(link,code){ return '<a href="'+link+'" target="_blank" rel="noopener" data-spz-code="'+code+'">'+(prefilled()?'Send my score':'Copy code &amp; open form')+'</a>'; }
+/* copy the code as the form opens, so the student can paste it */
+document.addEventListener('click',function(e){ var a=e.target.closest&&e.target.closest('[data-spz-code]'); if(!a) return; var c=a.getAttribute('data-spz-code');
+  try{ navigator.clipboard.writeText(c).then(function(){ a.textContent='Code copied ✓'; },function(){}); }catch(err){} },true);
 function show(PFX,gameId,S){ try{
   var code=make(gameId,S), link=formLink(S.name,code), old=document.getElementById(PFX+'-endcode');
   var lb=document.getElementById(PFX+'-lbopen'); if(lb) lb.style.display='none';     /* the old in-game board can't read the new codes */
   css();
   if(old){ old.textContent=code; old.classList.add('spz-v'); var box=old.parentNode;
-    if(link&&!box.querySelector('.spz-send')) box.insertAdjacentHTML('beforeend','<a class="spz-send" href="'+link+'" target="_blank" rel="noopener">Send my score</a>');
+    if(link&&!box.querySelector('.spz-send')) box.insertAdjacentHTML('beforeend',button(link,code).replace('<a ','<a class="spz-send" '));
     return code; }
   var end=document.getElementById(PFX+'-end'); if(!end) return code;
   var el=end.querySelector('.spz-code');
   if(!el){ el=document.createElement('div'); el.className='spz-code'; var again=document.getElementById(PFX+'-again');
     if(again&&again.parentNode) again.parentNode.insertBefore(el,again); else (end.firstElementChild||end).appendChild(el); }
-  el.innerHTML='<span class="l">Score code</span><span class="v">'+code+'</span>'+(link?'<a href="'+link+'" target="_blank" rel="noopener">Send my score</a>':'')+
-    '<span class="n">'+(link?'Tap Send my score, or type':'Type')+' your name and this code into the class Google Form.</span>';
+  el.innerHTML='<span class="l">Score code</span><span class="v">'+code+'</span>'+(link?button(link,code):'')+
+    '<span class="n">'+(!link?'Type your name and this code into the class Google Form.':prefilled()?'Tap Send my score, then Submit on the form.':'Tap the button, then paste the code into the form with your name.')+'</span>';
   return code; }catch(e){ return ''; } }
 
 window.SpitzCode={ GAMES:GAMES, SET_NAMES:SET_NAMES, TOPIC_NAMES:TOPIC_NAMES, make:make, read:read, show:show, normName:normName, today:today, FORM:FORM };
