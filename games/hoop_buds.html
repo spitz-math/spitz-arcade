@@ -280,6 +280,7 @@ if(/[?&]set=(?!mult\b)[a-z]/.test(location.search)) document.documentElement.cla
   <div class="hb-toast" id="hb-toast" hidden></div>
 </div>
 
+<script src="scorecode.js"></script>
 <script src="questions.js"></script>
 <script>
 (function(){
@@ -685,7 +686,7 @@ $('hb-nameinput').addEventListener('keydown',function(e){ if(e.key==='Enter'&&th
 $('hb-go').addEventListener('click',function(){ var n=$('hb-nameinput').value.trim(); if(!n) return; ac(); S.name=n; S.started=true; $('hb-start').hidden=true;
   $('hb-nameinput').blur(); setPlay(); startHuddle(); save(); hud(); });
 function endRun(){ S.over=true; clearTimeout(nextT); clearTimeout(lockT); save(); hud(); showEnd(true); }
-function showEnd(celebrate){ $('hb-endname').textContent=S.name; $('hb-endscore').textContent=S.buds+' – '+S.rivals;
+function showEnd(celebrate){ if(window.SpitzCode) setTimeout(function(){ window.SpitzCode.show('hb','hoop_buds',S); },0); $('hb-endname').textContent=S.name; $('hb-endscore').textContent=S.buds+' – '+S.rivals;
   $('hb-endres').textContent=S.buds>S.rivals?'Buds win!':S.buds<S.rivals?'Rivals win':'Tie game';
   var acc=S.answered?Math.round(100*S.correct/S.answered):0;
   $('hb-endstats').innerHTML=[['Correct',S.correct+' of '+S.answered],['Accuracy',acc+'%'],['Best streak',S.best],['Perfect huddles',S.perfect+' of '+S.huddles]].map(function(a){ return '<div class="hb-stat"><div class="l">'+a[0]+'</div><div class="v">'+a[1]+'</div></div>'; }).join('');
