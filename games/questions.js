@@ -367,7 +367,7 @@ function makeShift(PFX){
   var topicBag=[], lastType='';
   return { build:build }; }
 
-/* Functions, Integers and Squares & roots were written for the arcade (tools/sets/func.js, int.js, sq.js), not taken from a game. */
+/* Functions, Integers and Squares & roots and Graphing were written for the arcade (tools/sets/func.js, int.js, sq.js, plot.js), not taken from a game. */
 function makeFunc(PFX){
   /* ================= QUESTION GENERATOR: is the relation a function? =================
      Ordered pairs, tables, mapping diagrams and graphs. Every picture is a 380×380 SVG with the game's
@@ -592,6 +592,118 @@ function makeSq(PFX){
       q.visual=''; delete q.check; return q; } throw new Error('generator failed: '+type); }
   return { build:build }; }
 
+function makePlot(PFX,withB){
+  /* ================= QUESTION GENERATOR: graphing slope-intercept lines =================
+     withB false: y = mx (through the origin). withB true: y = mx + b with b ≠ 0.
+     Pick the line that matches the equation, read the equation off a graph, plot it (start point and rise/run move),
+     and points on the line. Graphs use the same 380×380 -graph box as the slope set, so they fit every game. */
+  var MINUS='−';
+  function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ var t=a%b; a=b; b=t; } return a; }
+  function R(n,d){ if(d<0){ n=-n; d=-d; } var g=gcd(n,d)||1; return {n:n/g,d:d/g}; }
+  function ri(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
+  function nz(a,b){ var v; do{ v=ri(a,b); }while(v===0); return v; }
+  function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+  function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  function num(n){ return n<0? MINUS+(-n) : ''+n; }
+  function frac(n,d){ return '<span class="'+PFX+'-fr"><span>'+n+'</span><span>'+d+'</span></span>'; }
+  function fmtR(r){ if(r.d===1) return num(r.n); return (r.n<0?MINUS:'')+frac(Math.abs(r.n),r.d); }
+  function coef(r,v){ if(r.d===1&&r.n===1) return v; if(r.d===1&&r.n===-1) return MINUS+v; return fmtR(r)+v; }
+  function sgnR(r){ return r.n>0? ' + '+fmtR(r) : r.n<0? ' '+MINUS+' '+fmtR(R(-r.n,r.d)) : ''; }
+  function pt(x,y){ return '('+num(x)+', '+num(y)+')'; }
+  function rEq(a,b){ return a.n*b.d===b.n*a.d; }
+  function C(html,val,why){ return {html:html,val:val,why:why||'',key:html}; }
+  function eq(h){ return '<span class="'+PFX+'-eq">'+h+'</span>'; }
+  function yeq(m,b){ return 'y = '+coef(m,'x')+sgnR(b||R(0,1)); }
+  function M(r){ return '<span class="c-m">'+fmtR(r)+'</span>'; }
+  function B(v){ return '<span class="c-b">'+v+'</span>'; }
+  function lc(s){ return s.charAt(0).toLowerCase()+s.slice(1); }
+  var FONT=' font-family="Inter,sans-serif" font-weight="800"';
+  var SLOPES=[2,-2,3,-3,4,-4].map(function(n){ return R(n,1); }).concat(
+    [[1,2],[-1,2],[1,3],[-1,3],[2,3],[-2,3],[3,2],[-3,2],[3,4],[-3,4]].map(function(a){ return R(a[0],a[1]); }));
+  function move(r){ return (r.n>0?'Up ':'Down ')+Math.abs(r.n)+', right '+r.d; }
+  function newB(){ return withB? nz(-4,4) : 0; }
+  var START=withB? 'the y-intercept' : '(0, 0)';
+
+  /* grid −6..6. Each line {m,b,col,label}; a label sits on its line near the right edge of what is visible. */
+  var COLS=['#FF4B4B','#3DE0FF','#FFF04D','#FF8BD8'];
+  /* labels: for each line, the visible spot farthest from the other lines and labels (so a label never sits on a crossing) */
+  function dist(L,p){ var k=L.m.n/L.m.d; return Math.abs(k*p[0]-p[1]+L.b)/Math.sqrt(k*k+1); }
+  function place(lines){ var spots=[];
+    lines.forEach(function(L){ var k=L.m.n/L.m.d, best=null, bs=-1;
+      for(var x=-4.6;x<=4.61;x+=0.1){ var p=[x,k*x+L.b]; if(Math.abs(p[1])>4.6) continue;
+        var sc=Math.min.apply(null,lines.filter(function(o){ return o!==L; }).map(function(o){ return dist(o,p); }).concat(spots.map(function(q){ return Math.hypot(q[0]-p[0],q[1]-p[1])/1.6; })).concat([9]));
+        if(sc>bs){ bs=sc; best=p; } }
+      spots.push(best); L.at=best; L.room=bs; }); }
+  function gSVG(lines,dots){ var S=380, u=S/12, X=function(x){ return ((x+6)*u).toFixed(1); }, Y=function(y){ return ((6-y)*u).toFixed(1); }, h='';
+    for(var i=-6;i<=6;i++){ h+='<line x1="'+X(i)+'" y1="0" x2="'+X(i)+'" y2="'+S+'" stroke="#2A3142" stroke-width="2"/><line x1="0" y1="'+Y(i)+'" x2="'+S+'" y2="'+Y(i)+'" stroke="#2A3142" stroke-width="2"/>'; }
+    h+='<line x1="0" y1="'+Y(0)+'" x2="'+S+'" y2="'+Y(0)+'" stroke="#C9D1E0" stroke-width="3"/><line x1="'+X(0)+'" y1="0" x2="'+X(0)+'" y2="'+S+'" stroke="#C9D1E0" stroke-width="3"/>';
+    [-4,-2,2,4].forEach(function(n){ h+='<text x="'+X(n)+'" y="'+(+Y(0)+24)+'" text-anchor="middle" font-size="20" fill="#9BA5B8"'+FONT+'>'+num(n)+'</text>'+
+      '<text x="'+(+X(0)-8)+'" y="'+(+Y(n)+7)+'" text-anchor="end" font-size="20" fill="#9BA5B8"'+FONT+'>'+num(n)+'</text>'; });
+    lines.forEach(function(L){ var k=L.m.n/L.m.d;
+      h+='<line x1="'+X(-7)+'" y1="'+Y(-7*k+L.b)+'" x2="'+X(7)+'" y2="'+Y(7*k+L.b)+'" stroke="'+L.col+'" stroke-width="5" stroke-linecap="round"/>'; });
+    lines.forEach(function(L){ if(!L.label) return; var p=L.at;
+      h+='<circle cx="'+X(p[0])+'" cy="'+Y(p[1])+'" r="17" fill="#0E1016" stroke="'+L.col+'" stroke-width="4"/><text x="'+X(p[0])+'" y="'+(+Y(p[1])+8)+'" text-anchor="middle" font-size="22" fill="'+L.col+'"'+FONT+'>'+L.label+'</text>'; });
+    (dots||[]).forEach(function(p){ h+='<circle cx="'+X(p[0])+'" cy="'+Y(p[1])+'" r="9" fill="#FFF04D" stroke="#0E1016" stroke-width="3"/>'; });
+    return '<svg class="'+PFX+'-graph" width="'+S+'" height="'+S+'" viewBox="0 0 '+S+' '+S+'" role="img" aria-label="Graph of lines">'+h+'</svg>'; }
+  /* every label must be visible and clear of the others */
+  function roomy(lines){ place(lines); return lines.every(function(L){ return L.at&&L.room>=0.8; }); }
+  function same(a,b){ return rEq(a.m,b.m)&&a.b===b.b; }
+
+  var GEN={
+  plotMatch:function(){ var m=pick(SLOPES), b=newB(), ok={m:m,b:b}, set=[ok,{m:R(-m.n,m.d),b:b},{m:R(m.d,m.n),b:b}];
+    set.push(withB? {m:m,b:-b} : {m:R(m.n+(m.n>0?1:-1)*m.d,m.d),b:0});
+    if(set.some(function(s,i){ return set.some(function(t,j){ return j<i&&same(s,t); }); })) return null;
+    var order=shuffle([0,1,2,3]), L='ABCD', lines=[], idx=[];
+    order.forEach(function(k,pos){ lines.push({m:set[k].m,b:set[k].b,col:COLS[pos],label:L[pos]}); idx[k]=pos; });
+    if(!roomy(lines)) return null;
+    var how='Start at '+(withB?pt(0,b):'(0, 0)')+' and go '+lc(move(m))+'.';
+    var why={1:'That line goes the other way.', 2:'That line has rise and run flipped.', 3: withB? 'That line crosses the y-axis at '+num(-b)+'.' : 'Check the steepness.'};
+    return { topic:'Pick the line', prompt:'Which line is '+eq(yeq(m,R(b,1)))+'?', visual:gSVG(lines), data:{m:m,b:b}, keepOrder:true,
+      check:function(v){ var s=lines[v.i]; return s.m.n*m.d===m.n*s.m.d && s.b===b; },                /* the labeled line has slope m and crosses at b */
+      choices:[0,1,2,3].map(function(k){ return C('Line '+L[idx[k]],{i:idx[k]},k?why[k]:''); }),
+      explain:how+' That’s <span class="c-ans">Line '+L[idx[0]]+'</span>.' }; },
+  plotEq:function(){ var m=pick(SLOPES), b=newB(); if(Math.abs(b+m.n)>5) return null;
+    var c4= withB? (m.d===1&&Math.abs(m.n)!==Math.abs(b)? C(yeq(R(b,1),m),{m:R(b,1),b:m},'Swapped: the slope goes with x.') : C(yeq(m,R(-b,1)),{m:m,b:R(-b,1)},'Check where it crosses the y-axis.'))
+                 : C('y = x + '+(m.d===1?Math.abs(m.n):frac(Math.abs(m.n),m.d)),{m:R(1,1),b:R(Math.abs(m.n),m.d)},'It goes through (0, 0), so b = 0.');
+    return { topic:'Write the equation', prompt:'Which equation matches the line?', visual:gSVG([{m:m,b:b,col:COLS[0]}],[[0,b],[m.d,b+m.n]]), data:{m:m,b:b},
+      check:function(v){ return rEq(v.m,R((b+m.n)-b,m.d)) && rEq(v.b,R(b,1)); },                     /* slope between the dots, and where it crosses x = 0 */
+      choices:[ C(yeq(m,R(b,1)),{m:m,b:R(b,1)}), C(yeq(R(-m.n,m.d),R(b,1)),{m:R(-m.n,m.d),b:R(b,1)},m.n>0?'Uphill means a positive slope.':'Downhill means a negative slope.'),
+        C(yeq(R(m.d,m.n),R(b,1)),{m:R(m.d,m.n),b:R(b,1)},'That is run over rise.'), c4 ],
+      explain:(withB?'b = '+B(num(b))+', ':'')+'slope = '+M(m)+' ('+lc(move(m))+').' }; },
+  plotSteps:function(){ var m=pick(SLOPES), b=newB(); if(Math.abs(m.n)===m.d) return null;
+    var E=eq(yeq(m,R(b,1)));
+    if(withB&&Math.random()<0.4){                                                                   /* where does the graph start? */
+      return { topic:'Plot it', prompt:'To graph '+E+', which point do you plot first?', data:{m:m,b:b},
+        check:function(v){ return v.x===0 && v.y===b; },                                               /* the y-intercept: x = 0 */
+        choices:[ C(pt(0,b),{x:0,y:b}), C(pt(b,0),{x:b,y:0},'That point is on the x-axis.'),
+          C(pt(0,-b),{x:0,y:-b},'Keep b’s sign: b = '+num(b)+'.'), C(pt(m.d,m.n),{x:m.d,y:m.n},'That comes from the slope. Plot b first.') ],
+        explain:'Start at b: <span class="c-ans">'+pt(0,b)+'</span>.' }; }
+    function mv(r,u,why){ return C((r>0?'Up ':'Down ')+Math.abs(r)+', right '+u,{rise:r,run:u},why); }
+    return { topic:'Plot it', prompt:'Graph '+E+'. Start at '+(withB?pt(0,b):'(0, 0)')+'. Which move gets to the next point?', data:{m:m,b:b},
+      check:function(v){ return v.rise*m.d===m.n*v.run; },                                            /* rise/run equals m */
+      choices:[ mv(m.n,m.d), mv(-m.n,m.d,'Check the sign.'),
+        mv(m.n>0?m.d:-m.d,Math.abs(m.n),'Rise is the top, run is the bottom.'), mv(m.n>0?-m.d:m.d,Math.abs(m.n),'Rise over run, with the sign.') ],
+      explain:'Rise over run: '+lc(move(m))+', to <span class="c-ans">'+pt(m.d,b+m.n)+'</span>.' }; },
+  plotPoint:function(){ var m=pick(SLOPES), b=newB(), k=pick([1,1,2,-1]), x=m.d*k, y=m.n*k+b; if(Math.abs(y)>12||(withB&&y===m.n*k)) return null;
+    return { topic:'Points on the line', prompt:'Which point is on '+eq(yeq(m,R(b,1)))+'?', data:{m:m,b:b},
+      check:function(v){ return (v.y-b)*m.d===m.n*v.x; },                                             /* y − b = mx, cross-multiplied */
+      choices:[ C(pt(x,y),{x:x,y:y}), C(pt(y,x),{x:y,y:x},'x and y are swapped.'),
+        withB? C(pt(x,m.n*k),{x:x,y:m.n*k},'Don’t forget b.') : C(pt(x,-y),{x:x,y:-y},'Check the slope’s sign.'),
+        withB? C(pt(x,m.n*k-b),{x:x,y:m.n*k-b},'Check b’s sign.') : C(pt(0,m.n),{x:0,y:m.n},'At x = 0, y is 0.') ],
+      explain:'y = '+fmtR(m)+' · '+(x<0?'('+num(x)+')':num(x))+(withB?(b>0?' + '+b:' '+MINUS+' '+(-b)):'')+' = '+num(y)+': <span class="c-ans">'+pt(x,y)+'</span>.' }; }
+  };
+  function build(type){ for(var tries=0;tries<500;tries++){ var q=GEN[type](); if(!q) continue;
+      if(new Set(q.choices.map(function(c){ return c.key; })).size!==4) continue;
+      if(!q.check(q.choices[0].val)) continue;                                                  // the answer must pass the independent check
+      if(q.choices.slice(1).some(function(c){ return q.check(c.val); })) continue;              // and no distractor may pass it
+      q.type=type; q.choices.forEach(function(c,i){ c.ok=i===0; });
+      if(q.keepOrder) q.choices.sort(function(a,b){ return a.val.i-b.val.i; });                // Line A, B, C, D
+      else for(var i=3;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=q.choices[i]; q.choices[i]=q.choices[j]; q.choices[j]=t; }
+      delete q.keepOrder; q.visual=q.visual||''; delete q.check; return q; } throw new Error('generator failed: '+type); }
+  return { build:build }; }
+function makePlot0(PFX){ return makePlot(PFX,false); }
+function makePlotB(PFX){ return makePlot(PFX,true); }
+
 var SETS={
   mult:{ name:'Multiplication facts', make:makeMult, big:true, topics:[['f03','Facts 0–3',['Facts 0–3'],1],['f46','Facts 4–6',['Facts 4–6'],2],['f79','Facts 7–9',['Facts 7–9'],3],['f1012','Facts 10–12',['Facts 10–12'],2]] },
   slope:{ name:'Slope-intercept form', make:makeLinear, topics:[['write','Write the equation',['siBuild']],['slope','Find the slope',['siSlope']],['yint','Find the y-intercept',['siYInt']],['graph','Read a graph',['graphSlope','graphYInt','graphXInt']]] },
@@ -600,7 +712,9 @@ var SETS={
   shift:{ name:'Linear transformations', make:makeShift, topics:[['vs','Vertical shifts',['vDescribe','vWrite','newYInt']],['hs','Horizontal shifts',['hDescribe','hWrite']],['gr','Graphs',['graphEq','graphHow','graphH']],['ne','New equations',['eqV','eqH','eqCompare','slopeStays']]] },
   func:{ name:'Functions', make:makeFunc, topics:[['points','Ordered pairs',['fnPoints']],['table','Tables',['fnTable']],['map','Mapping diagrams',['fnMap']],['graph','Graphs',['fnGraph']]] },
   int:{ name:'Integers', make:makeInt, big:true, topics:[['add','Adding',['intAdd']],['sub','Subtracting',['intSub']],['mult','Multiplying',['intMul']]] },
-  sq:{ name:'Squares & roots', make:makeSq, big:true, topics:[['square','Squaring',['sqSquare']],['root','Square roots',['sqRoot']],['neg','Negatives',['sqNeg']],['est','Estimating roots',['sqEst']]] }
+  sq:{ name:'Squares & roots', make:makeSq, big:true, topics:[['square','Squaring',['sqSquare']],['root','Square roots',['sqRoot']],['neg','Negatives',['sqNeg']],['est','Estimating roots',['sqEst']]] },
+  plot0:{ name:'Graphing y = mx', make:makePlot0, topics:[['match','Pick the line',['plotMatch']],['eq','Write the equation',['plotEq']],['plot','Plot it',['plotSteps']],['point','Points on the line',['plotPoint']]] },
+  plot:{ name:'Graphing y = mx + b', make:makePlotB, topics:[['match','Pick the line',['plotMatch']],['eq','Write the equation',['plotEq']],['plot','Plot it',['plotSteps']],['point','Points on the line',['plotPoint']]] }
 };
 
 function plain(h){ return String(h).replace(/<span class="[a-z]+-fr"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g,'$1/$2').replace(/<[^>]+>/g,''); }
