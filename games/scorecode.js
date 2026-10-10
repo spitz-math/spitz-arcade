@@ -2,7 +2,8 @@
    Every game shows one code on its end screen. The code holds the game, the question set and topics,
    the run length, the day, the score and correct/answered, sealed with a check that includes the
    student's name, so a code only checks out next to the name it was earned under.
-   The leaderboard page (../leaderboard.html) reads codes with SpitzCode.read(code, name).
+   The teacher page (../teacher.html) reads codes with SpitzCode.read(code, name) and posts the checked top 10s
+   to the student leaderboard (../leaderboard.html). Games never open a leaderboard themselves.
 
    Adding a game: give it the next unused id in GAMES, load this file on the page, and call
    SpitzCode.show(prefix, 'game_id', S) at the end of the end-screen function.
@@ -91,12 +92,13 @@ function prefilled(){ return !!(FORM.url&&FORM.name&&FORM.code); }
 function formLink(name,code){ if(!FORM.url) return ''; if(!prefilled()) return FORM.url;
   return FORM.url+(FORM.url.indexOf('?')<0?'?':'&')+'usp=pp_url&'+FORM.name+'='+encodeURIComponent(name)+'&'+FORM.code+'='+encodeURIComponent(code); }
 function button(link,code){ return '<a href="'+link+'" target="_blank" rel="noopener" data-spz-code="'+code+'">'+(prefilled()?'Send my score':'Copy code &amp; open form')+'</a>'; }
+/* the leaderboard lives on the site, not in the games: hide any old in-game leaderboard button (Star Swarm's #sw-lbopen) */
+(function(){ var st=document.createElement('style'); st.textContent='[id$="-lbopen"]{ display:none !important; }'; (document.head||document.documentElement).appendChild(st); })();
 /* copy the code as the form opens, so the student can paste it */
 document.addEventListener('click',function(e){ var a=e.target.closest&&e.target.closest('[data-spz-code]'); if(!a) return; var c=a.getAttribute('data-spz-code');
   try{ navigator.clipboard.writeText(c).then(function(){ a.textContent='Code copied ✓'; },function(){}); }catch(err){} },true);
 function show(PFX,gameId,S){ try{
   var code=make(gameId,S), link=formLink(S.name,code), old=document.getElementById(PFX+'-endcode');
-  var lb=document.getElementById(PFX+'-lbopen'); if(lb) lb.style.display='none';     /* the old in-game board can't read the new codes */
   css();
   if(old){ old.textContent=code; old.classList.add('spz-v'); var box=old.parentNode;
     if(link&&!box.querySelector('.spz-send')) box.insertAdjacentHTML('beforeend',button(link,code).replace('<a ','<a class="spz-send" '));
