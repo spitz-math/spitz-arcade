@@ -75,5 +75,13 @@ window.SpitzGames=[
    '<path d="M84 86L104 66L118 52" stroke="#FBF4EE" stroke-width="2" stroke-dasharray="3 5" opacity=".45" fill="none"/>'+
    '<circle cx="122" cy="48" r="9" fill="#FBF4EE" opacity=".15"/><circle cx="122" cy="48" r="5" fill="#FBF4EE"/>'+
    '<g fill="#FFC83D"><path d="M134 40l2 4 4 1-4 1-2 4-2-4-4-1 4-1z"/></g>'+
-   '<rect x="56" y="96" width="56" height="7" rx="3.5" fill="#FF7A3D"/><rect x="62" y="97" width="44" height="2" rx="1" fill="#FFC8A8" opacity=".8"/><ellipse cx="84" cy="104" rx="34" ry="4" fill="#FF7A3D" opacity=".25"/>'}
+   '<rect x="56" y="96" width="56" height="7" rx="3.5" fill="#FF7A3D"/><rect x="62" y="97" width="44" height="2" rx="1" fill="#FFC8A8" opacity=".8"/><ellipse cx="84" cy="104" rx="34" ry="4" fill="#FF7A3D" opacity=".25"/>'},
+  {id:'mini_golf',name:'Mini Golf',d:'Sink the putt',font:"'Fredoka'",paper:'#07120E',panel:'#0F1F19',acc:'#5CF2B0',
+   art:'<rect width="200" height="110" fill="#0F1F19"/>'+
+   '<path d="M14 92V40q0-18 18-18h70q14 0 14 14v8q0 10 10 10h46q14 0 14 14v14q0 10-10 10z" fill="#2E8B57" stroke="#EADBB6" stroke-width="5" stroke-linejoin="round"/>'+
+   '<path d="M30 80V44q0-8 8-8h58" stroke="#3FA36A" stroke-width="10" fill="none" opacity=".5" stroke-linecap="round"/>'+
+   '<ellipse cx="164" cy="72" rx="7" ry="4.5" fill="#07120E"/><path d="M164 72V40" stroke="#F2FBF6" stroke-width="2.5"/><path d="M164 40l18 6-18 6z" fill="#FF8466"/>'+
+   '<path d="M50 70Q100 30 156 70" stroke="#F2FBF6" stroke-width="2" stroke-dasharray="3 6" fill="none" opacity=".6"/>'+
+   '<circle cx="46" cy="72" r="6" fill="#F2FBF6"/><circle cx="44" cy="70" r="1.2" fill="#C9D9D0"/><circle cx="48" cy="73" r="1.2" fill="#C9D9D0"/>'+
+   '<rect x="20" y="98" width="70" height="6" rx="3" fill="#173027"/><rect x="20" y="98" width="58" height="6" rx="3" fill="#5CF2B0"/>'}
 ];
