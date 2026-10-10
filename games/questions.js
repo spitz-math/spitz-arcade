@@ -367,12 +367,190 @@ function makeShift(PFX){
   var topicBag=[], lastType='';
   return { build:build }; }
 
+/* Functions and Integers were written for the arcade (tools/sets/func.js and int.js), not taken from a game. */
+function makeFunc(PFX){
+  /* ================= QUESTION GENERATOR: is the relation a function? =================
+     Ordered pairs, tables, mapping diagrams and graphs. Every picture is a 380×380 SVG with the game's
+     -graph class, the same box the slope graphs use, so it fits each game's question panel. */
+  var MINUS='−';
+  function ri(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
+  function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+  function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  function num(n){ return n<0? MINUS+(-n) : ''+n; }
+  function pt(x,y){ return '('+num(x)+', '+num(y)+')'; }
+  function C(html,val,why){ return {html:html,val:val,why:why||'',key:html}; }
+  var FONT=' font-family="Inter,sans-serif" font-weight="800"';
+  function svg(h,label){ return '<svg class="'+PFX+'-graph" width="380" height="380" viewBox="0 0 380 380" role="img" aria-label="'+label+'">'+h+'</svg>'; }
+
+  /* a relation: n pairs. A function has n different x's (half the time two of them share a y, the classic trap).
+     A non-function repeats one x with two different y's. */
+  function relation(isFn,n,lim){ lim=lim||9; var xs=shuffle(range(-lim,lim)).slice(0,isFn?n:n-1), P=[];
+    xs.forEach(function(x){ P.push([x,ri(-lim,lim)]); });
+    if(!isFn){ var y2; do{ y2=ri(-lim,lim); }while(y2===P[0][1]); P.push([xs[0],y2]); }
+    if(Math.random()<0.5){ var a=isFn?0:1, b=isFn?1:2; P[b][1]=P[a][1]; }        /* a repeated y (never on the doubled x) */
+    return shuffle(P); }
+  function range(a,b){ var r=[]; for(var i=a;i<=b;i++) r.push(i); return r; }
+  function ysOf(P,x){ var s={}; P.forEach(function(p){ if(p[0]===x) s[p[1]]=1; }); return Object.keys(s).map(Number); }
+  function dupX(P){ for(var i=0;i<P.length;i++) if(ysOf(P,P[i][0]).length>1) return P[i][0]; return null; }
+  function dupY(P){ for(var i=0;i<P.length;i++) for(var j=i+1;j<P.length;j++) if(P[i][1]===P[j][1]&&P[i][0]!==P[j][0]) return P[i][1]; return null; }
+
+  /* answers stay short (one line on the narrowest answer button, and short enough for bonus-wave targets): "Yes, it is", or the value that breaks it.
+     "No, y = …" is the classic trap: a repeated y never breaks a function. */
+  var YES='Yes, it is', ASK=' If not, what breaks it?';
+  function noX(x,why){ return C('No, x = '+num(x),{x:x},why); }
+  function noY(y,why){ return C('No, y = '+num(y),{y:y},why); }
+  var W_Y='A y can repeat. Look for an x with two y’s.';
+  function relQ(P,prompt,visual){ var d=dupX(P), r=dupY(P), xs=[]; P.forEach(function(p){ if(xs.indexOf(p[0])<0&&p[0]!==d) xs.push(p[0]); }); shuffle(xs);
+    function one(x){ return 'x = '+num(x)+' has only one y.'; }
+    var ch= d===null? [ C(YES,{fn:1}), noX(xs[0],one(xs[0])), noX(xs[1],one(xs[1])), r!==null? noY(r,W_Y) : noX(xs[2],one(xs[2])) ]
+                    : [ noX(d), C(YES,{fn:1},'x = '+num(d)+' has two y’s.'), noX(xs[0],one(xs[0])), r!==null? noY(r,W_Y) : noX(xs[1],one(xs[1])) ];
+    return { topic:'Functions', prompt:prompt, visual:visual||'', data:{P:P}, choices:ch,
+      check:function(v){ if(v.fn) return P.every(function(p){ return ysOf(P,p[0]).length===1; });     /* recount every x */
+        if(v.x!==undefined) return ysOf(P,v.x).length>1; return false; },                               /* a repeated y never decides it */
+      explain: d===null? 'Every x has one y, so it <b>is</b> a function.'+(r!==null?' A repeated y is fine.':'')
+        : 'x = <span class="c-ans">'+num(d)+'</span> goes to '+num(ysOf(P,d)[0])+' and '+num(ysOf(P,d)[1])+', so it is <b>not</b> a function.' }; }
+
+  function tableSVG(P){ var n=P.length, h=380/(n+1), s='<rect x="0" y="0" width="380" height="'+h+'" fill="#232838"/>';
+    s+='<text x="95" y="'+(h/2+12)+'" text-anchor="middle" font-size="34" fill="#C9D1E0"'+FONT+'>x</text><text x="285" y="'+(h/2+12)+'" text-anchor="middle" font-size="34" fill="#C9D1E0"'+FONT+'>y</text>';
+    P.forEach(function(p,i){ var yy=(i+1)*h+h/2+11;
+      s+='<text x="95" y="'+yy+'" text-anchor="middle" font-size="32" fill="#F2F4F8"'+FONT+'>'+num(p[0])+'</text><text x="285" y="'+yy+'" text-anchor="middle" font-size="32" fill="#F2F4F8"'+FONT+'>'+num(p[1])+'</text>'; });
+    for(var i=1;i<=n;i++) s+='<line x1="0" y1="'+(i*h)+'" x2="380" y2="'+(i*h)+'" stroke="#343B4D" stroke-width="2"/>';
+    s+='<line x1="190" y1="0" x2="190" y2="380" stroke="#343B4D" stroke-width="3"/>';
+    return svg(s,'Table of x and y values'); }
+
+  function mapSVG(P){ var X=[], Y=[]; P.forEach(function(p){ if(X.indexOf(p[0])<0) X.push(p[0]); if(Y.indexOf(p[1])<0) Y.push(p[1]); });
+    X.sort(function(a,b){ return a-b; }); Y.sort(function(a,b){ return a-b; });
+    function at(list,i){ return 212+(i-(list.length-1)/2)*64; }
+    var s='<defs><marker id="'+PFX+'-mh" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10z" fill="#FFF04D"/></marker></defs>';
+    s+='<ellipse cx="80" cy="212" rx="62" ry="158" fill="#1C2130" stroke="#C9D1E0" stroke-width="3"/><ellipse cx="300" cy="212" rx="62" ry="158" fill="#1C2130" stroke="#C9D1E0" stroke-width="3"/>';
+    s+='<text x="80" y="38" text-anchor="middle" font-size="30" fill="#C9D1E0"'+FONT+'>x</text><text x="300" y="38" text-anchor="middle" font-size="30" fill="#C9D1E0"'+FONT+'>y</text>';
+    P.forEach(function(p){ var y1=at(X,X.indexOf(p[0])), y2=at(Y,Y.indexOf(p[1]));
+      s+='<line x1="116" y1="'+y1+'" x2="262" y2="'+y2+'" stroke="#FFF04D" stroke-width="4" marker-end="url(#'+PFX+'-mh)"/>'; });
+    X.forEach(function(x,i){ s+='<text x="80" y="'+(at(X,i)+11)+'" text-anchor="middle" font-size="32" fill="#F2F4F8"'+FONT+'>'+num(x)+'</text>'; });
+    Y.forEach(function(y,i){ s+='<text x="300" y="'+(at(Y,i)+11)+'" text-anchor="middle" font-size="32" fill="#F2F4F8"'+FONT+'>'+num(y)+'</text>'; });
+    return svg(s,'Mapping diagram from x to y'); }
+
+  /* graphs: window −6..6 like the slope graphs. A shape is its sampled points (drawn as a path, or as dots),
+     plus a vertical line x = bad that hits it twice (non-functions), x-values whose vertical line does not,
+     and a horizontal line y = flat that hits it twice when there is one (the horizontal-line trap). */
+  function curve(f,t0,t1,step){ var a=[]; for(var t=t0*10;t<=t1*10;t+=step*10) a.push(f(t/10)); return a; }
+  function ints(f){ return range(-5,5).filter(f); }
+  var SHAPES={
+    line:function(){ var m=pick([2,-2,1,-1,3,-3,0.5,-0.5]), b=ri(-3,3); return {path:curve(function(x){ return [x,m*x+b]; },-7,7,0.5),good:ints(function(){ return true; })}; },
+    flat:function(){ var c=ri(-4,4); return {path:curve(function(x){ return [x,c]; },-7,7,0.5),good:ints(function(){ return true; })}; },
+    para:function(){ var a=pick([1,-1,0.5,-0.5]), h=ri(-2,2), k=a>0?ri(-5,0):ri(0,5); return {path:curve(function(x){ return [x,a*(x-h)*(x-h)+k]; },-7,7,0.1),good:ints(function(){ return true; }),flat:k+a*4}; },
+    abs:function(){ var a=pick([1,-1]), h=ri(-2,2), k=a>0?ri(-5,0):ri(0,5); return {path:curve(function(x){ return [x,a*Math.abs(x-h)+k]; },-7,7,0.1),good:ints(function(){ return true; }),flat:k+a*3}; },
+    dots:function(){ var P=relation(true,5,5); return {dots:P,good:P.map(function(p){ return p[0]; }),flat:dupY(P)}; },
+    vert:function(){ var c=ri(-4,4); return {path:curve(function(y){ return [c,y]; },-7,7,0.5),bad:c,good:ints(function(x){ return x!==c; })}; },
+    side:function(){ var a=pick([1,-1,0.5,-0.5]), k=ri(-2,2), h=a>0?ri(-5,0):ri(0,5); return {path:curve(function(y){ return [a*(y-k)*(y-k)+h,y]; },-7,7,0.1),bad:h+a*4,good:ints(function(x){ return a>0?x<h:x>h; })}; },
+    sideAbs:function(){ var a=pick([1,-1]), k=ri(-2,2), h=a>0?ri(-5,0):ri(0,5); return {path:curve(function(y){ return [a*Math.abs(y-k)+h,y]; },-7,7,0.1),bad:h+a*2,good:ints(function(x){ return a>0?x<h:x>h; })}; },
+    circle:function(){ var r=ri(2,3), h=ri(-5+r,5-r), k=ri(-5+r,5-r), a=[]; for(var i=0;i<=120;i++){ var t=i*Math.PI/60; a.push([h+r*Math.cos(t),k+r*Math.sin(t)]); }
+      return {path:a,bad:h+pick([-1,0,1]),good:ints(function(x){ return Math.abs(x-h)>r; }),flat:k}; },
+    dotsNo:function(){ var P=relation(false,5,5), d=dupX(P); return {dots:P,bad:d,good:P.map(function(p){ return p[0]; }).filter(function(x){ return x!==d; }),flat:dupY(P)}; }
+  };
+  function gSVG(sh){ var S=380, u=S/12, X=function(x){ return ((x+6)*u).toFixed(1); }, Y=function(y){ return ((6-y)*u).toFixed(1); }, h='';
+    for(var i=-6;i<=6;i++){ h+='<line x1="'+X(i)+'" y1="0" x2="'+X(i)+'" y2="'+S+'" stroke="#2A3142" stroke-width="2"/><line x1="0" y1="'+Y(i)+'" x2="'+S+'" y2="'+Y(i)+'" stroke="#2A3142" stroke-width="2"/>'; }
+    h+='<line x1="0" y1="'+Y(0)+'" x2="'+S+'" y2="'+Y(0)+'" stroke="#C9D1E0" stroke-width="3"/><line x1="'+X(0)+'" y1="0" x2="'+X(0)+'" y2="'+S+'" stroke="#C9D1E0" stroke-width="3"/>';
+    [-4,-2,2,4].forEach(function(n){ h+='<text x="'+X(n)+'" y="'+(+Y(0)+24)+'" text-anchor="middle" font-size="20" fill="#9BA5B8"'+FONT+'>'+num(n)+'</text>'+
+      '<text x="'+(+X(0)-8)+'" y="'+(+Y(n)+7)+'" text-anchor="end" font-size="20" fill="#9BA5B8"'+FONT+'>'+num(n)+'</text>'; });
+    h+='<text x="'+(S-8)+'" y="'+(+Y(0)-10)+'" text-anchor="end" font-size="22" fill="#C9D1E0"'+FONT+'>x</text><text x="'+(+X(0)+10)+'" y="22" font-size="22" fill="#C9D1E0"'+FONT+'>y</text>';
+    if(sh.path) h+='<path d="M'+sh.path.map(function(p){ return X(p[0])+' '+Y(p[1]); }).join('L')+'" fill="none" stroke="#FF4B4B" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>';
+    (sh.dots||[]).forEach(function(p){ h+='<circle cx="'+X(p[0])+'" cy="'+Y(p[1])+'" r="10" fill="#FFF04D" stroke="#0E1016" stroke-width="3"/>'; });
+    return '<svg class="'+PFX+'-graph" width="'+S+'" height="'+S+'" viewBox="0 0 '+S+' '+S+'" role="img" aria-label="Graph">'+h+'</svg>'; }
+  /* the checks read only what is drawn inside the window. vlt: does any x carry two different y's?
+     hits(a): how many times the vertical line x = a meets the drawing (a segment lying on it counts as many). */
+  function inWin(sh){ return (sh.path||sh.dots).filter(function(p){ return Math.abs(p[0])<=6&&Math.abs(p[1])<=6; }); }
+  function vlt(sh){ var seen={}, pts=inWin(sh);
+    for(var i=0;i<pts.length;i++){ var k=pts[i][0].toFixed(5), y=pts[i][1]; if(seen[k]!==undefined&&Math.abs(seen[k]-y)>0.05) return false; if(seen[k]===undefined) seen[k]=y; }
+    return true; }
+  function hits(sh,a){ var pts=inWin(sh), n=0;
+    if(sh.dots) return pts.filter(function(p){ return p[0]===a; }).length;
+    for(var i=0;i<pts.length;i++){ var d=pts[i][0]-a; if(Math.abs(d)<1e-9) n++; else if(i+1<pts.length){ var e=pts[i+1][0]-a; if(Math.abs(e)>=1e-9&&d*e<0) n++; } }
+    return n; }
+
+  function graphQ(fn){ var sh=SHAPES[pick(fn?['line','flat','para','para','abs','abs','dots']:['vert','side','side','sideAbs','circle','circle','dotsNo'])](), g=shuffle(sh.good.slice());
+    var W_G=function(x){ return 'The vertical line x = '+num(x)+' doesn’t hit it twice.'; }, W_F='That’s a horizontal line. Test with vertical lines.';
+    var trap= sh.flat!==undefined&&sh.flat!==null&&Math.abs(sh.flat)<=5? noY(sh.flat,W_F) : null, ch;
+    if(fn) ch=[ C(YES,{fn:1}), noX(g[0],W_G(g[0])), noX(g[1],W_G(g[1])), trap||noX(g[2],W_G(g[2])) ];
+    else { if(!g.length||Math.abs(sh.bad)>5) return null;
+      ch=[ noX(sh.bad), C(YES,{fn:1},'Some vertical line hits it twice.'), noX(g[0],W_G(g[0])), trap||(g[1]!==undefined?noX(g[1],W_G(g[1])):null) ]; if(!ch[3]) return null; }
+    return { topic:'Functions', prompt:'Is the graph a function?'+ASK, visual:gSVG(sh), data:{sh:sh}, choices:ch,
+      check:function(v){ if(v.fn) return vlt(sh); if(v.x!==undefined) return hits(sh,v.x)>1; return false; },
+      explain: fn? 'No vertical line hits it twice, so it <b>is</b> a function.' : 'The vertical line x = <span class="c-ans">'+num(sh.bad)+'</span> hits it twice, so it is <b>not</b> a function.' }; }
+
+  var GEN={
+  fnPoints:function(){ var P=relation(Math.random()<0.5,ri(4,5));
+    return relQ(P,'Is it a function?'+ASK+' <span class="c-pt">{'+P.map(function(p){ return pt(p[0],p[1]); }).join(', ')+'}</span>'); },
+  fnTable:function(){ var P=relation(Math.random()<0.5,ri(4,5)); return relQ(P,'Is the table a function?'+ASK,tableSVG(P)); },
+  fnMap:function(){ var P=relation(Math.random()<0.5,4); return relQ(P,'Is the mapping a function?'+ASK,mapSVG(P)); },
+  fnGraph:function(){ return graphQ(Math.random()<0.5); }
+  };
+  function build(type){ for(var tries=0;tries<300;tries++){ var q=GEN[type](); if(!q) continue;
+      var keys=q.choices.map(function(c){ return c.key; }); if(new Set(keys).size!==4) continue;
+      if(!q.check(q.choices[0].val)) continue;                                                  // the answer must pass the independent check
+      if(q.choices.slice(1).some(function(c){ return q.check(c.val); })) continue;              // and no distractor may pass it
+      q.type=type; q.choices.forEach(function(c,i){ c.ok=i===0; });
+      for(var i=3;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=q.choices[i]; q.choices[i]=q.choices[j]; q.choices[j]=t; }
+      q.visual=q.visual||''; delete q.check; return q; } throw new Error('generator failed: '+type); }
+  return { build:build }; }
+
+function makeInt(PFX){
+  /* ================= QUESTION GENERATOR: integers =================
+     Adding and subtracting integers from 1 to 100 (either sign), and multiplying signed facts to 12.
+     Prompts sit in a span that is at most 80px tall, so "−100 − (−100) = ?" fits the facts games' one-line prompt. */
+  var MINUS='−';
+  function ri(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
+  function num(n){ return n<0? MINUS+(-n) : ''+n; }
+  function par(n){ return n<0? '('+num(n)+')' : ''+n; }
+  function C(html,val,why){ return {html:html,val:val,why:why||'',key:html}; }
+  function eq(h){ return '<span class="'+PFX+'-eq" style="font-size:clamp(56px,1em,80px);white-space:nowrap">'+h+'</span>'; }
+  function eqS(h){ return '<span class="'+PFX+'-eq">'+h+'</span>'; }
+  function signed(lo,hi){ var v=ri(lo,hi); return Math.random()<0.5? -v : v; }
+  /* at least one negative most of the time: that is the skill */
+  function pair(lo,hi){ var a=signed(lo,hi), b=signed(lo,hi); if(a>0&&b>0&&Math.random()<0.8){ if(Math.random()<0.5) a=-a; else b=-b; } return [a,b]; }
+  function choices(ans,cands){ var ch=[C(num(ans),ans)], seen={}; seen[ans]=1;
+    cands.forEach(function(c){ if(ch.length<4&&!seen[c[0]]&&Math.abs(c[0])<=200){ seen[c[0]]=1; ch.push(C(num(c[0]),c[0],c[1])); } }); return ch; }
+  /* the rule, ending on the answer: "Different signs: 82 − 47 = 35, keep the sign of −82: −35." */
+  function addRule(a,b){ var A=Math.abs(a), B=Math.abs(b), s='<span class="c-ans">'+num(a+b)+'</span>.';
+    if((a<0)===(b<0)) return 'Same signs: add '+A+' + '+B+' = '+(A+B)+' and keep the sign: '+s;
+    return 'Different signs: '+Math.max(A,B)+' − '+Math.min(A,B)+' = '+Math.abs(a+b)+', keep the sign of '+num(A>B?a:b)+': '+s; }
+  var GEN={
+  intAdd:function(){ var p=pair(1,100), a=p[0], b=p[1], s=a+b, A=Math.abs(a), B=Math.abs(b), big=A>B?a:b; if(A===B) return null;
+    var same=(a<0)===(b<0), wrongWay=same? (a<0?-1:1)*Math.abs(A-B) : (big<0?-1:1)*(A+B);
+    return { topic:'Adding integers', prompt:eq(num(a)+' + '+par(b)+' = ?'), data:{a:a,b:b},
+      check:function(v){ return v-b===a; },                                                       /* undo the addition */
+      choices:choices(s,[[-s,'Check the sign.'],[wrongWay,same?'Same signs: add the sizes.':'Different signs: subtract the sizes.'],
+        [a-b,'This problem adds, not subtracts.'],[s+10,'Check your regrouping.'],[s-10,'Check your regrouping.']]),
+      explain:addRule(a,b) }; },
+  intSub:function(){ var p=pair(1,100), a=p[0], b=p[1], d=a-b; if(Math.abs(a)===Math.abs(b)) return null;
+    return { topic:'Subtracting integers', prompt:eq(num(a)+' − '+par(b)+' = ?'), data:{a:a,b:b},
+      check:function(v){ return v+b===a; },                                                       /* undo the subtraction */
+      choices:choices(d,[[a+b,'Subtracting means adding the opposite.'],[-d,'Check the sign.'],[b-a,'The order matters: '+num(a)+' comes first.'],
+        [d+10,'Check your regrouping.'],[d-10,'Check your regrouping.']]),
+      explain:'Add the opposite: '+eqS(num(a)+' − '+par(b)+' = '+num(a)+' + '+par(-b)+' = <span class="c-ans">'+num(d)+'</span>')+'.' }; },
+  intMul:function(){ var p=pair(2,12), a=p[0], b=p[1], m=a*b, A=Math.abs(a), B=Math.abs(b), sg=m<0?-1:1;
+    var rule=(a<0)===(b<0)? 'Same signs give a positive.' : 'Different signs give a negative.';
+    return { topic:'Multiplying integers', prompt:eq(num(a)+' × '+par(b)+' = ?'), data:{a:a,b:b},
+      check:function(v){ var t=0; for(var i=0;i<A;i++) t+=b; return v===(a<0?-t:t); },          /* repeated addition, separate from a*b */
+      choices:choices(m,[[-m,'Check the sign. '+rule],[sg*(A+1)*B,'Check the fact: '+A+' × '+B+' = '+(A*B)+'.'],[sg*A*(B+1),'Check the fact: '+A+' × '+B+' = '+(A*B)+'.'],
+        [-sg*(A+1)*B,'Check the fact and the sign.'],[a+b,'You added. This problem multiplies.']]),
+      explain:rule+' '+A+' × '+B+' = '+(A*B)+', so '+eqS(num(a)+' × '+par(b)+' = <span class="c-ans">'+num(m)+'</span>')+'.' }; }
+  };
+  function build(type){ for(var tries=0;tries<400;tries++){ var q=GEN[type](); if(!q||q.choices.length!==4) continue;
+      if(!q.check(q.choices[0].val)) continue;                                                  // the answer must pass the independent check
+      if(q.choices.slice(1).some(function(c){ return q.check(c.val); })) continue;              // and no distractor may pass it
+      q.type=type; q.choices.forEach(function(c,i){ c.ok=i===0; }); q.choices.sort(function(x,y){ return x.val-y.val; });   // smallest to largest, quick to scan
+      q.visual=''; delete q.check; return q; } throw new Error('generator failed: '+type); }
+  return { build:build }; }
+
 var SETS={
-  mult:{ name:'Multiplication facts', make:makeMult, topics:[['f03','Facts 0–3',['Facts 0–3'],1],['f46','Facts 4–6',['Facts 4–6'],2],['f79','Facts 7–9',['Facts 7–9'],3],['f1012','Facts 10–12',['Facts 10–12'],2]] },
+  mult:{ name:'Multiplication facts', make:makeMult, big:true, topics:[['f03','Facts 0–3',['Facts 0–3'],1],['f46','Facts 4–6',['Facts 4–6'],2],['f79','Facts 7–9',['Facts 7–9'],3],['f1012','Facts 10–12',['Facts 10–12'],2]] },
   slope:{ name:'Slope-intercept form', make:makeLinear, topics:[['write','Write the equation',['siBuild']],['slope','Find the slope',['siSlope']],['yint','Find the y-intercept',['siYInt']],['graph','Read a graph',['graphSlope','graphYInt','graphXInt']]] },
   point:{ name:'Point-slope form', make:makeLinear, topics:[['write','Write the equation',['psWrite']],['point','Find the point',['psPoint']],['slope','Find the slope',['psSlope']]] },
   hoy:{ name:'HOY & VUX', make:makeLinear, topics:[['describe','Describe the line',['hvType']],['graph','Match the graph',['hvGraph']],['slope','Find the slope',['slopeHV']]] },
-  shift:{ name:'Linear transformations', make:makeShift, topics:[['vs','Vertical shifts',['vDescribe','vWrite','newYInt']],['hs','Horizontal shifts',['hDescribe','hWrite']],['gr','Graphs',['graphEq','graphHow','graphH']],['ne','New equations',['eqV','eqH','eqCompare','slopeStays']]] }
+  shift:{ name:'Linear transformations', make:makeShift, topics:[['vs','Vertical shifts',['vDescribe','vWrite','newYInt']],['hs','Horizontal shifts',['hDescribe','hWrite']],['gr','Graphs',['graphEq','graphHow','graphH']],['ne','New equations',['eqV','eqH','eqCompare','slopeStays']]] },
+  func:{ name:'Functions', make:makeFunc, topics:[['points','Ordered pairs',['fnPoints']],['table','Tables',['fnTable']],['map','Mapping diagrams',['fnMap']],['graph','Graphs',['fnGraph']]] },
+  int:{ name:'Integers', make:makeInt, big:true, topics:[['add','Adding',['intAdd']],['sub','Subtracting',['intSub']],['mult','Multiplying',['intMul']]] }
 };
 
 function plain(h){ return String(h).replace(/<span class="[a-z]+-fr"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g,'$1/$2').replace(/<[^>]+>/g,''); }
@@ -383,8 +561,8 @@ function forGame(PFX){
   var qs=params(), id=qs.set; if(!SETS[id]) return null;
   var set=SETS[id], want=(qs.topics||'').split(','), picked=set.topics.filter(function(t){ return want.indexOf(t[0])>=0; });
   if(!picked.length) picked=set.topics;
-  /* sentence-length prompts: the facts games set their prompt at 104px on one line, so give it room to wrap */
-  if(id!=='mult'){ try{ var st=document.createElement('style'); st.textContent='.'+PFX+'-prompt{ font:700 36px/1.3 var(--body) !important; height:auto !important; min-height:96px; white-space:normal !important; overflow:visible !important; text-align:left !important; }'; document.head.appendChild(st); }catch(e){} }
+  /* sentence-length prompts: the facts games set their prompt at 104px on one line, so give it room to wrap (big sets keep the one-line prompt) */
+  if(!set.big){ try{ var st=document.createElement('style'); st.textContent='.'+PFX+'-prompt{ font:700 36px/1.3 var(--body) !important; height:auto !important; min-height:96px; white-space:normal !important; overflow:visible !important; text-align:left !important; }'; document.head.appendChild(st); }catch(e){} }
   var Q=set.make(PFX), bag=[]; picked.forEach(function(t){ for(var i=0;i<(t[3]||1);i++) bag.push(t); });
   var topicBag=[], lastType='', lastFact='';
   function next(){ var q; for(var n=0;n<20;n++){ if(!topicBag.length) topicBag=bag.slice().sort(function(){ return Math.random()-0.5; });
@@ -394,7 +572,12 @@ function forGame(PFX){
       var k=Math.min(q.data.a,q.data.b)+'x'+Math.max(q.data.a,q.data.b); if(k!==lastFact){ lastFact=k; return q; } }
     return q; }
   /* bonus waves print the answers on small targets: no pictures, short labels */
-  function short(max){ var q; for(var n=0;n<60;n++){ q=next(); if(!q.visual&&q.choices.every(function(c){ return plain(c.html).length<=max; })) return q; } return q; }
+  function fits(q,max){ return !q.visual&&q.choices.every(function(c){ return plain(c.html).length<=max; }); }
+  function short(max){ var q; for(var n=0;n<60;n++){ q=next(); if(fits(q,max)) return q; }
+    /* the picked topics are all pictures (a graphs-only link): borrow a picture-free question from the same set */
+    var all=[]; set.topics.forEach(function(t){ all=all.concat(t[2]); });
+    for(n=0;n<60;n++){ var b=Q.build(all[Math.floor(Math.random()*all.length)]); if(fits(b,max)){ b.topic=picked[0][1]; return b; } }
+    return q; }
   return { set:id, name:set.name, custom:true, suffix:'_'+id+'_'+picked.map(function(t){ return t[0]; }).join('-'),
     topicTable:function(){ var o={}; picked.forEach(function(t){ o[t[1]]=[0,0]; }); return o; },
     next:next, short:short };

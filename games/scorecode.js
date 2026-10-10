@@ -27,12 +27,14 @@ var GAMES={                     /* id: [number in the code, display name, how it
   brick_breaker:[11,'Brick Breaker','points'],
   burger_shop:[12,'Burger Shop','points']
 };
-/* question sets in the order questions.js lists them; 0 means the game's own questions */
-var SETS=[null,'mult','slope','point','hoy','shift'];
-var SET_NAMES={ mult:'Multiplication facts', slope:'Slope-intercept form', point:'Point-slope form', hoy:'HOY & VUX', shift:'Linear transformations' };
-var SET_TOPICS={ mult:['f03','f46','f79','f1012'], slope:['write','slope','yint','graph'], point:['write','point','slope'], hoy:['describe','graph','slope'], shift:['vs','hs','gr','ne'] };
+/* question sets in the order questions.js lists them; 0 means the game's own questions.
+   The code has 3 bits for the set, so 7 sets fill it: an 8th set needs a new code layout with a wider set field. */
+var SETS=[null,'mult','slope','point','hoy','shift','func','int'];
+var SET_NAMES={ mult:'Multiplication facts', slope:'Slope-intercept form', point:'Point-slope form', hoy:'HOY & VUX', shift:'Linear transformations', func:'Functions', int:'Integers' };
+var SET_TOPICS={ mult:['f03','f46','f79','f1012'], slope:['write','slope','yint','graph'], point:['write','point','slope'], hoy:['describe','graph','slope'], shift:['vs','hs','gr','ne'], func:['points','table','map','graph'], int:['add','sub','mult'] };
 var TOPIC_NAMES={ mult:['Facts 0–3','Facts 4–6','Facts 7–9','Facts 10–12'], slope:['Write the equation','Find the slope','Find the y-intercept','Read a graph'],
-  point:['Write the equation','Find the point','Find the slope'], hoy:['Describe the line','Match the graph','Find the slope'], shift:['Vertical shifts','Horizontal shifts','Graphs','New equations'] };
+  point:['Write the equation','Find the point','Find the slope'], hoy:['Describe the line','Match the graph','Find the slope'], shift:['Vertical shifts','Horizontal shifts','Graphs','New equations'],
+  func:['Ordered pairs','Tables','Mapping diagrams','Graphs'], int:['Adding','Subtracting','Multiplying'] };
 
 /* Google Form for score submissions. With only url, the button copies the code and opens the form.
    Add the entry.NNNN ids of the Name and Score code questions (from a pre-filled link) to fill both in for the student. */
@@ -63,16 +65,20 @@ function linkSet(){ var q={}; try{ (location.search||'').replace(/^\?/,'').split
   if(m===(1<<all.length)-1) m=0;                                     /* every topic = 0, same as none picked */
   return {set:set,topics:m}; }
 
+/* ver 1–3 hold the same thing; make() moves to the next one when a code happens to spell something rude */
+var RUDE=/FUCK|FUK|FCK|CUNT|SHT|ASS|FAG|CUM|DCK|DICK|PUSS|PNS|PENS|TWAT|SLUT|WHR|NGA|NGR|NAZ|KKK|RAPE|SEX|SXY|XXX|TTS|TTY|CLT|DYKE|GAY|HTLR|PUTA|CRAP|DAMN|HELL|BUTT|PEE|POOP/;
 function make(gameId,S){ var g=GAMES[gameId]; if(!g) throw new Error('Unknown game '+gameId); var L=linkSet(), score;
   if(g[2]==='versus') score=(clamp(S.buds,10)<<10)|clamp(S.rivals,10); else if(g[2]==='strokes') score=S.strokes; else score=S.score;
-  return encode({ ver:1, game:g[0], set:L.set, topics:L.topics, len:S.len||0, day:today(), score:score, correct:S.correct, answered:S.answered }, S.name); }
+  var f={ game:g[0], set:L.set, topics:L.topics, len:S.len||0, day:today(), score:score, correct:S.correct, answered:S.answered }, code;
+  for(f.ver=1;f.ver<=3;f.ver++){ code=encode(f,S.name); if(!RUDE.test(code.replace(/-/g,''))) break; }
+  return code; }
 
 /* -> null if the code is malformed or does not belong to this name, else what the code holds */
 function read(code,name){ var c=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,''); if(c.length!==16) return null;
   var full=0n; for(var i=0;i<16;i++){ var v=ALPH.indexOf(c[i]); if(v<0) return null; full=(full<<5n)|BigInt(v); }
   full^=MASK; var chk=full&0xFFFFn, P=(full>>16n)^stream(chk); if(check(P,name)!==chk) return null;
   var f=unpack(P), id=null; Object.keys(GAMES).forEach(function(k){ if(GAMES[k][0]===f.game) id=k; });
-  if(f.ver!==1||!id||f.set>5||f.correct>f.answered) return null;
+  if(f.ver<1||!id||f.set>=SETS.length||f.correct>f.answered) return null;
   var g=GAMES[id], set=SETS[f.set], r={ code:c.slice(0,4)+'-'+c.slice(4,8)+'-'+c.slice(8,12)+'-'+c.slice(12), game:id, gameName:g[1], kind:g[2],
     set:set||'', setName:set?SET_NAMES[set]:'Game’s own questions', topics:[], len:f.len, correct:f.correct, answered:f.answered };
   if(set){ var names=TOPIC_NAMES[set]; r.topics=f.topics? names.filter(function(n,i){ return f.topics&(1<<i); }) : names.slice(); r.allTopics=!f.topics; }
