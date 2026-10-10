@@ -165,12 +165,10 @@ $('sets').addEventListener('change',function(e){ var el=e.target;
   save(); render(); });
 render();
 
-/* Suggestion box: Kody's Google Form. Paste its pre-filled link (with "Bug" picked) as SUGGEST_LINK; the buttons swap Bug for Game idea. Empty = section hidden. */
-var SUGGEST_LINK='';
-(function(){ if(!SUGGEST_LINK) return; var base=SUGGEST_LINK.split('?')[0], q=(SUGGEST_LINK.split('?')[1]||'').split('&'), typeKey='';
-  q.forEach(function(kv){ var p=kv.split('='); if(/^entry\.\d+$/.test(p[0])&&/^bug$/i.test(decodeURIComponent((p[1]||'').replace(/\+/g,' ')))) typeKey=p[0]; });
-  function link(v){ return typeKey?base+'?usp=pp_url&'+typeKey+'='+encodeURIComponent(v):base; }
-  $('idea-bug').href=link('Bug'); $('idea-game').href=link('Game idea'); $('ideas').hidden=false; })();
+/* Suggestion box: Kody's Google Form. "Report a bug" picks Bug Report; "Suggest a game" fills "New game" for which game. */
+var SUGGEST={ url:'https://docs.google.com/forms/d/e/1FAIpQLSfJp4VJRFwsSnooAHdo0IaZJ6xIkwfvS65QXhhmjwP0glgwQQ/viewform', bug:'entry.93708501=Bug+Report', idea:'entry.634051978=New+game' };
+(function(){ if(!SUGGEST.url) return;
+  $('idea-bug').href=SUGGEST.url+'?usp=pp_url&'+SUGGEST.bug; $('idea-game').href=SUGGEST.url+'?usp=pp_url&'+SUGGEST.idea; $('ideas').hidden=false; })();
 </script>
 </body>
 </html>
