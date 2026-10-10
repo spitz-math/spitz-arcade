@@ -187,20 +187,23 @@ body{ background:linear-gradient(180deg,#0D1A3A 0%,#16306A 60%,#1E4A8E 100%); }
 /* ================= v3 LAYOUT + COLORS ================= */
 
 :root{ --sz-mark:#FF8A00; }
-#stage{ grid-template-columns:236px minmax(0,1fr); grid-template-rows:minmax(0,1fr); column-gap:20px; }
-.jm-top{ grid-area:1/1; flex-direction:column; align-items:stretch; justify-content:flex-start; gap:16px; white-space:normal; }
-.jm-brand{ margin:0 0 10px; align-items:flex-start; } .jm-logo{ font-size:44px; line-height:1.05; } .jm-logo i{ display:block; color:#FF8A00; }
+#stage{ grid-template-columns:auto repeat(5,minmax(0,1fr)); grid-template-rows:72px minmax(0,1fr) auto; column-gap:16px; row-gap:14px; }
+.jm-top{ display:contents; }
+.jm-brand{ grid-area:1/2/2/6; align-self:center; margin:0; align-items:flex-start; } .jm-logo{ font-size:50px; line-height:1; } .jm-logo i{ color:#FF8A00; }
 .jm-sp{ display:none; }
-.jm-chip{ height:auto; min-width:0; padding:12px 16px; }
-.jm-chip .v{ font-size:36px; }
-.jm-timer .v{ font-size:48px; color:var(--accent); }
-.jm-shopbtn{ margin-top:auto; height:84px; }
-#jm-main{ grid-area:1/2; grid-template-columns:876px minmax(0,1fr); gap:24px; }
+/* the status bar under the question: five pixel chips in a row */
+.jm-chip{ grid-row:3; height:auto; min-width:0; padding:8px 8px 6px; gap:2px; align-items:center; text-align:center; }
+.jm-chip .l{ font-size:16px; } .jm-chip .v{ font-size:30px; }
+html.sz-alg .jm-q{ padding-top:14px; padding-bottom:14px; gap:8px; } html.sz-alg .jm-choices{ gap:8px; } html.sz-alg .jm-graph{ width:270px; height:270px; }
+.jm-timer .v{ color:var(--accent); }
+.jm-shopbtn{ grid-area:1/6; align-self:center; height:64px; margin:0; }
+#jm-main{ display:contents; }
+.jm-range{ grid-area:1/1/4/2; }
 .jm-graph{ width:300px; height:300px; }
-.jm-range{ box-sizing:content-box; width:1054px; height:936px; border-width:6px; flex:none; transform:scale(0.82); transform-origin:0 0;
-  margin:0 -191.9px -170.6px 0; align-self:center; justify-self:center; }
+.jm-range{ box-sizing:content-box; width:1054px; height:936px; border-width:6px; flex:none; transform:scale(1.0992); transform-origin:0 0;
+  margin:0 105.7px 94.0px 0; align-self:center; justify-self:center; }
 
-.jm-q{ align-self:center; height:100%; }
+.jm-q{ grid-area:2/2/3/7; min-height:0; }
 /* start screen: a cartridge label, then a level-select list */
 .jm-big i{ color:#FF8A00; }
 #jm-start .jm-box{ width:1100px; }

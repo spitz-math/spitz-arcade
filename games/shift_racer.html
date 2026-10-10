@@ -180,22 +180,24 @@ body{ background:#0B0B0D; }
 
 /* ================= v3 LAYOUT + COLORS ================= */
 
-#stage{ grid-template-columns:minmax(0,1fr) 196px; grid-template-rows:minmax(0,1fr); column-gap:20px; }
-.rc-top{ grid-area:1/2; flex-direction:column; align-items:stretch; gap:14px; white-space:normal; }
-.rc-brand{ margin:0 0 6px; align-items:flex-start; } .rc-logo{ font-size:44px; line-height:1; } .rc-logo i{ display:block; margin-left:0; }
+#stage{ grid-template-columns:repeat(5,minmax(0,1fr)) auto; grid-template-rows:84px auto minmax(0,1fr); column-gap:14px; row-gap:14px; }
+.rc-top{ display:contents; }
+.rc-brand{ grid-area:1/1/2/5; align-self:center; margin:0; align-items:flex-start; } .rc-logo{ font-size:52px; line-height:1; } .rc-logo i{ margin-left:.2em; }
 .rc-sp{ display:none; }
-.rc-brand .sz-credit{ font-size:13px !important; letter-spacing:.1em !important; gap:6px; } .rc-brand .sz-credit::before{ width:14px; }
-.rc-chip{ transform:none; border-radius:50% 50% 16px 16px / 40% 40% 16px 16px; border-left:0; border-bottom:6px solid var(--red); height:auto; min-width:0; padding:18px 10px 12px; align-items:center; text-align:center; }
+/* a row of dashboard gauges under the logo */
+.rc-chip{ grid-row:2; transform:none; border-radius:50% 50% 16px 16px / 40% 40% 16px 16px; border-left:0; border-bottom:6px solid var(--red); height:auto; min-width:0; padding:12px 6px 8px; align-items:center; text-align:center; }
 .rc-chip > *{ transform:none; }
-.rc-chip .v{ font-size:44px; }
+.rc-chip .l{ font-size:17px; } .rc-chip .v{ font-size:34px; }
 #rc-streakchip{ border-bottom-color:var(--accent); } #rc-fuelchip.empty{ border-bottom-color:var(--no); }
-.rc-shopbtn{ transform:none; margin-top:auto; height:84px; }
-#rc-main{ grid-area:1/1; grid-template-columns:724px minmax(0,1fr); gap:20px; }
-.rc-q{ order:-1; }
-.rc-range{ box-sizing:content-box; width:1054px; height:936px; border-width:0px; flex:none; transform:scale(0.892); transform-origin:0 0;
-  margin:0 -113.8px -101.1px 0; align-self:center; justify-self:center; }
+.rc-shopbtn{ grid-area:1/5; align-self:center; transform:none; margin:0; height:72px; }
+#rc-main{ display:contents; }
+.rc-q{ grid-area:3/1/4/6; min-height:0; }
+.rc-range{ grid-area:1/6/4/7; }
+.rc-range{ box-sizing:content-box; width:1054px; height:936px; border-width:0px; flex:none; transform:scale(1.1132); transform-origin:0 0;
+  margin:0 119.3px 106.0px 0; align-self:center; justify-self:center; }
 
-.rc-graph{ width:330px; height:330px; }
+.rc-graph{ width:290px; height:290px; }
+.rc-q{ gap:10px; } .rc-fb{ font-size:24px; min-height:0; } .rc-next{ height:64px; flex:none; }
 #rc-start .rc-box{ width:1560px; text-align:left; }
 #rc-start .sz-eyebrow{ margin-left:4px; }
 #rc-start .rc-big{ font-size:170px; }
