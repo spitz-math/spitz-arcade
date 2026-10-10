@@ -207,9 +207,13 @@ button:disabled{ cursor:default; }
 #sw-start .sw-step b{ margin:0; }
 #sw-start .sw-row{ justify-content:flex-start; } #sw-start .sw-keys{ text-align:left; }
 #sw-start .sz-eyebrow::after{ content:none; }
+/* challenge waves: the banner starts under the HUD bar and stays compact so 2-3 line prompts clear the answer pods */
+.sw-wave{ top:92px; padding:10px 18px; }
+.sw-wave .wk{ font-size:22px; } .sw-wave .wp{ font-size:30px; line-height:1.2; margin-top:6px; } .sw-wave .wm{ font-size:24px; min-height:30px; margin-top:4px; }
 </style>
-<script>/* a hub link with an algebra set: answers can be long, so layouts that tile short answers fall back to a list */
-if(/[?&]set=(?!mult\b)[a-z]/.test(location.search)) document.documentElement.classList.add('sz-alg');</script>
+<script>/* a hub link with an algebra set (anything but mult and int): answers can be long, so layouts that tile short answers fall back to a list */
+if(/[?&]set=(?!(?:mult|int)\b)[a-z]/.test(location.search)) document.documentElement.classList.add('sz-alg');
+var szm=/[?&]set=([a-z]+)/.exec(location.search); if(szm) document.documentElement.classList.add('sz-set-'+szm[1]);</script>
 </head>
 <body>
 <div id="stage">
@@ -742,7 +746,7 @@ function update(dt){ stars.forEach(function(s){ s.y+=s.v*dt; if(s.y>H+4){ s.y=-4
   if(canAct()){ var dir=(keys.r?1:0)-(keys.l?1:0); if(dir){ ship.x=Math.max(44,Math.min(W-44,ship.x+dir*640*dt)); lastInput=gt; } }
   // the swarm
   var k=(buffOn('slow')?0.45:1)*(frenzy()?1.25:1), adt=dt*k; formT+=adt;
-  if(wave) wave.pods.forEach(function(p){ p.x=p.bx+Math.sin(formT*0.8)*34; p.y=410+Math.sin(formT*1.5+p.ph)*20; });
+  if(wave) wave.pods.forEach(function(p){ p.x=p.bx+Math.sin(formT*0.8)*34; p.y=460+Math.sin(formT*1.5+p.ph)*20; });
   aliens.forEach(function(a){ if(a.dead) return; a.t+=adt; var u, e;
     if(a.state==='in'){ if(a.t<0) return; u=Math.min(1,a.t/a.dur); e=u*u*(3-2*u); a.x=bz(a.sx,a.c1x,a.c2x,slotX(a),e); a.y=bz(a.sy,a.c1y,a.c2y,slotY(a),e); if(u>=1) a.state='form'; }
     else if(a.state==='form'){ a.x=slotX(a); a.y=slotY(a); }
@@ -784,7 +788,7 @@ function waveQuestion(){ if(QS&&QS.custom) return QS.short(12); var t=pick(WAVE_
   return { type:'hvPick', prompt:'Zap the <b>'+(hz?'HORIZONTAL':'VERTICAL')+'</b> line.', choices:ch }; }
 function startWave(){ openShop(false); var q=waveQuestion(); bombs=[];
   aliens.forEach(function(a){ if(!a.dead&&(a.state==='dive'||a.state==='back')){ a.state='form'; a.bomb=0; } });      // divers go home; the swarm waits off screen
-  wave={ q:q, endAt:now()+WAVE_SECS*1000, done:false, pods:q.choices.map(function(c,i){ return { label:plain(c.html), ok:!!c.ok, why:c.why||'', bx:W*(0.14+0.24*i), x:W*(0.14+0.24*i), y:410, r:66, tw:150, ph:i*1.3, out:false, reveal:false }; }) };
+  wave={ q:q, endAt:now()+WAVE_SECS*1000, done:false, pods:q.choices.map(function(c,i){ return { label:plain(c.html), ok:!!c.ok, why:c.why||'', bx:W*(0.14+0.24*i), x:W*(0.14+0.24*i), y:460, r:66, tw:150, ph:i*1.3, out:false, reveal:false }; }) };
   var w=$('sw-wave'); w.innerHTML='<div class="wk">CHALLENGE · zap the answer · free shots · <span id="sw-wsec">'+WAVE_SECS+'</span>s</div><div class="wp">'+q.prompt+'</div><div class="wm" id="sw-wmsg"></div>'; w.hidden=false;
   SND.wave(); hud(); }
 function waveMsg(t,cls){ var m=$('sw-wmsg'); if(m){ m.className='wm '+(cls||''); m.innerHTML=t; } }
@@ -952,7 +956,7 @@ window.__G={ state:function(){ return S; }, aliens:function(){ return aliens; },
 (function(){ var m=/[?&]set=([a-z]+)/.exec(location.search); if(m&&window.SpitzQ&&SpitzQ.sets&&SpitzQ.sets[m[1]]) document.querySelectorAll('.sz-setname').forEach(function(e){ e.textContent=SpitzQ.sets[m[1]].name+'.'; }); })();</script>
 <!-- ================= FULL SCREEN REMINDER: shows until the game is full screen; click it or press F ================= -->
 <style>
-.sz-fs{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:9999; display:flex; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:999px;
+.sz-fs{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); transform-origin:50% 100%; z-index:9999; display:flex; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:999px;
   border:2px solid rgba(255,255,255,.4); background:rgba(0,0,0,.78); color:#fff; font:700 18px/1 Inter,system-ui,sans-serif; cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,.4); transition:opacity .4s; }
 .sz-fs kbd{ display:inline-grid; place-items:center; min-width:34px; height:34px; border-radius:8px; background:#fff; color:#111; font:800 20px/1 Inter,system-ui,sans-serif; }
 .sz-fs.quiet{ opacity:.4; } .sz-fs:hover{ opacity:1; }
@@ -963,9 +967,11 @@ window.__G={ state:function(){ return S; }, aliens:function(){ return aliens; },
 (function(){ var b=document.getElementById('sz-fs'), t0=Date.now();
   function fs(){ return !!(document.fullscreenElement||document.webkitFullscreenElement); }
   function upd(){ b.hidden=fs(); var st=document.querySelector('[id$="-start"]'), onStart=!!(st&&!st.hidden&&st.offsetParent);
-    b.classList.toggle('quiet', !onStart && Date.now()-t0>8000); }
+    b.classList.toggle('quiet', !onStart && Date.now()-t0>8000);
+    /* sit at the same spot of the game screen at any window size: scale with the stage and follow its letterbox */
+    var sg=document.getElementById('stage'); if(sg){ var r=sg.getBoundingClientRect(), k=r.width/1920; if(k>0){ b.style.left=(r.left+r.width/2)+'px'; b.style.bottom=(window.innerHeight-r.bottom+16*k)+'px'; b.style.transform='translateX(-50%) scale('+k+')'; } } }
   b.addEventListener('click',function(){ document.dispatchEvent(new KeyboardEvent('keydown',{key:'f',bubbles:true})); setTimeout(upd,300); });
-  document.addEventListener('fullscreenchange',upd); document.addEventListener('webkitfullscreenchange',upd); setInterval(upd,1000); upd(); })();
+  window.addEventListener('resize',function(){ setTimeout(upd,50); }); document.addEventListener('fullscreenchange',upd); document.addEventListener('webkitfullscreenchange',upd); setInterval(upd,1000); upd(); })();
 </script>
 </body>
 </html>

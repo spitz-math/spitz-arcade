@@ -300,8 +300,9 @@ html.sz-alg .fb-fb{ min-height:96px; font-size:25px; padding:12px 18px; }
 html.sz-alg .fb-q{ gap:10px; }
 html.sz-alg .fb-next{ height:68px; }
 </style>
-<script>/* a hub link with an algebra set: answers can be long, so layouts that tile short answers fall back to a list */
-if(/[?&]set=(?!mult\b)[a-z]/.test(location.search)) document.documentElement.classList.add('sz-alg');</script>
+<script>/* a hub link with an algebra set (anything but mult and int): answers can be long, so layouts that tile short answers fall back to a list */
+if(/[?&]set=(?!(?:mult|int)\b)[a-z]/.test(location.search)) document.documentElement.classList.add('sz-alg');
+var szm=/[?&]set=([a-z]+)/.exec(location.search); if(szm) document.documentElement.classList.add('sz-set-'+szm[1]);</script>
 </head>
 <body>
 <div id="stage">
@@ -825,7 +826,7 @@ window.__G={ state:function(){ return S; }, play:function(){ return PL; }, isOpe
 (function(){ var m=/[?&]set=([a-z]+)/.exec(location.search); if(m&&window.SpitzQ&&SpitzQ.sets&&SpitzQ.sets[m[1]]) document.querySelectorAll('.sz-setname').forEach(function(e){ e.textContent=SpitzQ.sets[m[1]].name+'.'; }); })();</script>
 <!-- ================= FULL SCREEN REMINDER: shows until the game is full screen; click it or press F ================= -->
 <style>
-.sz-fs{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:9999; display:flex; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:999px;
+.sz-fs{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); transform-origin:50% 100%; z-index:9999; display:flex; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:999px;
   border:2px solid rgba(255,255,255,.4); background:rgba(0,0,0,.78); color:#fff; font:700 18px/1 Inter,system-ui,sans-serif; cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,.4); transition:opacity .4s; }
 .sz-fs kbd{ display:inline-grid; place-items:center; min-width:34px; height:34px; border-radius:8px; background:#fff; color:#111; font:800 20px/1 Inter,system-ui,sans-serif; }
 .sz-fs.quiet{ opacity:.4; } .sz-fs:hover{ opacity:1; }
@@ -836,9 +837,11 @@ window.__G={ state:function(){ return S; }, play:function(){ return PL; }, isOpe
 (function(){ var b=document.getElementById('sz-fs'), t0=Date.now();
   function fs(){ return !!(document.fullscreenElement||document.webkitFullscreenElement); }
   function upd(){ b.hidden=fs(); var st=document.querySelector('[id$="-start"]'), onStart=!!(st&&!st.hidden&&st.offsetParent);
-    b.classList.toggle('quiet', !onStart && Date.now()-t0>8000); }
+    b.classList.toggle('quiet', !onStart && Date.now()-t0>8000);
+    /* sit at the same spot of the game screen at any window size: scale with the stage and follow its letterbox */
+    var sg=document.getElementById('stage'); if(sg){ var r=sg.getBoundingClientRect(), k=r.width/1920; if(k>0){ b.style.left=(r.left+r.width/2)+'px'; b.style.bottom=(window.innerHeight-r.bottom+16*k)+'px'; b.style.transform='translateX(-50%) scale('+k+')'; } } }
   b.addEventListener('click',function(){ document.dispatchEvent(new KeyboardEvent('keydown',{key:'f',bubbles:true})); setTimeout(upd,300); });
-  document.addEventListener('fullscreenchange',upd); document.addEventListener('webkitfullscreenchange',upd); setInterval(upd,1000); upd(); })();
+  window.addEventListener('resize',function(){ setTimeout(upd,50); }); document.addEventListener('fullscreenchange',upd); document.addEventListener('webkitfullscreenchange',upd); setInterval(upd,1000); upd(); })();
 </script>
 </body>
 </html>

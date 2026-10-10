@@ -190,7 +190,7 @@ body{ background:#14110F; }
 
 #stage{ grid-template-rows:minmax(0,1fr) 92px; }
 .sr-top{ grid-row:2; padding:10px 22px; border-radius:60px; background:#211C19; box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 -6px 0 #2D2723; }
-.sr-chip{ height:70px; }
+.sr-chip{ height:70px; flex:none; width:134px; min-width:0; }   /* keeps the tray's middle clear for the full-screen hint */
 #sr-main{ grid-row:1; grid-template-columns:1054px minmax(0,1fr); gap:26px; }
 .sr-range{ box-sizing:content-box; width:1054px; height:936px; border-width:4px; flex:none; transform:scale(0.9767); transform-origin:0 0;
   margin:0 -24.7px -22.0px 0; align-self:center; justify-self:center; }
@@ -212,8 +212,9 @@ html:not(.sz-alg) .sr-q:not(.vis) .sr-ch{ font-size:42px; min-height:108px; }
 .sr-step{ border:0; border-radius:6px; box-shadow:0 14px 24px rgba(0,0,0,.4); position:relative; }
 #sr-start .sr-step:nth-child(1){ transform:rotate(-3deg); border-top:12px solid var(--pink); } #sr-start .sr-step:nth-child(2){ transform:rotate(1.5deg); border-top:12px solid var(--lime); } #sr-start .sr-step:nth-child(3){ transform:rotate(-1deg); border-top:12px solid var(--cyan); }
 </style>
-<script>/* a hub link with an algebra set: answers can be long, so layouts that tile short answers fall back to a list */
-if(/[?&]set=(?!mult\b)[a-z]/.test(location.search)) document.documentElement.classList.add('sz-alg');</script>
+<script>/* a hub link with an algebra set (anything but mult and int): answers can be long, so layouts that tile short answers fall back to a list */
+if(/[?&]set=(?!(?:mult|int)\b)[a-z]/.test(location.search)) document.documentElement.classList.add('sz-alg');
+var szm=/[?&]set=([a-z]+)/.exec(location.search); if(szm) document.documentElement.classList.add('sz-set-'+szm[1]);</script>
 </head>
 <body>
 <div id="stage">
@@ -840,7 +841,7 @@ window.__G={ state:function(){ return S; }, targets:function(){ return targets; 
 (function(){ var m=/[?&]set=([a-z]+)/.exec(location.search); if(m&&window.SpitzQ&&SpitzQ.sets&&SpitzQ.sets[m[1]]) document.querySelectorAll('.sz-setname').forEach(function(e){ e.textContent=SpitzQ.sets[m[1]].name+'.'; }); })();</script>
 <!-- ================= FULL SCREEN REMINDER: shows until the game is full screen; click it or press F ================= -->
 <style>
-.sz-fs{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:9999; display:flex; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:999px;
+.sz-fs{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); transform-origin:50% 100%; z-index:9999; display:flex; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:999px;
   border:2px solid rgba(255,255,255,.4); background:rgba(0,0,0,.78); color:#fff; font:700 18px/1 Inter,system-ui,sans-serif; cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,.4); transition:opacity .4s; }
 .sz-fs kbd{ display:inline-grid; place-items:center; min-width:34px; height:34px; border-radius:8px; background:#fff; color:#111; font:800 20px/1 Inter,system-ui,sans-serif; }
 .sz-fs.quiet{ opacity:.4; } .sz-fs:hover{ opacity:1; }
@@ -851,9 +852,11 @@ window.__G={ state:function(){ return S; }, targets:function(){ return targets; 
 (function(){ var b=document.getElementById('sz-fs'), t0=Date.now();
   function fs(){ return !!(document.fullscreenElement||document.webkitFullscreenElement); }
   function upd(){ b.hidden=fs(); var st=document.querySelector('[id$="-start"]'), onStart=!!(st&&!st.hidden&&st.offsetParent);
-    b.classList.toggle('quiet', !onStart && Date.now()-t0>8000); }
+    b.classList.toggle('quiet', !onStart && Date.now()-t0>8000);
+    /* sit at the same spot of the game screen at any window size: scale with the stage and follow its letterbox */
+    var sg=document.getElementById('stage'); if(sg){ var r=sg.getBoundingClientRect(), k=r.width/1920; if(k>0){ b.style.left=(r.left+r.width/2)+'px'; b.style.bottom=(window.innerHeight-r.bottom+16*k)+'px'; b.style.transform='translateX(-50%) scale('+k+')'; } } }
   b.addEventListener('click',function(){ document.dispatchEvent(new KeyboardEvent('keydown',{key:'f',bubbles:true})); setTimeout(upd,300); });
-  document.addEventListener('fullscreenchange',upd); document.addEventListener('webkitfullscreenchange',upd); setInterval(upd,1000); upd(); })();
+  window.addEventListener('resize',function(){ setTimeout(upd,50); }); document.addEventListener('fullscreenchange',upd); document.addEventListener('webkitfullscreenchange',upd); setInterval(upd,1000); upd(); })();
 </script>
 </body>
 </html>
