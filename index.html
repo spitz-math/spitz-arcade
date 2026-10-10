@@ -32,7 +32,7 @@ h2 .n{ font:800 14px/1 var(--body); background:var(--brand); color:var(--paper);
 .game:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
 .game[aria-pressed="true"]{ border-color:var(--acc); box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 35%,transparent), 0 10px 30px color-mix(in srgb,var(--acc) 25%,transparent); }
 .art{ display:block; width:100%; height:auto; aspect-ratio:200/110; border-radius:12px; overflow:hidden; background:var(--gpanel); }
-.game b{ font:400 21px/1.1 var(--gf); color:var(--acc); padding-inline:4px; }
+.game b{ font:400 19px/1.1 var(--display); color:var(--acc); padding-inline:4px; }
 .game small{ color:var(--muted); font-size:13px; padding-inline:4px; }
 .game:hover{ border-color:color-mix(in srgb,var(--acc) 60%,var(--line)); }
 .sets{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; }
@@ -109,7 +109,9 @@ var GAMES=[
    '<g transform="translate(118 50)"><circle r="34" fill="#FBF7F2"/><circle r="26" fill="#FF4B4B"/><circle r="18" fill="#FBF7F2"/><circle r="10" fill="#FF4B4B"/><circle r="4" fill="#FBF7F2"/></g>'+
    '<path d="M112 36c6-8 16-6 18 2 8-2 14 6 9 12 6 4 3 13-4 13-1 8-11 10-15 4-6 5-15 1-13-6-8-1-9-11-2-14-3-7 3-13 7-11z" fill="#B6FF3D"/>'+
    '<circle cx="146" cy="28" r="5" fill="#B6FF3D"/><circle cx="96" cy="70" r="4" fill="#B6FF3D"/><circle cx="150" cy="74" r="3" fill="#B6FF3D"/>'+
-   '<path d="M40 104l10-34h10l10 34z" fill="#463C35"/><rect x="44" y="58" width="22" height="16" rx="3" fill="#FF3DB4"/><rect x="51" y="44" width="8" height="16" rx="2" fill="#B5AAA0"/>'},
+   '<path d="M104 60v14q0 5 3 5t3-5v-12zM126 62v22q0 5 3 5t3-5v-20z" fill="#B6FF3D"/>'+
+   '<circle cx="52" cy="40" r="10" fill="#FF2E93"/><circle cx="32" cy="46" r="5" fill="#FF2E93" opacity=".6"/><circle cx="18" cy="50" r="3" fill="#FF2E93" opacity=".35"/>'+
+   '<circle cx="40" cy="76" r="8" fill="#2DE2E6"/><circle cx="24" cy="80" r="4" fill="#2DE2E6" opacity=".6"/>'},
   {id:'star_swarm',name:'Star Swarm',d:'Blast the alien swarm',font:"'Bungee'",paper:'#03050C',panel:'#0A1122',acc:'#3DE0FF',
    art:'<rect width="200" height="110" fill="#03050C"/>'+
    '<g fill="#EAF6FF"><rect x="14" y="12" width="2" height="2"/><rect x="60" y="30" width="2" height="2"/><rect x="170" y="16" width="3" height="3"/><rect x="186" y="60" width="2" height="2"/><rect x="30" y="74" width="2" height="2"/><rect x="128" y="8" width="2" height="2"/></g>'+
@@ -130,8 +132,7 @@ var GAMES=[
    '<rect x="20" y="58" width="50" height="8" rx="2" fill="#7CE04A"/><rect x="20" y="64" width="50" height="6" fill="#6B4A2B"/><rect x="120" y="22" width="56" height="8" rx="2" fill="#7CE04A"/><rect x="120" y="28" width="56" height="6" fill="#6B4A2B"/>'+
    '<g transform="translate(150 6)"><path d="M6 0l6 8-6 8-6-8z" fill="#FFC93C"/></g>'+
    '<g transform="translate(88 30)"><rect x="4" y="0" width="16" height="8" fill="#FFC93C"/><rect x="4" y="8" width="16" height="10" fill="#F2C29B"/><rect x="14" y="10" width="3" height="3" fill="#0D1A3A"/>'+
-   '<rect x="2" y="18" width="20" height="14" fill="#3E6BC4"/><rect x="-4" y="16" width="6" height="6" fill="#F2C29B"/><rect x="22" y="12" width="6" height="6" fill="#F2C29B"/><rect x="2" y="32" width="8" height="10" fill="#15295A"/><rect x="14" y="30" width="8" height="8" fill="#15295A"/></g>'+
-   '<path d="M80 74q20-50 44-48" stroke="#FFFFFF" stroke-width="2" stroke-dasharray="4 5" fill="none" opacity=".8"/>'},
+   '<rect x="2" y="18" width="20" height="14" fill="#3E6BC4"/><rect x="-4" y="16" width="6" height="6" fill="#F2C29B"/><rect x="22" y="12" width="6" height="6" fill="#F2C29B"/><rect x="2" y="32" width="8" height="10" fill="#15295A"/><rect x="14" y="30" width="8" height="8" fill="#15295A"/></g>'},
   {id:'football_buds',name:'Football Buds',d:'Four quarters vs the Rivals',font:"'Graduate'",paper:'#0F1830',panel:'#13213F',acc:'#FF4B5C',
    art:'<rect width="200" height="110" fill="#2E7D3A"/><g fill="#348A41"><rect x="0" y="0" width="40" height="110"/><rect x="80" y="0" width="40" height="110"/><rect x="160" y="0" width="40" height="110"/></g>'+
    '<g stroke="#F7F3E3" stroke-width="2" opacity=".85"><path d="M40 0v110M80 0v110M120 0v110M160 0v110"/></g>'+
@@ -149,14 +150,12 @@ var GAMES=[
    art:'<rect width="200" height="110" fill="#1A2470"/><g fill="#2A3C86" opacity=".7"><rect x="10" y="14" width="26" height="26"/><rect x="150" y="8" width="34" height="34"/><rect x="96" y="28" width="16" height="16"/></g>'+
    '<rect x="0" y="80" width="200" height="30" fill="#060A1C"/><path d="M0 80h200" stroke="#C6FF00" stroke-width="3"/>'+
    '<path d="M122 80l12-24 12 24z" fill="#060A1C" stroke="#F3F7FF" stroke-width="3" stroke-linejoin="round"/><path d="M146 80l12-24 12 24z" fill="#060A1C" stroke="#F3F7FF" stroke-width="3" stroke-linejoin="round"/>'+
-   '<g transform="translate(78 34) rotate(20)"><rect x="-16" y="-16" width="32" height="32" rx="2" fill="#FFD23F" stroke="#060A1C" stroke-width="3"/><rect x="-10" y="-10" width="20" height="20" fill="#2DE2E6"/><rect x="-6" y="-6" width="4" height="5" fill="#060A1C"/><rect x="3" y="-6" width="4" height="5" fill="#060A1C"/><rect x="-6" y="3" width="13" height="3" fill="#060A1C"/></g>'+
-   '<path d="M20 76q24-56 52-48" stroke="#C6FF00" stroke-width="3" fill="none" opacity=".55"/>'},
+   '<g transform="translate(78 34) rotate(20)"><rect x="-16" y="-16" width="32" height="32" rx="2" fill="#FFD23F" stroke="#060A1C" stroke-width="3"/><rect x="-10" y="-10" width="20" height="20" fill="#2DE2E6"/><rect x="-6" y="-6" width="4" height="5" fill="#060A1C"/><rect x="3" y="-6" width="4" height="5" fill="#060A1C"/><rect x="-6" y="3" width="13" height="3" fill="#060A1C"/></g>'},
   {id:'skate',name:'Skate',d:'Land the tricks',font:"'Permanent Marker'",paper:'#100E18',panel:'#1B1A1F',acc:'#FF3EA5',
    art:'<defs><linearGradient id="sksky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3A1F5C"/><stop offset=".7" stop-color="#FF4FA3"/><stop offset="1" stop-color="#FF8A1F"/></linearGradient></defs>'+
    '<rect width="200" height="110" fill="url(#sksky)"/><circle cx="150" cy="64" r="22" fill="#FFD23F"/><g fill="#1B1A1F"><rect x="0" y="54" width="22" height="30"/><rect x="26" y="44" width="16" height="40"/><rect x="170" y="50" width="30" height="34"/></g>'+
    '<rect x="0" y="82" width="200" height="28" fill="#26242C"/>'+
-   '<g transform="translate(92 52) rotate(-14)"><rect x="-38" y="-5" width="76" height="9" rx="4.5" fill="#C8FF3D" stroke="#100E18" stroke-width="2"/><path d="M-30 4v4M30 4v4" stroke="#B0ACC0" stroke-width="3"/><circle cx="-26" cy="12" r="6" fill="#F7F7F2" stroke="#100E18" stroke-width="2"/><circle cx="26" cy="12" r="6" fill="#F7F7F2" stroke="#100E18" stroke-width="2"/></g>'+
-   '<path d="M40 74q12-4 18 -12M150 30q10 2 14 10" stroke="#F7F7F2" stroke-width="3" fill="none" stroke-linecap="round"/>'}
+   '<g transform="translate(92 52) rotate(-14)"><rect x="-38" y="-5" width="76" height="9" rx="4.5" fill="#C8FF3D" stroke="#100E18" stroke-width="2"/><path d="M-30 4v4M30 4v4" stroke="#B0ACC0" stroke-width="3"/><circle cx="-26" cy="12" r="6" fill="#F7F7F2" stroke="#100E18" stroke-width="2"/><circle cx="26" cy="12" r="6" fill="#F7F7F2" stroke="#100E18" stroke-width="2"/></g>'}
 ];
 var SETS=[
   {id:'mult',name:'Multiplication facts',unit:'Times tables 0–12',topics:[['f03','Facts 0–3'],['f46','Facts 4–6'],['f79','Facts 7–9'],['f1012','Facts 10–12']]},
