@@ -75,6 +75,13 @@ a.play[aria-disabled="true"]{ opacity:.4; pointer-events:none; }
 .lblink{ display:inline-flex; align-items:center; gap:8px; font:400 18px/1 var(--display); color:var(--paper); background:var(--brand); padding:12px 18px; border-radius:14px; text-decoration:none; }
 .lblink:hover{ filter:brightness(1.08); }
 .lblink:focus-visible{ outline:3px solid var(--ink); outline-offset:3px; }
+.ideas{ background:var(--panel); border:3px dashed var(--line); border-radius:18px; padding:18px 20px; display:flex; flex-wrap:wrap; gap:14px 24px; align-items:center; justify-content:space-between; }
+.ideas[hidden]{ display:none; }
+.ideas h2{ margin:0 0 4px; }
+.ideas p{ margin:0; color:var(--muted); font-size:15px; max-width:520px; }
+.ideas .btns{ display:flex; flex-wrap:wrap; gap:10px; }
+.ideas a{ font:800 16px/1 var(--body); color:var(--ink); background:var(--panel2); border:2px solid var(--line); border-radius:12px; padding:13px 16px; text-decoration:none; }
+.ideas a:hover,.ideas a:focus-visible{ border-color:var(--brand); outline:none; }
 </style>
 </head>
 <body>
@@ -99,6 +106,11 @@ a.play[aria-disabled="true"]{ opacity:.4; pointer-events:none; }
   <section>
     <h2><span class="n">2</span>Pick your questions</h2>
     <div class="sets" id="sets"></div>
+  </section>
+
+  <section class="ideas" id="ideas" hidden>
+    <div><h2><span aria-hidden="true">💡</span> Suggestion box</h2><p>Found a bug, or have an idea for a new game? Tell us here. Only your teacher sees what you send.</p></div>
+    <div class="btns"><a id="idea-bug" target="_blank" rel="noopener" href="#">🐞 Report a bug</a><a id="idea-game" target="_blank" rel="noopener" href="#">🎮 Suggest a game</a></div>
   </section>
 
 </div>
@@ -147,6 +159,13 @@ $('sets').addEventListener('change',function(e){ var el=e.target;
   else { var a=st.t[el.dataset.s]; if(el.checked){ if(a.indexOf(el.value)<0) a.push(el.value); } else st.t[el.dataset.s]=a.filter(function(v){ return v!==el.value; }); st.set=el.dataset.s; }
   save(); render(); });
 render();
+
+/* Suggestion box: Kody's Google Form. Paste its pre-filled link (with "Bug" picked) as SUGGEST_LINK; the buttons swap Bug for Game idea. Empty = section hidden. */
+var SUGGEST_LINK='';
+(function(){ if(!SUGGEST_LINK) return; var base=SUGGEST_LINK.split('?')[0], q=(SUGGEST_LINK.split('?')[1]||'').split('&'), typeKey='';
+  q.forEach(function(kv){ var p=kv.split('='); if(/^entry\.\d+$/.test(p[0])&&/^bug$/i.test(decodeURIComponent((p[1]||'').replace(/\+/g,' ')))) typeKey=p[0]; });
+  function link(v){ return typeKey?base+'?usp=pp_url&'+typeKey+'='+encodeURIComponent(v):base; }
+  $('idea-bug').href=link('Bug'); $('idea-game').href=link('Game idea'); $('ideas').hidden=false; })();
 </script>
 </body>
 </html>
