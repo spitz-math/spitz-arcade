@@ -32,7 +32,9 @@ var GAMES={                     /* id: [number in the code, display name, how it
    New codes have 4 bits for the set, so up to 15 sets fit. */
 var SETS=[null,'mult','slope','point','hoy','shift','func','int','sq','plot0','plot','fam'];
 var SET_NAMES={ mult:'Multiplication facts', slope:'Slope-intercept form', point:'Point-slope form', hoy:'HOY & VUX', shift:'Linear transformations', func:'Functions', int:'Integers', sq:'Squares & roots', plot0:'Graphing y = mx', plot:'Graphing y = mx + b', fam:'Function families' };
-var SET_TOPICS={ mult:['f03','f46','f79','f1012'], slope:['write','slope','yint','graph'], point:['write','point','slope'], hoy:['describe','graph','slope'], shift:['vs','hs','gr','ne'], func:['points','table','map','graph'], int:['add','sub','mult'], sq:['square','root','neg','est'], plot0:['match','eq','plot','point'], plot:['match','eq','plot','point'], fam:['eq','graph'] };
+/* SET_TOPICS = topics on offer now. A topic's bit is its position, so never reorder; a dropped topic keeps its slot in TOPIC_NAMES
+   (graphing's 'Plot it' and 'Points on the line', dropped Oct 10 2026) so older codes still name it. */
+var SET_TOPICS={ mult:['f03','f46','f79','f1012'], slope:['write','slope','yint','graph'], point:['write','point','slope'], hoy:['describe','graph','slope'], shift:['vs','hs','gr','ne'], func:['points','table','map','graph'], int:['add','sub','mult'], sq:['square','root','neg','est'], plot0:['match','eq'], plot:['match','eq'], fam:['eq','graph'] };
 var TOPIC_NAMES={ mult:['Facts 0–3','Facts 4–6','Facts 7–9','Facts 10–12'], slope:['Write the equation','Find the slope','Find the y-intercept','Read a graph'],
   point:['Write the equation','Find the point','Find the slope'], hoy:['Describe the line','Match the graph','Find the slope'], shift:['Vertical shifts','Horizontal shifts','Graphs','New equations'],
   func:['Ordered pairs','Tables','Mapping diagrams','Graphs'], int:['Adding','Subtracting','Multiplying'],
@@ -89,7 +91,7 @@ function read(code,name){ var c=String(code||'').toUpperCase().replace(/[^A-Z0-9
   if(!id||f.set>=SETS.length||f.correct>f.answered) return null;
   var g=GAMES[id], set=SETS[f.set], r={ code:c.slice(0,4)+'-'+c.slice(4,8)+'-'+c.slice(8,12)+'-'+c.slice(12), game:id, gameName:g[1], kind:g[2],
     set:set||'', setName:set?SET_NAMES[set]:'Game’s own questions', topics:[], len:f.len, correct:f.correct, answered:f.answered };
-  if(set){ var names=TOPIC_NAMES[set]; r.topics=f.topics? names.filter(function(n,i){ return f.topics&(1<<i); }) : names.slice(); r.allTopics=!f.topics; }
+  if(set){ var names=TOPIC_NAMES[set]; r.topics=f.topics? names.filter(function(n,i){ return f.topics&(1<<i); }) : names.slice(0,SET_TOPICS[set].length); r.allTopics=!f.topics; }
   var d=f.day, wrap=1<<W.day, now=today(); while(d+wrap<=now) d+=wrap; r.date=new Date(BASE+d*864e5); r.day=d;
   if(g[2]==='versus'){ r.buds=f.score>>10; r.rivals=f.score&1023; r.score=r.buds-r.rivals; r.display=r.buds+' – '+r.rivals; }
   else { r.score=f.score; r.display=f.score.toLocaleString(); }
