@@ -367,7 +367,7 @@ function makeShift(PFX){
   var topicBag=[], lastType='';
   return { build:build }; }
 
-/* Functions and Integers were written for the arcade (tools/sets/func.js and int.js), not taken from a game. */
+/* Functions, Integers and Squares & roots were written for the arcade (tools/sets/func.js, int.js, sq.js), not taken from a game. */
 function makeFunc(PFX){
   /* ================= QUESTION GENERATOR: is the relation a function? =================
      Ordered pairs, tables, mapping diagrams and graphs. Every picture is a 380×380 SVG with the game's
@@ -543,6 +543,55 @@ function makeInt(PFX){
       q.visual=''; delete q.check; return q; } throw new Error('generator failed: '+type); }
   return { build:build }; }
 
+function makeSq(PFX){
+  /* ================= QUESTION GENERATOR: squares & square roots =================
+     Squaring 1–15, square roots of perfect squares to 225, negative bases ((−7)² vs −7²), and estimating
+     a square root between two whole numbers. Prompts are short, like the facts, so the set keeps the one-line prompt. */
+  var MINUS='−';
+  function ri(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
+  function num(n){ return n<0? MINUS+(-n) : ''+n; }
+  function C(html,val,why){ return {html:html,val:val,why:why||'',key:html}; }
+  function eq(h,max){ return '<span class="'+PFX+'-eq" style="font-size:clamp(48px,1em,'+(max||80)+'px);white-space:nowrap">'+h+'</span>'; }
+  function eqS(h){ return '<span class="'+PFX+'-eq">'+h+'</span>'; }
+  function rt(n){ return '√<span style="text-decoration:overline">'+n+'</span>'; }
+  function ans(h){ return '<span class="c-ans">'+h+'</span>'; }
+  function times(a,b){ var t=0; for(var i=0;i<Math.abs(a);i++) t+=b; return a<0?-t:t; }          /* repeated addition, separate from a*b */
+  function choices(a,cands,label){ label=label||num; var ch=[C(label(a),a)], seen={}; seen[a]=1;
+    cands.forEach(function(c){ if(ch.length<4&&!seen[c[0]]&&c[0]>=0){ seen[c[0]]=1; ch.push(C(label(c[0]),c[0],c[1])); } }); return ch; }
+  var GEN={
+  sqSquare:function(){ var n=ri(2,15), s=n*n;
+    return { topic:'Squaring', prompt:eq(n+'² = ?'), data:{n:n},
+      check:function(v){ return v===times(n,n); },
+      choices:choices(s,[[2*n,n+'² means '+n+' × '+n+', not '+n+' × 2.'],[(n+1)*(n+1),'That is '+(n+1)+'².'],[(n-1)*(n-1),'That is '+(n-1)+'².'],[s+10,'Check the multiplication.'],[n+2,n+'² means '+n+' × '+n+'.']]),
+      explain:n+'² means '+n+' × '+n+' = '+ans(s)+'.' }; },
+  sqRoot:function(){ var n=ri(2,15), s=n*n;
+    return { topic:'Square roots', prompt:eq(rt(s)+' = ?'), data:{n:n},
+      check:function(v){ return v>=0 && times(v,v)===s; },                                     /* the positive number that times itself makes s */
+      choices:choices(n,[[Math.round(s/2),'Square root doesn’t mean half. Find the number that times itself makes '+s+'.'],[n+1,'Check: '+(n+1)+' × '+(n+1)+' = '+((n+1)*(n+1))+'.'],[n-1,'Check: '+(n-1)+' × '+(n-1)+' = '+((n-1)*(n-1))+'.'],[n+2,'Check: '+(n+2)+' × '+(n+2)+' = '+((n+2)*(n+2))+'.']]),
+      explain:rt(s)+' asks what number times itself makes '+s+': '+n+' × '+n+' = '+s+', so '+eqS(rt(s)+' = '+ans(n))+'.' }; },
+  sqNeg:function(){ var n=ri(2,12), s=n*n, paren=Math.random()<0.6, a=paren?s:-s;
+    var p=paren? '('+num(-n)+')²' : num(-n)+'²';
+    return { topic:'Negatives', prompt:eq(p+' = ?'), data:{n:n,paren:paren},
+      check:function(v){ return v===(paren? times(-n,-n) : -times(n,n)); },
+      choices:[ C(num(a),a), C(num(-a),-a, paren? 'The negative is inside the parentheses, so it gets squared too.' : 'No parentheses: square '+n+' first, then put the negative in front.'),
+        C(num(2*n),2*n,'Squaring means times itself, not times 2.'), C(num(-2*n),-2*n,'Squaring means times itself, not times 2.') ],
+      explain: paren? 'The negative is inside: ('+num(-n)+')('+num(-n)+') = '+ans(num(s))+'.' : 'Square first, then the negative: '+MINUS+'('+n+' × '+n+') = '+ans(num(-s))+'.' }; },
+  sqEst:function(){ var lo=ri(2,14), N=ri(lo*lo+1,(lo+1)*(lo+1)-1), half=Math.floor(N/2);
+    function lab(k){ return k+' and '+(k+1); }
+    return { topic:'Estimating roots', prompt:eq(rt(N)+' is between',62), data:{N:N},
+      check:function(v){ return times(v,v)<N && N<times(v+1,v+1); },
+      choices:choices(lo,[[lo+1,(lo+1)+'² = '+((lo+1)*(lo+1))+', which is more than '+N+'.'],[lo-1,lo+'² = '+(lo*lo)+' is still under '+N+', so go higher.'],
+        [half,'That is about half of '+N+'. Compare '+N+' to perfect squares.'],[lo+2,(lo+2)+'² = '+((lo+2)*(lo+2))+', which is more than '+N+'.']],lab),
+      explain:lo+'² = '+(lo*lo)+' and '+(lo+1)+'² = '+((lo+1)*(lo+1))+'. '+N+' is between them, so '+rt(N)+' is between '+ans(lab(lo))+'.' }; }
+  };
+  function build(type){ for(var tries=0;tries<400;tries++){ var q=GEN[type](); if(!q||q.choices.length!==4) continue;
+      if(new Set(q.choices.map(function(c){ return c.key; })).size!==4) continue;
+      if(!q.check(q.choices[0].val)) continue;                                                  // the answer must pass the independent check
+      if(q.choices.slice(1).some(function(c){ return q.check(c.val); })) continue;              // and no distractor may pass it
+      q.type=type; q.choices.forEach(function(c,i){ c.ok=i===0; }); q.choices.sort(function(x,y){ return x.val-y.val; });   // smallest to largest, quick to scan
+      q.visual=''; delete q.check; return q; } throw new Error('generator failed: '+type); }
+  return { build:build }; }
+
 var SETS={
   mult:{ name:'Multiplication facts', make:makeMult, big:true, topics:[['f03','Facts 0–3',['Facts 0–3'],1],['f46','Facts 4–6',['Facts 4–6'],2],['f79','Facts 7–9',['Facts 7–9'],3],['f1012','Facts 10–12',['Facts 10–12'],2]] },
   slope:{ name:'Slope-intercept form', make:makeLinear, topics:[['write','Write the equation',['siBuild']],['slope','Find the slope',['siSlope']],['yint','Find the y-intercept',['siYInt']],['graph','Read a graph',['graphSlope','graphYInt','graphXInt']]] },
@@ -550,7 +599,8 @@ var SETS={
   hoy:{ name:'HOY & VUX', make:makeLinear, topics:[['describe','Describe the line',['hvType']],['graph','Match the graph',['hvGraph']],['slope','Find the slope',['slopeHV']]] },
   shift:{ name:'Linear transformations', make:makeShift, topics:[['vs','Vertical shifts',['vDescribe','vWrite','newYInt']],['hs','Horizontal shifts',['hDescribe','hWrite']],['gr','Graphs',['graphEq','graphHow','graphH']],['ne','New equations',['eqV','eqH','eqCompare','slopeStays']]] },
   func:{ name:'Functions', make:makeFunc, topics:[['points','Ordered pairs',['fnPoints']],['table','Tables',['fnTable']],['map','Mapping diagrams',['fnMap']],['graph','Graphs',['fnGraph']]] },
-  int:{ name:'Integers', make:makeInt, big:true, topics:[['add','Adding',['intAdd']],['sub','Subtracting',['intSub']],['mult','Multiplying',['intMul']]] }
+  int:{ name:'Integers', make:makeInt, big:true, topics:[['add','Adding',['intAdd']],['sub','Subtracting',['intSub']],['mult','Multiplying',['intMul']]] },
+  sq:{ name:'Squares & roots', make:makeSq, big:true, topics:[['square','Squaring',['sqSquare']],['root','Square roots',['sqRoot']],['neg','Negatives',['sqNeg']],['est','Estimating roots',['sqEst']]] }
 };
 
 function plain(h){ return String(h).replace(/<span class="[a-z]+-fr"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g,'$1/$2').replace(/<[^>]+>/g,''); }
