@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Speedrun Splits</title>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Chakra+Petch:wght@500;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+/* THEME: replace these with the deck's own tokens (its #theme block) and fonts. Lesson colors keep their meaning. */
+:root{ --paper:#0D0E1A; --panel:#171a2c; --panel-2:#22263d; --text:#EEF1F6; --muted:#A9B1BF; --border:rgba(190,196,255,.22); --accent:#EEF1F6;
+  --c-line:#FF4B4B; --c-m:#FFC82E; --c-b:#FF3DB4; --c-pt:#FFF04D; --c-ans:#C77DFF; --c-hoy:#FF6412; --c-vux:#4D7CFF; --c-x:#2DE2C8; --ok:#4ADE80; --no:#FF7A7A;
+  --c-xv:#3CC8FF; --c-yv:#5CFF7A;
+  --display:'Chakra Petch','Segoe UI',system-ui,sans-serif; --body:'Atkinson Hyperlegible','Segoe UI',Arial,sans-serif; }
+*{ box-sizing:border-box; }
+html,body{ margin:0; height:100%; background:var(--paper); overflow:hidden; }
+body{ color:var(--text); font-family:var(--body); -webkit-user-select:none; user-select:none; touch-action:manipulation; }
+button{ font:inherit; color:inherit; cursor:pointer; border:0; background:none; -webkit-tap-highlight-color:transparent; }
+button:focus-visible{ outline:4px solid var(--accent); outline-offset:3px; }
+#stage{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:0 0; padding:20px 40px; display:grid; grid-template-rows:72px minmax(0,1fr) 104px; gap:14px; }
+.kt-top{ display:flex; align-items:center; gap:16px; white-space:nowrap; }
+.kt-top h1{ font:800 44px/1 var(--display); margin:0; }
+.kt-pill{ font:800 26px/1 var(--body); letter-spacing:.1em; text-transform:uppercase; color:var(--muted); padding:16px 20px; border-radius:999px; background:var(--panel); border:2px solid var(--border); }
+.kt-sp{ flex:1; }
+.kt-nav{ min-width:76px; height:72px; padding:0 26px; border-radius:999px; background:var(--panel); border:2px solid var(--border); font:800 30px/1 var(--body); }
+.kt-timer{ display:flex; align-items:center; gap:8px; margin-right:14px; }
+.kt-tadj{ width:60px; height:72px; border-radius:18px; background:var(--panel); border:2px solid var(--border); font:800 34px/1 var(--display); color:var(--muted); }
+.kt-tface{ height:72px; min-width:200px; padding:0 24px; border-radius:999px; background:var(--panel); border:3px solid var(--border); font:800 46px/1 var(--display); font-variant-numeric:tabular-nums; color:var(--muted); }
+.kt-timer.run .kt-tface{ color:var(--text); border-color:var(--accent); }
+.kt-timer.low .kt-tface{ color:var(--no); border-color:var(--no); }
+.kt-timer.done .kt-tface{ background:var(--no); border-color:var(--no); color:#0C0E13; }
+#main{ min-height:0; min-width:0; position:relative; }
+.kt-score{ display:flex; gap:12px; align-items:stretch; min-width:0; }
+.kt-team{ flex:1 1 0; min-width:0; display:grid; grid-template-columns:1fr auto; align-items:center; gap:6px; padding:8px 8px 8px 20px; border-radius:22px; background:var(--panel); border:3px solid var(--border); }
+.kt-team.sel{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 16%, var(--panel)); }
+.kt-team .nm{ font:800 26px/1.1 var(--body); letter-spacing:.08em; text-transform:uppercase; color:var(--muted); } .kt-team.sel .nm{ color:var(--text); }
+.kt-team .sc{ font:800 46px/1 var(--display); }
+.kt-team .pm{ display:flex; flex-direction:column; gap:4px; } .kt-team .pm button{ width:72px; height:40px; border-radius:12px; background:var(--panel-2); border:2px solid var(--border); font:800 30px/1 var(--display); }
+.kt-tools{ flex:none; display:grid; grid-template-columns:1fr 1fr; grid-template-rows:1fr 1fr; gap:6px; width:300px; }
+.kt-tools button{ border-radius:14px; background:var(--panel); border:2px solid var(--border); font:800 24px/1 var(--body); } .kt-tools .rnd{ grid-column:span 2; background:var(--panel-2); font-size:26px; }
+#kt-confetti{ position:absolute; left:0; top:0; width:1920px; height:1080px; z-index:18; pointer-events:none; }
+.kt-toast{ position:absolute; left:50%; top:26px; transform:translateX(-50%); z-index:30; padding:16px 30px; border-radius:999px; background:#fff; color:#0C0E13; font:800 30px/1 var(--body); }
+.kt-win{ position:absolute; inset:0; z-index:15; background:rgba(8,9,13,.94); display:grid; place-items:center; text-align:center; }
+.kt-win h2{ margin:22px 0 34px; font:800 120px/1.05 var(--display); color:var(--c-ans); }
+.kt-win .wk{ margin:0; font:800 30px/1 var(--body); letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+.kt-wlist{ display:flex; justify-content:center; gap:18px; flex-wrap:wrap; }
+.kt-wrow{ min-width:190px; padding:18px 26px; border-radius:22px; background:var(--panel); border:3px solid var(--border); } .kt-wrow.lead{ border-color:var(--c-ans); }
+.kt-wrow .n{ font:800 26px/1.1 var(--body); letter-spacing:.08em; text-transform:uppercase; color:var(--muted); } .kt-wrow .p{ font:800 64px/1.1 var(--display); }
+.kt-wbtns{ display:flex; justify-content:center; gap:20px; margin-top:44px; }
+.kt-big{ height:72px; padding:0 44px; border-radius:22px; font:800 32px/1 var(--display); background:var(--panel); border:2px solid var(--border); } .kt-big.go{ background:#fff; color:#0C0E13; border-color:#fff; }
+.kt-calc{ position:absolute; z-index:20; display:flex; flex-direction:column; background:var(--panel); border:3px solid var(--accent); border-radius:22px; overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,.6); }
+#kt-nw{ left:1266px; top:14px; width:540px; height:1052px; } #kt-ds{ left:60px; top:60px; width:1800px; height:960px; }
+.kt-chead{ flex:none; height:72px; display:flex; align-items:center; justify-content:space-between; padding:0 10px 0 26px; font:800 30px/1 var(--display); background:var(--panel-2); }
+.kt-chead button{ width:72px; height:60px; border-radius:14px; font:800 44px/1 var(--display); background:var(--panel); border:2px solid var(--border); }
+.kt-cbody{ flex:1; min-height:0; position:relative; background:#fff; } .kt-cbody iframe{ position:absolute; left:0; top:0; border:0; transform-origin:0 0; }
+[hidden]{ display:none !important; }
+
+/* ===== GAME CSS: Speedrun Splits (prefix sr-) ===== */
+/* leaderboard: the teacher's board view (key L, or open the file with #leaderboard) */
+.sr-lb{ position:absolute; inset:0; z-index:16; background:var(--paper); padding:30px 40px; display:grid; grid-template-rows:96px minmax(0,1fr); gap:24px;
+  background-image:radial-gradient(ellipse 60% 55% at 10% 6%,rgba(255,61,180,.16),transparent 70%),radial-gradient(ellipse 55% 60% at 94% 96%,rgba(60,200,255,.16),transparent 70%); }
+.sr-lbh{ display:flex; align-items:center; gap:22px; }
+.sr-lbh h2{ margin:0; font:400 54px/1 'Press Start 2P',monospace; }
+.sr-tabs{ display:flex; gap:10px; margin-left:20px; }
+.sr-tabs button, .sr-chip{ height:72px; min-width:84px; padding:0 20px; border-radius:16px; background:var(--panel); border:2px solid var(--border); font:700 30px/1 var(--display); color:var(--muted); }
+.sr-tabs button.on, .sr-chip.on{ background:var(--text); color:var(--paper); border-color:var(--text); }
+.sr-x{ margin-left:auto; width:84px; height:72px; border-radius:16px; background:var(--panel); border:2px solid var(--border); font:700 46px/1 var(--display); }
+.sr-lbb{ display:grid; grid-template-columns:1fr 680px; gap:30px; min-height:0; }
+.sr-list{ display:flex; flex-direction:column; gap:10px; min-height:0; }
+.sr-row{ flex:1 1 0; max-height:92px; min-height:0; display:grid; grid-template-columns:120px 1fr auto 220px 72px; align-items:center; gap:18px; padding:0 8px 0 24px; border-radius:18px; background:var(--panel); border:2px solid var(--border); }
+.sr-row .rk{ font:400 30px/1 'Press Start 2P',monospace; color:var(--muted); }
+.sr-row .nm{ font:700 40px/1.1 var(--body); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sr-row .pd{ font:700 26px/1 var(--display); color:var(--muted); }
+.sr-row .tm{ font:700 50px/1 var(--display); font-variant-numeric:tabular-nums; text-align:right; }
+.sr-row .del{ width:72px; height:72px; border-radius:14px; background:transparent; border:2px solid var(--border); color:var(--muted); font:700 32px/1 var(--display); }
+.sr-row.r1{ border:3px solid var(--c-ans); background:color-mix(in srgb, var(--c-ans) 14%, var(--panel)); } .sr-row.r1 .rk, .sr-row.r1 .tm{ color:var(--c-ans); }
+.sr-row.r2 .rk, .sr-row.r3 .rk{ color:var(--text); }
+.sr-row.new{ animation:srnew 1.6s ease-out; }
+@keyframes srnew{ 0%{ box-shadow:0 0 0 0 rgba(238,241,246,.8); } 100%{ box-shadow:0 0 0 22px rgba(238,241,246,0); } }
+.sr-empty{ margin:auto; font:700 40px/1.4 var(--body); color:var(--muted); text-align:center; }
+.sr-add{ background:var(--panel); border:2px solid var(--border); border-radius:24px; padding:24px 28px; display:flex; flex-direction:column; gap:16px; min-height:0; }
+.sr-add h3{ margin:0; font:700 36px/1 var(--display); }
+.sr-add input{ height:84px; border-radius:16px; border:3px solid var(--border); background:#10122A; color:var(--text); font:700 40px/1 var(--body); padding:0 20px; }
+.sr-add input:focus{ border-color:var(--text); outline:none; }
+.sr-add .lab{ font:700 26px/1 var(--display); color:var(--muted); letter-spacing:.06em; }
+.sr-chips{ display:flex; gap:6px; } .sr-chip{ flex:1; min-width:0; padding:0; }
+.sr-tface{ height:96px; border-radius:16px; background:#10122A; border:3px solid var(--text); display:flex; align-items:center; justify-content:center; font:700 64px/1 var(--display); font-variant-numeric:tabular-nums; }
+.sr-tface.empty{ color:rgba(169,177,191,.45); border-color:var(--border); }
+.sr-lpad{ display:grid; grid-template-columns:repeat(6,1fr); gap:8px; }
+.sr-lpad button{ height:72px; border-radius:14px; background:var(--panel-2); border:2px solid var(--border); font:700 38px/1 var(--body); }
+.sr-post{ height:96px; border-radius:20px; background:var(--text); color:var(--paper); font:400 34px/1 'Press Start 2P',monospace; margin-top:auto; }
+.sr-post:disabled{ opacity:.35; }
+.sr-clear{ height:60px; border-radius:14px; background:transparent; border:2px solid var(--border); color:var(--muted); font:700 26px/1 var(--display); }
+
+body{ background-color:var(--paper);
+  background-image:linear-gradient(rgba(190,196,255,.05) 2px,transparent 2px),linear-gradient(90deg,rgba(190,196,255,.05) 2px,transparent 2px),
+    radial-gradient(ellipse 60% 55% at 10% 6%,rgba(255,61,180,.13),transparent 70%),radial-gradient(ellipse 55% 60% at 94% 96%,rgba(60,200,255,.13),transparent 70%);
+  background-size:48px 48px,48px 48px,100% 100%,100% 100%; }
+#kt-score, #kt-timer{ display:none !important; }
+.kt-top h1{ font-family:'Press Start 2P',monospace; font-size:34px; font-weight:400; letter-spacing:.02em; }
+.sr-clock{ display:flex; align-items:center; gap:12px; margin-right:14px; position:relative; }
+.sr-cface{ height:72px; min-width:250px; padding:0 26px; border-radius:16px; background:#10122A; border:3px solid var(--border); display:flex; align-items:center; justify-content:center;
+  font:700 50px/1 var(--display); font-variant-numeric:tabular-nums; color:var(--muted); }
+.sr-clock.run .sr-cface{ color:var(--text); border-color:var(--text); }
+.sr-pen{ position:absolute; right:0; top:-6px; font:800 34px/1 var(--display); color:var(--no); opacity:0; pointer-events:none; }
+.sr-pen.go{ animation:srpen 1.4s ease-out; }
+@keyframes srpen{ 0%{ opacity:1; transform:translateY(0); } 100%{ opacity:0; transform:translateY(-46px); } }
+/* layout */
+.sr-wrap{ height:100%; display:grid; grid-template-columns:720px 1fr; gap:28px; }
+.sr-card{ background:var(--panel); border:2px solid var(--border); border-radius:24px; padding:30px 34px; display:flex; flex-direction:column; gap:18px; min-height:0; }
+.sr-tag{ font:700 28px/1.2 var(--display); letter-spacing:.08em; color:var(--muted); letter-spacing:.04em; }
+.sr-prompt{ font:700 36px/1.3 var(--body); margin:0; }
+.sr-given{ font:700 58px/1.2 var(--body); text-align:center; margin:auto 0; white-space:nowrap; }
+.sr-vis{ margin:auto; display:flex; justify-content:center; }
+.sr-tab{ border-collapse:collapse; font:700 44px/1 var(--body); }
+.sr-tab th,.sr-tab td{ border:2px solid var(--border); padding:16px 54px; text-align:center; }
+.sr-tab th{ background:var(--panel-2); border-bottom:3px solid var(--text); }
+.sr-graph{ width:500px; height:500px; }
+.sr-fr{ display:inline-flex; flex-direction:column; vertical-align:middle; text-align:center; font-size:.62em; line-height:1.05; margin:0 4px; }
+.sr-fr>span:first-child{ border-bottom:.08em solid currentColor; padding:0 4px; }
+/* answer side */
+.sr-side{ display:flex; flex-direction:column; gap:20px; min-height:0; }
+.sr-build{ background:var(--panel); border:2px solid var(--border); border-radius:24px; padding:22px 26px; display:flex; align-items:center; justify-content:center; gap:10px;
+  font:700 60px/1 var(--body); white-space:nowrap; min-height:140px; }
+.sr-box{ min-width:150px; height:96px; padding:0 18px; border-radius:16px; background:#10122A; border:3px dashed var(--border); display:inline-flex; align-items:center; justify-content:center;
+  font:700 54px/1 var(--body); color:var(--text); }
+.sr-box.on{ border:3px solid var(--text); box-shadow:0 0 0 6px rgba(238,241,246,.14); }
+.sr-box.mb{ color:var(--c-m); } .sr-box.xb{ color:var(--c-xv); } .sr-box.yb{ color:var(--c-yv); }
+.sr-box:empty::after{ content:'?'; color:rgba(169,177,191,.45); }
+.sr-sign{ width:84px; height:96px; border-radius:16px; background:var(--panel-2); border:3px solid var(--border); font:700 58px/1 var(--body); }
+.sr-lbl{ font:700 40px/1 var(--body); color:var(--muted); margin:0 6px 0 14px; }
+.sr-lower{ flex:1; min-height:0; display:grid; grid-template-columns:480px 1fr; gap:24px; }
+.sr-pad{ display:grid; grid-template-columns:repeat(4,1fr); grid-auto-rows:1fr; gap:12px; }
+.sr-pad button{ border-radius:16px; background:var(--panel-2); border:2px solid var(--border); font:700 44px/1 var(--body); min-height:84px; }
+.sr-pad button:active{ background:var(--text); color:var(--paper); }
+.sr-pad .w2{ grid-column:span 2; font-size:32px; }
+.sr-act{ display:flex; flex-direction:column; gap:18px; min-height:0; }
+.sr-res{ flex:1; min-height:230px; border-radius:22px; border:3px solid var(--border); background:var(--panel); padding:22px 28px; display:flex; flex-direction:column; justify-content:center; gap:10px; }
+.sr-res .r1{ font:700 40px/1.2 var(--display); }
+.sr-res .r2{ font:400 34px/1.3 var(--body); color:var(--muted); }
+.sr-res.ok{ border-color:var(--ok); } .sr-res.ok .r1{ color:var(--ok); }
+.sr-res.no{ border-color:var(--no); } .sr-res.no .r1{ color:var(--no); }
+.sr-save{ height:110px; border-radius:22px; background:var(--text); color:var(--paper); font:400 38px/1 'Press Start 2P',monospace; letter-spacing:.04em; }
+.sr-save:disabled{ opacity:.35; }
+.sr-skip{ height:72px; border-radius:18px; background:var(--panel); border:2px solid var(--border); font:700 30px/1 var(--body); color:var(--muted); }
+/* splits bar (row 3 of the stage) */
+.sr-splits{ display:grid; grid-template-columns:repeat(12,1fr); gap:10px; }
+.sr-sp{ border-radius:16px; background:var(--panel); border:2px solid var(--border); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; }
+.sr-sp .l{ font:700 26px/1 var(--display); color:var(--muted); }
+.sr-sp .t{ font:700 30px/1 var(--display); font-variant-numeric:tabular-nums; color:var(--muted); }
+.sr-sp.done{ border-color:rgba(238,241,246,.6); } .sr-sp.done .t{ color:var(--text); }
+.sr-sp.cur{ border:3px solid var(--text); background:var(--panel-2); } .sr-sp.cur .l{ color:var(--text); }
+.sr-sp.skip .t{ color:var(--no); }
+/* start screen */
+.sr-start{ position:absolute; inset:0; z-index:12; display:grid; place-items:center; background:rgba(13,14,26,.92); border-radius:24px; }
+.sr-start .in{ text-align:center; display:flex; flex-direction:column; align-items:center; gap:30px; }
+.sr-start h2{ margin:0; font:400 64px/1.2 'Press Start 2P',monospace; }
+.sr-start p{ margin:0; font:400 36px/1.4 var(--body); color:var(--muted); max-width:1200px; }
+.sr-start input{ width:640px; height:96px; border-radius:18px; border:3px solid var(--text); background:#10122A; color:var(--text); font:700 44px/1 var(--body); text-align:center; }
+.sr-start input::placeholder{ color:rgba(169,177,191,.5); }
+.sr-go{ height:110px; padding:0 60px; border-radius:22px; background:var(--text); color:var(--paper); font:400 40px/1 'Press Start 2P',monospace; }
+.sr-go:disabled{ opacity:.35; }
+.sr-pb{ font:700 34px/1 var(--display); color:var(--c-ans); }
+/* finish screen (inside the kit's winner overlay) */
+.kt-win h2{ font:700 150px/1 var(--display); color:var(--c-ans); font-variant-numeric:tabular-nums; }
+.sr-fin{ display:flex; flex-direction:column; align-items:center; gap:26px; }
+.sr-frow{ display:flex; gap:18px; justify-content:center; }
+.sr-fsp{ display:grid; grid-template-columns:repeat(12,124px); gap:8px; }
+.sr-fsp div{ border-radius:12px; background:var(--panel); border:2px solid var(--border); padding:10px 0; font:700 28px/1.2 var(--display); }
+.sr-fsp div span{ display:block; font:700 26px/1.2 var(--display); color:var(--muted); }
+.sr-shot{ font:700 36px/1.3 var(--body); color:var(--c-pt); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="kt-top">
+    <h1 id="kt-title">GAME TITLE</h1><span class="kt-pill" id="kt-round"></span><span class="kt-sp"></span>
+    <div class="kt-timer" id="kt-timer"><button class="kt-tadj" id="kt-tminus" aria-label="15 seconds less per round">−</button><button class="kt-tface" id="kt-tface" aria-label="Start or pause the timer, key T">1:30</button><button class="kt-tadj" id="kt-tplus" aria-label="15 seconds more per round">+</button></div>
+    <button class="kt-nav" id="kt-prev" aria-label="Previous round">‹ Back</button><button class="kt-nav" id="kt-next" aria-label="Next round">Next ›</button>
+  </div>
+  <div id="main"><!-- THE GAME: built by render(i, solved) --></div>
+  <div class="kt-score" id="kt-score"></div>
+  <canvas id="kt-confetti" width="1920" height="1080" aria-hidden="true"></canvas>
+  <div class="kt-toast" id="kt-toast" hidden></div>
+  <div class="kt-win" id="kt-win" hidden><div><p class="wk">Final round done</p><h2 id="kt-winhead"></h2><div class="kt-wlist" id="kt-winlist"></div>
+    <div class="kt-wbtns"><button class="kt-big" id="kt-winback">‹ Back to the game</button><button class="kt-big go" id="kt-winnew">New game</button></div></div></div>
+  <div class="kt-calc" id="kt-nw" hidden><div class="kt-chead"><span>NumWorks</span><button data-kt-close aria-label="Close NumWorks">×</button></div><div class="kt-cbody"></div></div>
+  <div class="kt-calc" id="kt-ds" hidden><div class="kt-chead"><span>Desmos</span><button data-kt-close aria-label="Close Desmos">×</button></div><div class="kt-cbody"></div></div>
+</div>
+
+<script>
+/* ===== KIT: stage fit, teams + scoreboard, round timer, sounds, confetti, winner reveal, F/C/D/T/M hotkeys. Tested; change with care. ===== */
+var Kit=(function(){
+'use strict';
+var $=function(id){ return document.getElementById(id); }, O, st, K={};
+// ---- sounds: made in the browser, no audio files ----
+var AC=null, muted=false;
+function ac(){ if(!AC){ var C=window.AudioContext||window.webkitAudioContext; if(!C) return null; AC=new C(); } if(AC.state==='suspended') AC.resume(); return AC; }
+function count(){ window.__snd=(window.__snd||0)+1; }
+function tone(f1,f2,t0,dur,type,vol){ var a=ac(); if(!a||muted) return; var o=a.createOscillator(), g=a.createGain(), t=a.currentTime+t0;
+  o.type=type||'sine'; o.frequency.setValueAtTime(f1,t); if(f2&&f2!==f1) o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+  g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol||0.25,t+0.015); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(g); g.connect(a.destination); o.start(t); o.stop(t+dur+0.03); count(); }
+function noise(t0,vol,ms,hp){ var a=ac(); if(!a||muted) return; var n=Math.floor(a.sampleRate*(ms||35)/1000), buf=a.createBuffer(1,n,a.sampleRate), d=buf.getChannelData(0);
+  for(var i=0;i<n;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/n,3);
+  var s=a.createBufferSource(), f=a.createBiquadFilter(), g=a.createGain(); s.buffer=buf; f.type='highpass'; f.frequency.value=hp||1800; g.gain.value=vol||0.5;
+  s.connect(f); f.connect(g); g.connect(a.destination); s.start(a.currentTime+t0); count(); }
+function brass(f,t0,dur,vol){ var a=ac(); if(!a||muted) return; var t=a.currentTime+t0, g=a.createGain(), lp=a.createBiquadFilter(); vol=vol||0.14;
+  lp.type='lowpass'; lp.frequency.setValueAtTime(900,t); lp.frequency.linearRampToValueAtTime(3200,t+0.05); lp.frequency.linearRampToValueAtTime(1700,t+dur);
+  g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(vol,t+0.025); g.gain.setValueAtTime(vol,t+Math.max(0.03,dur-0.08)); g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  [-6,6].forEach(function(det){ var o=a.createOscillator(); o.type='sawtooth'; o.frequency.value=f; o.detune.value=det; o.connect(lp); o.start(t); o.stop(t+dur+0.03); });
+  lp.connect(g); g.connect(a.destination); count(); }
+var G4=392,C5=523.25,E5=659.25,G5=783.99,A5=880,B5=987.77,C6=1046.5,E6=1318.5;
+var SND={
+  action:function(){ noise(0,0.6); noise(0.075,0.4); },            // THEME SOUND: the "you did the thing" sound (here a camera shutter). Re-voice it per theme.
+  hit:function(){ var t=0.14; brass(G4,t,0.11); brass(C5,t+0.12,0.11); brass(E5,t+0.24,0.11); brass(C5,t+0.38,0.75,0.11); brass(E5,t+0.38,0.75,0.11); brass(G5,t+0.38,0.75,0.13);
+    tone(C6,C6,t+0.42,0.5,'triangle',0.12); tone(E6,E6,t+0.52,0.45,'triangle',0.1); },
+  miss:function(){ tone(233,165,0.12,0.38,'triangle',0.22); },      // soft and low on purpose: never a harsh buzzer
+  tick:function(){ tone(1200,1200,0,0.05,'square',0.08); },
+  timeup:function(){ [0,0.22,0.44].forEach(function(t){ tone(880,880,t,0.14,'square',0.12); }); },
+  win:function(){ var t=0.14; brass(G4,t,0.11); brass(C5,t+0.12,0.11); brass(E5,t+0.24,0.11); brass(C5,t+0.38,0.34,0.11); brass(E5,t+0.38,0.34,0.11); brass(G5,t+0.38,0.34,0.13);
+    brass(E5,t+0.76,0.16,0.11); brass(A5,t+0.76,0.16,0.13); brass(G5,t+0.94,0.16,0.11); brass(B5,t+0.94,0.16,0.13);
+    [C5,E5,G5,C6].forEach(function(f){ brass(f,t+1.14,1.3,0.11); }); tone(E6,E6,t+1.2,0.9,'triangle',0.1); }
+};
+// ---- confetti: always on (it is asked for by name; do not gate it on prefers-reduced-motion) ----
+var parts=[], raf=0, CFC=['#FFC82E','#FF3DB4','#FFF04D','#C77DFF','#4ADE80','#3D9BFF','#FFFFFF'];
+function confetti(x,y,n,spread){ for(var i=0;i<n;i++){ var a=-Math.PI/2+(Math.random()-0.5)*spread, sp=9+Math.random()*17;
+    parts.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,w:10+Math.random()*12,h:6+Math.random()*8,r:Math.random()*6.28,vr:(Math.random()-0.5)*0.5,c:CFC[i%CFC.length],life:0,max:95+Math.random()*60}); }
+  window.__conf=(window.__conf||0)+n; if(!raf) raf=requestAnimationFrame(cfStep); }
+function cfStep(){ var c=$('kt-confetti').getContext('2d'); c.clearRect(0,0,1920,1080);
+  parts=parts.filter(function(p){ return p.life<p.max&&p.y<1120; });
+  parts.forEach(function(p){ p.life++; p.vy+=0.42; p.vx*=0.985; p.vy*=0.992; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr; var k=Math.cos(p.life*0.2);
+    c.save(); c.translate(p.x,p.y); c.rotate(p.r); c.globalAlpha=Math.min(1,(p.max-p.life)/25); c.fillStyle=p.c; c.fillRect(-p.w/2,-p.h/2*k,p.w,p.h*k); c.restore(); });
+  raf=parts.length? requestAnimationFrame(cfStep) : (c.clearRect(0,0,1920,1080),0); }
+// ---- toast ----
+var toastT=0; function toast(msg){ var t=$('kt-toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(function(){ t.hidden=true; },1400); }
+// ---- state ----
+function save(){ try{ localStorage.setItem(O.id,JSON.stringify({teams:st.teams,scores:st.scores,i:st.i,solved:st.solved,len:TM.len,muted:muted})); }catch(e){} }
+// ---- timer ----
+var TM={ len:90, left:90, run:false, end:0, iv:0, done:false }, autoStart=false;
+function tmDraw(){ var s=Math.max(0,Math.ceil(TM.left)); $('kt-tface').textContent=TM.done?'Time!':Math.floor(s/60)+':'+('0'+(s%60)).slice(-2);
+  $('kt-timer').className='kt-timer'+(TM.done?' done':TM.run?(s<=10?' low':' run'):''); }
+function tmStop(){ if(TM.run) TM.left=(TM.end-Date.now())/1000; TM.run=false; clearInterval(TM.iv); TM.iv=0; tmDraw(); }
+function tmReset(){ clearInterval(TM.iv); TM.iv=0; TM.run=false; TM.done=false; TM.left=TM.len; tmDraw(); }
+function tmStart(){ if(TM.run) return; if(TM.done||TM.left<=0){ TM.done=false; TM.left=TM.len; } TM.run=true; TM.end=Date.now()+TM.left*1000; var last=Math.ceil(TM.left);
+  TM.iv=setInterval(function(){ TM.left=(TM.end-Date.now())/1000; var s=Math.ceil(TM.left); if(s!==last){ last=s; if(s<=5&&s>0) SND.tick(); }
+    if(TM.left<=0){ TM.run=false; clearInterval(TM.iv); TM.iv=0; TM.left=0; TM.done=true; tmDraw(); SND.timeup(); } else tmDraw(); },100); tmDraw(); }
+function tmToggle(){ if(TM.run) tmStop(); else tmStart(); }
+function tmAdjust(d){ TM.len=Math.max(30,Math.min(300,TM.len+d)); var was=TM.run; tmReset(); if(was) tmStart(); save(); }
+// ---- scoreboard ----
+function drawScore(){ var h='';
+  for(var t=0;t<st.teams;t++) h+='<div class="kt-team'+(t===st.sel?' sel':'')+'" data-t="'+t+'" role="button" tabindex="0" aria-label="Select team '+(t+1)+'"><div><div class="nm">Team '+(t+1)+'</div><div class="sc">'+st.scores[t]+'</div></div>'+
+    '<div class="pm"><button data-d="1" data-t="'+t+'" aria-label="Add a point to team '+(t+1)+'">+</button><button data-d="-1" data-t="'+t+'" aria-label="Take a point from team '+(t+1)+'">−</button></div></div>';
+  $('kt-score').innerHTML=h+'<div class="kt-tools"><button class="rnd" id="kt-rnd">Random team</button><button id="kt-tm-">Teams −</button><button id="kt-tm+">Teams +</button></div>'; }
+// ---- rounds + winner ----
+function draw(){ $('kt-round').textContent=O.roundWord+' '+(st.i+1)+' of '+O.rounds; $('kt-next').textContent=st.i===O.rounds-1?(O.lastLabel||'Reveal winner ›'):'Next ›';
+  O.render(st.i,!!st.solved[st.i]); tmReset(); if(autoStart&&!st.solved[st.i]&&!O.noTimer) tmStart(); autoStart=false; save(); }
+function names(a){ return a.length===1?a[0]:a.slice(0,-1).join(', ')+' and '+a[a.length-1]; }
+function winOpen(){ return !$('kt-win').hidden; }
+function showWinner(){ tmStop(); var sc=st.scores.slice(0,st.teams), max=Math.max.apply(null,sc), tops=[]; sc.forEach(function(v,t){ if(v===max) tops.push(t+1); });
+  $('kt-winhead').textContent=max===0?'No points scored':tops.length===1?'Team '+tops[0]+' wins!':tops.length===st.teams?'Everyone ties!':'Teams '+names(tops)+' tie!';
+  $('kt-winlist').innerHTML=sc.map(function(v,t){ return {t:t+1,v:v}; }).sort(function(a,b){ return b.v-a.v||a.t-b.t; }).map(function(o){ return '<div class="kt-wrow'+(o.v===max&&max>0?' lead':'')+'"><div class="n">Team '+o.t+'</div><div class="p">'+o.v+'</div></div>'; }).join('');
+  $('kt-win').hidden=false; SND.action(); SND.win();
+  [0,350,700,1150].forEach(function(ms,i){ setTimeout(function(){ if(!winOpen()) return; confetti(200+i*500,1070,90,1.3); confetti(1720-i*500,1070,90,1.3); },ms); }); }
+function go(d){ if(O.paused&&O.paused()) return; if(winOpen()){ if(d<0) $('kt-win').hidden=true; return; } if(d>0&&O.canGo&&!O.canGo(st.i)) return; var n=st.i+d; if(n<0) return; if(n>=O.rounds){ (O.finish||showWinner)(); return; } st.i=n; autoStart=d>0; draw(); }
+function newGame(){ st.scores=[0,0,0,0,0,0,0,0]; st.solved={}; st.i=0; st.sel=0; $('kt-win').hidden=true; if(O.onNew) O.onNew(); drawScore(); draw(); }
+// ---- full screen + live calculators (same keys as the decks) ----
+var CALC={ nw:{ el:'kt-nw', w:368, h:720, src:'https://www.numworks.com/simulator/embed/', script:'https://www.numworks.com/simulator/embed.js', title:'NumWorks calculator' },
+           ds:{ el:'kt-ds', w:1794, h:882, src:'https://www.desmos.com/testing/texas/graphing', title:'Desmos graphing calculator' } }, openCalc=null;
+function toggleCalc(name){ var was=openCalc; if(openCalc){ $(CALC[openCalc].el).hidden=true; openCalc=null; }
+  if(was!==name){ var c=CALC[name], b=$(c.el).querySelector('.kt-cbody'); $(c.el).hidden=false; openCalc=name;
+    if(!b.firstChild){ var f=document.createElement('iframe'); f.src=c.src; f.title=c.title; f.setAttribute('allow','fullscreen'); b.appendChild(f);
+      if(c.script){ var s=document.createElement('script'); s.src=c.script; s.async=true; document.head.appendChild(s); } }
+    var fr=b.firstChild, k=Math.min(b.clientWidth/c.w,b.clientHeight/c.h); fr.style.width=c.w+'px'; fr.style.height=c.h+'px'; fr.style.transform='scale('+k+')'; fr.style.left=((b.clientWidth-c.w*k)/2)+'px'; }
+  else { if(document.activeElement&&document.activeElement.blur) document.activeElement.blur(); window.focus(); } }
+function fullscreen(){ var d=document, e=d.documentElement; if(d.fullscreenElement||d.webkitFullscreenElement) (d.exitFullscreen||d.webkitExitFullscreen).call(d);
+  else { var r=e.requestFullscreen||e.webkitRequestFullscreen; if(r){ var p=r.call(e); if(p&&p.catch) p.catch(function(){}); } } }
+function fit(){ var s=Math.min(innerWidth/1920,innerHeight/1080), y=$('stage').style; y.transform='scale('+s+')'; y.left=((innerWidth-1920*s)/2)+'px'; y.top=((innerHeight-1080*s)/2)+'px'; }
+// ---- public ----
+K.init=function(opts){ O=opts; O.roundWord=O.roundWord||'Round';
+  st={ i:0, teams:O.teams||4, scores:[0,0,0,0,0,0,0,0], sel:0, solved:{} }; TM.len=O.seconds||90;
+  try{ var v=JSON.parse(localStorage.getItem(O.id)||'null'); if(v&&v.scores){ st.teams=v.teams||st.teams; st.scores=v.scores; st.i=Math.min(v.i||0,O.rounds-1); st.solved=v.solved||{}; if(v.len>=30&&v.len<=300) TM.len=v.len; muted=!!v.muted; } }catch(e){}
+  $('kt-title').textContent=O.title; document.title=O.title;
+  $('kt-score').addEventListener('click',function(e){ var b=e.target.closest('button'), tm=e.target.closest('.kt-team');
+    if(b&&b.dataset.d){ var t=+b.dataset.t; st.scores[t]=Math.max(0,st.scores[t]+(+b.dataset.d)); }
+    else if(b&&b.id==='kt-rnd'){ var n; do{ n=Math.floor(Math.random()*st.teams); }while(st.teams>1&&n===st.sel); st.sel=n; SND.tick(); }
+    else if(b&&b.id==='kt-tm+'){ st.teams=Math.min(8,st.teams+1); }
+    else if(b&&b.id==='kt-tm-'){ st.teams=Math.max(2,st.teams-1); st.sel=Math.min(st.sel,st.teams-1); }
+    else if(tm){ st.sel=+tm.dataset.t; } else return; drawScore(); save(); });
+  $('kt-tface').addEventListener('click',tmToggle); $('kt-tminus').addEventListener('click',function(){ tmAdjust(-15); }); $('kt-tplus').addEventListener('click',function(){ tmAdjust(15); });
+  $('kt-prev').addEventListener('click',function(){ go(-1); }); $('kt-next').addEventListener('click',function(){ go(1); });
+  $('kt-winback').addEventListener('click',function(){ $('kt-win').hidden=true; }); $('kt-winnew').addEventListener('click',newGame);
+  document.querySelectorAll('[data-kt-close]').forEach(function(b){ b.addEventListener('click',function(){ if(openCalc) toggleCalc(openCalc); }); });
+  document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altKey) return; var k=e.key.toLowerCase();
+    if(k==='f'){ e.preventDefault(); fullscreen(); return; }
+    if(k==='m'){ e.preventDefault(); muted=!muted; save(); toast(muted?'Sound off':'Sound on'); if(!muted) SND.tick(); return; }
+    if(k==='c'){ e.preventDefault(); toggleCalc('nw'); return; }
+    if(k==='d'){ e.preventDefault(); toggleCalc('ds'); return; }
+    if(e.key==='Escape'&&openCalc){ toggleCalc(openCalc); return; }
+    if(openCalc) return;                                   // game keys wait while a calculator is open
+    if(winOpen()){ if(e.key==='Escape'||e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); $('kt-win').hidden=true; } return; }
+    if(k==='t'){ e.preventDefault(); if(!O.noTimer) tmToggle(); }
+    else if(e.key==='ArrowRight'||e.key==='PageDown'){ e.preventDefault(); go(1); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); go(-1); }
+    else if(e.key==='R'&&e.shiftKey){ newGame(); }
+    else if(O.onKey) O.onKey(e); });
+  addEventListener('resize',fit); fit(); drawScore(); draw(); };
+K.correct=function(x,y){                                    // call once when the selected team gets it right; x,y = where the burst starts (stage px)
+  if(!st.solved[st.i]){ st.scores[st.sel]++; st.solved[st.i]=1; } tmStop(); drawScore(); save();
+  SND.action(); SND.hit(); confetti(x==null?960:x, y==null?560:y, 110, 2.6); confetti(120,1060,60,1.1); confetti(1800,1060,60,1.1); };
+K.miss=function(){ SND.action(); SND.miss(); };              // no penalty by default; another team can steal
+K.team=function(){ return 'Team '+(st.sel+1); };
+K.stagePoint=function(el,dx,dy){ var r=el.getBoundingClientRect(), s=$('stage').getBoundingClientRect(), k=1920/s.width; return [(r.left-s.left)*k+(dx||0),(r.top-s.top)*k+(dy||0)]; };
+K.snd=SND; K.tone=tone; K.noise=noise; K.brass=brass; K.confetti=confetti; K.toast=toast;
+K.go=go; K.state=function(){ return { round:st.i, sel:st.sel, scores:st.scores.slice(0,st.teams), solved:st.solved, timer:TM, calc:openCalc, win:winOpen() }; };
+return K;
+})();
+
+/* ===== THE GAME: Speedrun Splits — solo, 12 levels, count-up clock with splits, +10 s per bug ===== */
+var $=function(id){ return document.getElementById(id); };
+/* ---- fractions: [n,d], d>0, reduced ---- */
+function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ var t=b; b=a%b; a=t; } return a||1; }
+function F(n,d){ d=d||1; if(d<0){ n=-n; d=-d; } var g=gcd(n,d); return [n/g,d/g]; }
+function sub(a,b){ return F(a[0]*b[1]-b[0]*a[1], a[1]*b[1]); }
+function mul(a,b){ return F(a[0]*b[0], a[1]*b[1]); }
+function div(a,b){ return F(a[0]*b[1], a[1]*b[0]); }
+function neg(a){ return [-a[0],a[1]]; }
+function eq(a,b){ return a[0]*b[1]===b[0]*a[1]; }
+function parse(str){ var s=(str||'').replace(/−/g,'-').trim(); if(!s) return null;
+  var m=s.match(/^(-?)(\d+)(?:\/(\d+))?$/); if(m){ if(m[3]==='0') return null; return F((m[1]?-1:1)*(+m[2]), m[3]?+m[3]:1); }
+  m=s.match(/^(-?)(\d*)\.(\d+)$/); if(m){ var k=Math.pow(10,m[3].length); return F((m[1]?-1:1)*(+(m[2]||0)*k + +m[3]), k); } return null; }
+function slopeOf(a,b){ return F((b[1]-a[1]), (b[0]-a[0])); }
+/* ---- display ---- */
+var MINUS='−';
+function fr(f,cls){ var s=f[0]<0?MINUS:'', n=Math.abs(f[0]); return f[1]===1? s+n : s+'<span class="sr-fr"><span>'+n+'</span><span>'+f[1]+'</span></span>'; }
+function num(v){ return v<0? MINUS+Math.abs(v) : ''+v; }
+function pt(p){ return '(<span style="color:var(--c-xv)">'+num(p[0])+'</span>, <span style="color:var(--c-yv)">'+num(p[1])+'</span>)'; }
+function eqText(x1,y1,m){ var ys=y1===0?'y':'y '+(y1>0?MINUS:'+')+' <span style="color:var(--c-yv)">'+Math.abs(y1)+'</span>';
+  var xs=x1===0?'x':'x '+(x1>0?MINUS:'+')+' <span style="color:var(--c-xv)">'+Math.abs(x1)+'</span>';
+  var mm=(m[0]===1&&m[1]===1)?'':(m[0]===-1&&m[1]===1)?MINUS:'<span style="color:var(--c-m)">'+fr(m)+'</span>';
+  return ys+' = '+mm+'('+xs+')'; }
+function plain(f){ return f[1]===1? num(f[0]) : num(f[0])+'/'+f[1]; }
+/* ---- the 12 levels (fresh numbers: none from the slides, the exit ticket or Worksheet A) ---- */
+var ROUNDS=[
+ {t:'read', p:[1,9],   m:[4,1]},
+ {t:'read', p:[-7,-3], m:[-6,1]},
+ {t:'read', p:[5,-8],  m:[2,5]},
+ {t:'pm',   p:[3,8],   m:[7,1]},
+ {t:'pm',   p:[-4,6],  m:[-3,1]},
+ {t:'pm',   p:[7,-2],  m:[1,3]},
+ {t:'pm',   p:[-5,-9], m:[-5,2]},
+ {t:'two',  a:[2,1],   b:[5,13]},
+ {t:'two',  a:[-6,4],  b:[2,-2]},
+ {t:'table',rows:[[0,-7],[3,-5],[6,-3],[9,-1]]},
+ {t:'graph',a:[-4,3],  b:[2,0]},
+ {t:'graph',a:[-2,-5], b:[1,4]}
+];
+ROUNDS.forEach(function(r){ // every level knows its line: a point on it and its slope
+  if(r.t==='two'||r.t==='graph'){ r.p=r.a; r.m=slopeOf(r.a,r.b); }
+  if(r.t==='table'){ r.p=r.rows[0]; r.m=slopeOf(r.rows[0],r.rows[1]); } });
+window.__R=ROUNDS;
+var TAGS={read:'READ THE SAVE', pm:'SAVE POINT + SLOPE', two:'TWO POINTS', table:'TABLE', graph:'GRAPH'};
+function promptOf(r){ return r.t==='read'? 'What are the point and the slope?' : r.t==='pm'? 'Write the equation in point-slope form.' :
+  r.t==='two'? 'Write the equation in point-slope form through both points.' : r.t==='table'? 'Write the equation in point-slope form for the table.' :
+  'Write the equation in point-slope form for the line on the grid.'; }
+function graphSVG(r){ var S=500,N=6,u=S/(2*N),X=function(x){return S/2+x*u;},Y=function(y){return S/2-y*u;},g='',L='';
+  for(var k=-N;k<=N;k++){ g+='<line x1="'+X(k)+'" y1="0" x2="'+X(k)+'" y2="'+S+'"/><line x1="0" y1="'+Y(k)+'" x2="'+S+'" y2="'+Y(k)+'"/>';
+    if(k&&k%2===0) L+='<text x="'+X(k)+'" y="'+(S/2+30)+'" text-anchor="middle">'+num(k)+'</text><text x="'+(S/2-10)+'" y="'+(Y(k)+9)+'" text-anchor="end">'+num(k)+'</text>'; }
+  var m=r.m[0]/r.m[1], f=function(x){ return r.p[1]+m*(x-r.p[0]); }, xs=[]; for(var x=-6.4;x<=6.41;x+=0.05) if(Math.abs(f(x))<=6.4) xs.push(x);
+  var x1=xs[0],x2=xs[xs.length-1];
+  var dot=function(p){ return '<circle cx="'+X(p[0])+'" cy="'+Y(p[1])+'" r="11" fill="var(--c-pt)" stroke="var(--panel)" stroke-width="4"/>'; };
+  return '<svg class="sr-graph" viewBox="-14 -14 '+(S+28)+' '+(S+28)+'"><g stroke="rgba(190,196,255,.16)" stroke-width="2">'+g+'</g>'+
+    '<g stroke="var(--muted)" stroke-width="3"><line x1="-10" y1="'+S/2+'" x2="'+(S+10)+'" y2="'+S/2+'"/><line x1="'+S/2+'" y1="-10" x2="'+S/2+'" y2="'+(S+10)+'"/></g>'+
+    '<g fill="var(--muted)" font-family="Atkinson Hyperlegible,sans-serif" font-weight="700" font-size="26" paint-order="stroke" stroke="var(--panel)" stroke-width="6">'+L+'</g>'+
+    '<line x1="'+X(x1)+'" y1="'+Y(f(x1))+'" x2="'+X(x2)+'" y2="'+Y(f(x2))+'" stroke="var(--c-line)" stroke-width="7" stroke-linecap="round"/>'+dot(r.a)+dot(r.b)+'</svg>'; }
+function givenOf(r){
+  if(r.t==='read') return '<div class="sr-given">'+eqText(r.p[0],r.p[1],r.m)+'</div>';
+  if(r.t==='pm') return '<div class="sr-given">'+pt(r.p)+' and <span style="color:var(--c-m)">m = '+fr(r.m)+'</span></div>';
+  if(r.t==='two') return '<div class="sr-given">'+pt(r.a)+' and '+pt(r.b)+'</div>';
+  if(r.t==='table') return '<div class="sr-vis"><table class="sr-tab"><tr><th style="color:var(--c-xv)">x</th><th style="color:var(--c-yv)">y</th></tr>'+
+    r.rows.map(function(w){ return '<tr><td>'+num(w[0])+'</td><td>'+num(w[1])+'</td></tr>'; }).join('')+'</table></div>';
+  return '<div class="sr-vis">'+graphSVG(r)+'</div>'; }
+/* ---- checking: any point on the line is fine; each likely bug gets its own line, in the slides' words ---- */
+function onLine(r,x,y){ return x&&y&&eq(mul(sub(y,F(r.p[1])),[1,1]), mul(r.m,sub(x,F(r.p[0])))); }
+function check(r,v){ // returns {ok, r1, r2}
+  if(r.t==='read'){
+    var X=parse(v.px), Y=parse(v.py), M=parse(v.m);
+    if(!X||!Y||!M) return {ok:false, fill:true, r1:'Fill every box.', r2:'Point (x, y) and the slope.'};
+    var P=[F(r.p[0]),F(r.p[1])], mOk=eq(M,r.m), pOk=eq(X,P[0])&&eq(Y,P[1]);
+    if(mOk&&pOk) return {ok:true};
+    if(!pOk){ if(eq(X,neg(P[0]))&&eq(Y,neg(P[1]))) return {ok:false,r1:'Sign Swap!',r2:'The point\'s signs are the opposite of what you see.'};
+      if(eq(X,P[1])&&eq(Y,P[0])) return {ok:false,r1:'x and y swapped places.',r2:'x comes from (x − x₁), y from (y − y₁).'};
+      if(eq(X,neg(P[0]))&&eq(Y,P[1])) return {ok:false,r1:'Half flipped: check x.',r2:'The x sign didn\'t flip.'};
+      if(eq(X,P[0])&&eq(Y,neg(P[1]))) return {ok:false,r1:'Half flipped: check y.',r2:'The y sign didn\'t flip.'};
+      return {ok:false,r1:'That point isn\'t the save point.',r2:mOk?'Slope is right. Recheck the point.':'Recheck the point and the slope.'}; }
+    if(eq(M,neg(r.m))) return {ok:false,r1:'Slope sign is off.',r2:'The slope keeps its sign. Only the point flips.'};
+    return {ok:false,r1:'Point is right. Recheck the slope.',r2:'The slope is the number in front of the ( ).'}; }
+  var A=parse(v.a), B=parse(v.b), M2=parse(v.m);
+  if(!A||!B||!M2) return {ok:false, fill:true, r1:'Fill every box.', r2:'Type 0 for a missing number, 1 for no slope number.'};
+  var y1=v.s1==='−'?A:neg(A), x1=v.s2==='−'?B:neg(B), mOk2=eq(M2,r.m), on=onLine(r,x1,y1);
+  if(mOk2&&on) return {ok:true};
+  if(mOk2){ if(onLine(r,neg(x1),neg(y1))) return {ok:false,r1:'Sign Swap!',r2:'The signs flip on the point. (x₁, y₁) shows up as its opposites.'};
+    if(onLine(r,neg(x1),y1)) return {ok:false,r1:'Half flipped: check x.',r2:'The x sign didn\'t flip.'};
+    if(onLine(r,x1,neg(y1))) return {ok:false,r1:'Half flipped: check y.',r2:'The y sign didn\'t flip.'};
+    if(onLine(r,y1,x1)) return {ok:false,r1:'x and y swapped places.',r2:'x goes with x, y goes with y.'};
+    return {ok:false,r1:'Slope is right.',r2:'But that point isn\'t on this line.'}; }
+  if(r.m[0]!==0&&eq(M2,F(r.m[1],r.m[0]))) return {ok:false,r1:'Upside-down slope!',r2:'Slope is rise over run: change in y on top.'};
+  if(eq(M2,neg(r.m))) return {ok:false,r1:'Slope sign is off.',r2:r.t==='pm'?'Copy the slope with its sign.':'Subtract in the same order, top and bottom. Up or down?'};
+  if(on) return {ok:false,r1:'Point is good. Recheck the slope.',r2:r.t==='pm'?'Use the m you were given.':'m = (y₂ − y₁) / (x₂ − x₁)'};
+  return {ok:false,r1:'Not this line yet.',r2:'Find the slope first, then use one point.'}; }
+window.__check=check;
+/* ---- run state (saved per Chromebook) ---- */
+var KEY='speedrun_splits_v1_run', RS;
+function fresh(){ var pb=RS&&RS.pb||null, name=RS&&RS.name||''; RS={name:name,started:false,t0:0,pen:0,ended:false,fin:0,splits:[],skip:[],miss:[],vals:{},pb:pb,bugs:0}; }
+try{ RS=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){} if(!RS||!RS.splits) fresh();
+function saveRS(){ try{ localStorage.setItem(KEY,JSON.stringify(RS)); }catch(e){} }
+function now(){ return RS.ended? RS.fin : RS.started? Date.now()-RS.t0+RS.pen : 0; }
+function fmt(ms){ var t=Math.max(0,ms)/1000, m=Math.floor(t/60), s=t-m*60; return m+':'+(s<10?'0':'')+s.toFixed(1); }
+function fmtS(ms){ var t=Math.round(ms/1000); return Math.floor(t/60)+':'+('0'+t%60).slice(-2); }
+function cleared(i){ return RS.splits[i]!=null||RS.skip[i]; }
+/* clock in the top bar */
+var clk=document.createElement('div'); clk.className='sr-clock'; clk.innerHTML='<div class="sr-cface" id="sr-cface">0:00.0</div><div class="sr-pen" id="sr-pen">+10</div>';
+document.querySelector('.kt-top').insertBefore(clk,$('kt-timer'));
+setInterval(function(){ $('sr-cface').textContent=fmt(now()); clk.className='sr-clock'+(RS.started&&!RS.ended?' run':''); },100);
+/* splits bar in row 3 */
+var bar=document.createElement('div'); bar.className='sr-splits'; bar.id='sr-splits'; $('kt-score').after(bar);
+function drawSplits(cur){ var h='', prev=0;
+  for(var i=0;i<ROUNDS.length;i++){ var t='—', c='sr-sp';
+    if(RS.skip[i]){ t='SKIP'; c+=' skip'; } else if(RS.splits[i]!=null){ t=fmtS(RS.splits[i]); c+=' done'; }
+    if(i===cur) c+=' cur'; h+='<div class="'+c+'"><span class="l">L'+(i+1)+'</span><span class="t">'+t+'</span></div>'; }
+  bar.innerHTML=h; }
+/* ---- render one level ---- */
+var V={}, active='', cur=0;
+function fields(r){ return r.t==='read'? ['px','py','m'] : ['a','m','b']; }
+function render(i){ cur=i; var r=ROUNDS[i], done=cleared(i);
+  V=RS.vals[i]? JSON.parse(JSON.stringify(RS.vals[i])) : (r.t==='read'? {px:'',py:'',m:''} : {s1:'−',a:'',m:'',s2:'−',b:''});
+  active=fields(r)[0];
+  var build = r.t==='read'
+    ? '<span class="sr-lbl">Point</span>(<button class="sr-box xb" data-f="px"></button>, <button class="sr-box yb" data-f="py"></button>)<span class="sr-lbl">Slope</span><button class="sr-box mb" data-f="m"></button>'
+    : 'y <button class="sr-sign" data-s="s1"></button> <button class="sr-box yb" data-f="a"></button> = <button class="sr-box mb" data-f="m"></button>(x <button class="sr-sign" data-s="s2"></button> <button class="sr-box xb" data-f="b"></button>)';
+  var keys=['7','8','9','⌫','4','5','6','−','1','2','3','/','0','.'];
+  $('main').innerHTML='<div class="sr-wrap"><div class="sr-card"><div class="sr-tag">LEVEL '+(i+1)+' · '+TAGS[r.t]+'</div><p class="sr-prompt">'+promptOf(r)+'</p>'+givenOf(r)+'</div>'+
+    '<div class="sr-side"><div class="sr-build">'+build+'</div><div class="sr-lower"><div class="sr-pad">'+
+    keys.map(function(k){ return '<button data-k="'+k+'">'+k+'</button>'; }).join('')+'<button class="w2" data-k="next">Next box ›</button></div>'+
+    '<div class="sr-act"><div class="sr-res" id="sr-res"><div class="r1"></div><div class="r2"></div></div><button class="sr-save" id="sr-save">SAVE</button>'+
+    '<button class="sr-skip" id="sr-skip" hidden>Skip this level (+60 s)</button></div></div></div></div>'+
+    (RS.started?'':startHTML());
+  paint(); drawSplits(i);
+  if(done){ setRes(RS.skip[i]?'no':'ok', RS.skip[i]?'Skipped (+60 s).':'Level cleared!', RS.skip[i]?'Come back to it after the run.':'Split: '+fmtS(RS.splits[i])); $('sr-save').disabled=true; }
+  else if((RS.miss[i]||0)>=3) $('sr-skip').hidden=false;
+  $('main').querySelectorAll('[data-f]').forEach(function(b){ b.onclick=function(){ active=b.dataset.f; paint(); }; });
+  $('main').querySelectorAll('[data-s]').forEach(function(b){ b.onclick=function(){ if(lock()) return; V[b.dataset.s]=V[b.dataset.s]==='−'?'+':'−'; paint(); }; });
+  $('main').querySelectorAll('[data-k]').forEach(function(b){ b.onclick=function(){ press(b.dataset.k); }; });
+  $('sr-save').onclick=submit; $('sr-skip').onclick=skip;
+  if(!RS.started) wireStart(); }
+function lock(){ return !RS.started||RS.ended||cleared(cur); }
+function paint(){ $('main').querySelectorAll('[data-f]').forEach(function(b){ b.textContent=(V[b.dataset.f]||'').replace(/-/g,MINUS); b.classList.toggle('on',b.dataset.f===active&&!lock()); });
+  $('main').querySelectorAll('[data-s]').forEach(function(b){ b.textContent=V[b.dataset.s]; }); }
+function press(k){ if(lock()) return; var f=fields(ROUNDS[cur]), v=V[active]||'';
+  if(k==='next'){ active=f[(f.indexOf(active)+1)%f.length]; }
+  else if(k==='⌫') v=v.slice(0,-1);
+  else if(k==='−'){ v=v[0]==='-'? v.slice(1) : '-'+v; }
+  else if(v.length<6) v+=k;
+  if(k!=='next') V[active]=v; paint(); }
+function setRes(c,a,b){ var r=$('sr-res'); r.className='sr-res'+(c?' '+c:''); r.querySelector('.r1').textContent=a||''; r.querySelector('.r2').textContent=b||''; }
+function bump(ms){ RS.pen+=ms; var p=$('sr-pen'); p.textContent='+'+(ms/1000); p.classList.remove('go'); void p.offsetWidth; p.classList.add('go'); }
+function submit(){ if(lock()) return; var r=ROUNDS[cur], c=check(r,V);
+  if(c.fill){ setRes('no',c.r1,c.r2); Kit.snd.tick(); return; }
+  if(c.ok){ RS.vals[cur]=V; RS.splits[cur]=now(); setRes('ok','Checkpoint! Level '+(cur+1)+' cleared.','Split: '+fmtS(RS.splits[cur]));
+    var p=Kit.stagePoint($('sr-save'),300,40); Kit.correct(p[0],p[1]); $('sr-save').disabled=true; paint(); drawSplits(cur); afterClear(); return; }
+  RS.miss[cur]=(RS.miss[cur]||0)+1; RS.bugs++; bump(10000); setRes('no',c.r1+'  +10 s',c.r2); Kit.miss();
+  if(RS.miss[cur]>=3) $('sr-skip').hidden=false; saveRS(); }
+function skip(){ if(lock()) return; RS.skip[cur]=true; bump(60000); setRes('no','Skipped (+60 s).','Come back to it after the run.'); $('sr-save').disabled=true; $('sr-skip').hidden=true; paint(); drawSplits(cur); afterClear(); }
+var advT=0;
+function afterClear(){ var all=ROUNDS.every(function(_,i){ return cleared(i); });
+  if(all){ RS.ended=true; RS.fin=Date.now()-RS.t0+RS.pen; if(!RS.pb||RS.fin<RS.pb) { RS.newpb=true; RS.pb=RS.fin; } else RS.newpb=false; }
+  saveRS(); clearTimeout(advT);
+  var at=cur; advT=setTimeout(function(){ if(cur!==at||!$('kt-win').hidden) return; if(all) finish(); else Kit.go(1); }, 1500); }
+/* ---- start screen ---- */
+function startHTML(){ return '<div class="sr-start" id="sr-start"><div class="in"><h2>SPEEDRUN SPLITS</h2>'+
+  '<p>12 levels of point-slope form. The clock runs the whole time. A bug costs <b>+10 s</b>. Stuck after 3 tries? You can skip for +60 s.</p>'+
+  '<input id="sr-name" maxlength="28" placeholder="Type your name" value="'+(RS.name||'').replace(/"/g,'')+'">'+
+  (RS.pb?'<div class="sr-pb">Personal best: '+fmt(RS.pb)+'</div>':'')+'<button class="sr-go" id="sr-go">START RUN ▶</button></div></div>'; }
+function wireStart(){ var n=$('sr-name'), g=$('sr-go'); var up=function(){ g.disabled=!n.value.trim(); }; n.oninput=up; up();
+  n.onkeydown=function(e){ e.stopPropagation(); if(e.key==='Enter'&&!g.disabled) g.click(); };
+  g.onclick=function(){ RS.name=n.value.trim(); RS.started=true; RS.t0=Date.now(); saveRS(); Kit.snd.action(); $('sr-start').remove(); paint(); }; }
+/* ---- finish screen: built into the kit's overlay ---- */
+function finish(){ if(!RS.ended){ Kit.toast('Clear every level first'); return; }
+  var w=$('kt-win'); w.querySelector('.wk').textContent='RUN COMPLETE · '+(RS.name||'Player');
+  $('kt-winhead').textContent=fmt(RS.fin);
+  var sk=RS.skip.filter(Boolean).length;
+  $('kt-winlist').innerHTML='<div class="sr-fin"><div class="sr-frow">'+
+    '<div class="kt-wrow"><div class="n">Bugs</div><div class="p">'+RS.bugs+'</div></div>'+
+    '<div class="kt-wrow"><div class="n">Skips</div><div class="p">'+sk+'</div></div>'+
+    '<div class="kt-wrow lead"><div class="n">'+(RS.newpb?'New best!':'Best')+'</div><div class="p">'+fmtS(RS.pb)+'</div></div></div>'+
+    '<div class="sr-fsp">'+ROUNDS.map(function(_,i){ return '<div><span>L'+(i+1)+'</span>'+(RS.skip[i]?'SKIP':fmtS(RS.splits[i]))+'</div>'; }).join('')+'</div>'+
+    '<div class="sr-shot">Screenshot this screen and turn it in.</div></div>';
+  w.querySelector('#kt-winnew').textContent='New run'; w.hidden=false; Kit.snd.action(); Kit.snd.win();
+  [0,350,700].forEach(function(ms,i){ setTimeout(function(){ if(w.hidden) return; Kit.confetti(200+i*500,1070,90,1.3); Kit.confetti(1720-i*500,1070,90,1.3); },ms); }); }
+/* ---- theme sound: an 8-bit coin grab ---- */
+Kit.snd.action=function(){ Kit.tone(988,988,0,0.07,'square',0.12); Kit.tone(1319,1319,0.07,0.22,'square',0.12); };
+/* ---- keyboard: digits, minus, slash, dot, Backspace, Tab (next box), Enter (save) ---- */
+function onKey(e){ if(e.target&&(e.target.id==='sr-name'||e.target.id==='sr-lbname')) return; var k=e.key;
+  if(k==='l'||k==='L'){ e.preventDefault(); if(lbOpen()) lbHide(); else lbShow(); return; }
+  if(lbOpen()){ if(/^[0-9]$/.test(k)){ e.preventDefault(); lbKey(k); } else if(k==='Backspace'){ e.preventDefault(); lbKey('⌫'); } else if(k==='Escape') lbHide(); return; }
+  if(/^[0-9]$/.test(k)||k==='/'||k==='.'){ e.preventDefault(); press(k); }
+  else if(k==='-'){ e.preventDefault(); press('−'); }
+  else if(k==='Backspace'){ e.preventDefault(); press('⌫'); }
+  else if(k==='Tab'){ e.preventDefault(); press('next'); }
+  else if(k==='Enter'){ e.preventDefault(); submit(); } }
+/* ---- leaderboard (teacher's board): runs are typed in from the students' screenshots; saved on this computer ---- */
+var LBKEY='speedrun_splits_v1_board', LB={runs:[],per:0,tab:0}, lbNew=-1, lbDigits='';
+try{ var _l=JSON.parse(localStorage.getItem(LBKEY)||'null'); if(_l&&_l.runs) LB=_l; }catch(e){}
+function lbSave(){ try{ localStorage.setItem(LBKEY,JSON.stringify(LB)); }catch(e){} }
+function esc(t){ return String(t).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function lbOpen(){ return !!$('sr-lb'); }
+function digitsMs(d){ if(!d) return 0; d=('000'+d).slice(-4); return ((+d.slice(0,-3))*60 + (+d.slice(-3,-1)) + (+d.slice(-1))/10)*1000; }  // m ss t
+function digitsText(d){ if(!d) return '0:00.0'; var p=('000'+d).slice(-4); return (+p.slice(0,-3))+':'+p.slice(-3,-1)+'.'+p.slice(-1); }
+function lbShow(){ if(lbOpen()) return; var el=document.createElement('div'); el.className='sr-lb'; el.id='sr-lb'; $('stage').appendChild(el); lbDraw(); }
+function lbHide(){ var el=$('sr-lb'); if(el) el.remove(); if(location.hash==='#leaderboard') history.replaceState(null,'',location.pathname+location.search); }
+function lbDraw(){ var el=$('sr-lb'); if(!el) return; var keepName=$('sr-lbname')?$('sr-lbname').value:'';
+  var pers=[]; LB.runs.forEach(function(r){ if(r.per&&pers.indexOf(r.per)<0) pers.push(r.per); }); pers.sort(function(a,b){ return a-b; });
+  if(LB.tab&&pers.indexOf(LB.tab)<0) LB.tab=0;
+  var rows=LB.runs.map(function(r,i){ return {r:r,i:i}; }).filter(function(o){ return !LB.tab||o.r.per===LB.tab; }).sort(function(a,b){ return a.r.ms-b.r.ms||a.i-b.i; }).slice(0,8);
+  var rk=['1ST','2ND','3RD','4TH','5TH','6TH','7TH','8TH'];
+  el.innerHTML='<div class="sr-lbh"><h2>FASTEST RUNS</h2><div class="sr-tabs">'+
+    (pers.length>1?['<button data-tab="0" class="'+(LB.tab?'':'on')+'">All</button>'].concat(pers.map(function(p){ return '<button data-tab="'+p+'" class="'+(LB.tab===p?'on':'')+'">P'+p+'</button>'; })).join(''):'')+
+    '</div><button class="sr-x" id="sr-lbx" aria-label="Close the leaderboard">×</button></div>'+
+    '<div class="sr-lbb"><div class="sr-list">'+(rows.length? rows.map(function(o,k){ return '<div class="sr-row r'+(k+1)+(o.i===lbNew?' new':'')+'"><span class="rk">'+rk[k]+'</span><span class="nm">'+esc(o.r.name)+'</span>'+
+      '<span class="pd">'+(o.r.per?'P'+o.r.per:'')+'</span><span class="tm">'+fmt(o.r.ms)+'</span><button class="del" data-del="'+o.i+'" aria-label="Remove '+esc(o.r.name)+'">×</button></div>'; }).join('')
+      : '<div class="sr-empty">No runs posted yet.<br>Add the first one →</div>')+'</div>'+
+    '<div class="sr-add"><h3>Post a run</h3><input id="sr-lbname" maxlength="24" placeholder="Name" value="'+esc(keepName)+'">'+
+    '<div class="lab">PERIOD</div><div class="sr-chips">'+[1,2,3,4,5,6,7,8].map(function(p){ return '<button class="sr-chip'+(LB.per===p?' on':'')+'" data-per="'+p+'">'+p+'</button>'; }).join('')+'</div>'+
+    '<div class="lab">TIME FROM THE SCREENSHOT</div><div class="sr-tface'+(lbDigits?'':' empty')+'" id="sr-lbt">'+digitsText(lbDigits)+'</div>'+
+    '<div class="sr-lpad">'+['1','2','3','4','5','⌫','6','7','8','9','0','C'].map(function(k){ return '<button data-lk="'+k+'">'+k+'</button>'; }).join('')+'</div>'+
+    '<button class="sr-post" id="sr-lbpost">POST TIME</button><button class="sr-clear" id="sr-lbclear">Clear the whole board</button></div></div>';
+  var n=$('sr-lbname'), post=$('sr-lbpost'); var up=function(){ post.disabled=!(n.value.trim()&&lbDigits); }; up(); n.oninput=up;
+  n.onkeydown=function(e){ e.stopPropagation(); if(e.key==='Enter'&&!post.disabled) post.click(); if(e.key==='Escape') lbHide(); };
+  $('sr-lbx').onclick=lbHide;
+  el.querySelectorAll('[data-tab]').forEach(function(b){ b.onclick=function(){ LB.tab=+b.dataset.tab; lbSave(); lbDraw(); }; });
+  el.querySelectorAll('[data-per]').forEach(function(b){ b.onclick=function(){ LB.per=LB.per===+b.dataset.per?0:+b.dataset.per; lbSave(); lbDraw(); }; });
+  el.querySelectorAll('[data-lk]').forEach(function(b){ b.onclick=function(){ lbKey(b.dataset.lk); }; });
+  el.querySelectorAll('[data-del]').forEach(function(b){ b.onclick=function(){ var r=LB.runs[+b.dataset.del]; if(confirm('Remove '+r.name+' ('+fmt(r.ms)+')?')){ LB.runs.splice(+b.dataset.del,1); lbNew=-1; lbSave(); lbDraw(); } }; });
+  $('sr-lbclear').onclick=function(){ if(LB.runs.length&&confirm('Clear every run from the board?')){ LB.runs=[]; LB.tab=0; lbNew=-1; lbSave(); lbDraw(); } };
+  post.onclick=function(){ var ms=digitsMs(lbDigits), nm=n.value.trim(); if(!nm||!ms) return;
+    var view=LB.runs.filter(function(r){ return !LB.tab||r.per===LB.tab; }), best=view.length?Math.min.apply(null,view.map(function(r){ return r.ms; })):Infinity;
+    LB.runs.push({name:nm,ms:ms,per:LB.per||0}); lbNew=LB.runs.length-1; lbDigits=''; n.value=''; lbSave(); lbDraw();
+    if(ms<best&&(!LB.tab||LB.per===LB.tab)){ Kit.snd.action(); Kit.snd.win(); Kit.toast('New record: '+nm+'!'); Kit.confetti(500,1060,120,1.2); Kit.confetti(1420,1060,120,1.2); }
+    else Kit.snd.action(); }; }
+function lbKey(k){ if(k==='⌫') lbDigits=lbDigits.slice(0,-1); else if(k==='C') lbDigits=''; else if(lbDigits.length<4&&!(k==='0'&&!lbDigits)) lbDigits+=k;
+  var t=$('sr-lbt'); if(t){ t.textContent=digitsText(lbDigits); t.classList.toggle('empty',!lbDigits); } var n=$('sr-lbname'); $('sr-lbpost').disabled=!(n.value.trim()&&lbDigits); }
+window.__lb={ show:lbShow, hide:lbHide, key:lbKey, data:function(){ return LB; } };
+window.__game={ set:function(v){ V=Object.assign(V,v); paint(); }, submit:submit, RS:function(){ return RS; } };
+Kit.init({ id:'speedrun_splits_v1', title:'SPEEDRUN SPLITS', roundWord:'Level', rounds:ROUNDS.length, teams:4, seconds:90, noTimer:true,
+  render:render, onKey:onKey, canGo:function(i){ if(cleared(i)) return true; Kit.toast('Clear this level first'); return false; },
+  finish:finish, lastLabel:'Finish ›', paused:function(){ return lbOpen(); }, onNew:function(){ clearTimeout(advT); fresh(); saveRS(); } });
+if(location.hash==='#leaderboard') lbShow();
+</script>
+</body>
+</html>

@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spitz Arcade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Lexend:wght@400;600;800&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: arcade cabinet lobby. Step 1 pick a game (card grid), step 2 pick question set + topics, sticky launch bar. Single dark look to match the games. */
+:root{
+  --paper:#0E1016; --panel:#191C25; --panel2:#222634; --line:#2E3344;
+  --ink:#F3F5FA; --muted:#9AA3B8; --brand:#FFB020; --ok:#7CE04A;
+  --display:'Bungee', 'Arial Black', system-ui, sans-serif;
+  --body:'Lexend', system-ui, sans-serif;
+  --mono:'JetBrains Mono', ui-monospace, monospace;
+  color-scheme:dark;
+}
+html,body{ background:var(--paper); color:var(--ink); }
+body{ font:400 16px/1.5 var(--body); padding-inline:16px; padding-block:0 120px; }
+.wrap{ max-width:1100px; margin:0 auto; display:flex; flex-direction:column; gap:36px; }
+header{ display:flex; flex-wrap:wrap; align-items:flex-end; justify-content:space-between; gap:12px; padding-top:32px; }
+h1{ font:400 clamp(34px,6vw,58px)/1 var(--display); margin:0; letter-spacing:.01em; }
+h1 span{ color:var(--brand); }
+.tag{ font:600 14px/1 var(--body); color:var(--muted); letter-spacing:.14em; text-transform:uppercase; }
+.proto{ font-size:14px; color:var(--muted); background:var(--panel); border:1px dashed var(--line); border-radius:10px; padding:10px 14px; }
+h2{ font:400 22px/1.1 var(--display); margin:0 0 14px; display:flex; gap:12px; align-items:center; }
+h2 .n{ font:800 14px/1 var(--body); background:var(--brand); color:var(--paper); border-radius:99px; width:28px; height:28px; display:grid; place-items:center; }
+.games{ display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:12px; }
+.game{ all:unset; cursor:pointer; background:var(--panel); border:3px solid var(--line); border-radius:16px; padding:14px; display:flex; flex-direction:column; gap:8px; transition:transform .12s, border-color .12s; }
+.game:hover{ transform:translateY(-2px); }
+.game:focus-visible{ outline:3px solid var(--ink); outline-offset:2px; }
+.game[aria-pressed="true"]{ border-color:var(--acc); box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 30%,transparent); }
+.art{ height:74px; border-radius:10px; background:linear-gradient(135deg,var(--acc),color-mix(in srgb,var(--acc) 25%,var(--paper))); display:grid; place-items:center; font:400 30px/1 var(--display); color:var(--paper); }
+.game b{ font:400 17px/1.1 var(--display); color:var(--ink); }
+.game small{ color:var(--muted); font-size:13px; }
+.sets{ display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:12px; }
+.set{ background:var(--panel); border:3px solid var(--line); border-radius:16px; padding:16px; display:flex; flex-direction:column; gap:12px; }
+.set.on{ border-color:var(--brand); }
+.set label.head{ display:flex; gap:10px; align-items:center; font:800 18px/1.2 var(--body); cursor:pointer; }
+.set .unit{ color:var(--muted); font-size:13px; }
+.chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.chip{ position:relative; }
+.chip input{ position:absolute; opacity:0; }
+.chip span{ display:block; padding:8px 12px; border-radius:99px; background:var(--panel2); border:2px solid var(--line); font-size:14px; font-weight:600; cursor:pointer; }
+.chip input:checked + span{ background:var(--brand); color:var(--paper); border-color:var(--brand); }
+.chip input:focus-visible + span{ outline:2px solid var(--ink); outline-offset:2px; }
+.set:not(.on) .chips{ opacity:.45; pointer-events:none; }
+input[type=radio]{ accent-color:var(--brand); width:18px; height:18px; }
+.team{ background:var(--panel); border-radius:16px; padding:16px; color:var(--muted); font-size:15px; }
+.team b{ color:var(--ink); }
+.bar{ position:fixed; left:0; right:0; bottom:0; background:color-mix(in srgb,var(--paper) 92%,transparent); backdrop-filter:blur(8px); border-top:1px solid var(--line); padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px)); }
+.bar .in{ max-width:1100px; margin:0 auto; display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:space-between; }
+.sum{ min-width:0; flex:1 1 300px; }
+.sum div{ font-weight:800; }
+.sum code{ display:block; font:500 12px/1.4 var(--mono); color:var(--muted); overflow-wrap:anywhere; }
+.play{ all:unset; cursor:pointer; font:400 22px/1 var(--display); background:var(--brand); color:var(--paper); padding:16px 30px; border-radius:14px; }
+.play[disabled]{ opacity:.4; cursor:not-allowed; }
+.play:focus-visible{ outline:3px solid var(--ink); outline-offset:3px; }
+.toast{ color:var(--ok); font-size:14px; }
+@media (prefers-reduced-motion:reduce){ .game{ transition:none; } }
+
+.set.off{ opacity:.45; }
+.set.off label.head{ cursor:not-allowed; }
+.soon{ font:600 12px/1 var(--body); color:var(--muted); letter-spacing:.1em; text-transform:uppercase; }
+.chip input:disabled + span{ cursor:default; }
+.teach{ display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
+.teach a{ color:var(--ink); background:var(--panel2); border:2px solid var(--line); border-radius:12px; padding:10px 14px; text-decoration:none; font-weight:600; }
+.teach a:hover,.teach a:focus-visible{ border-color:var(--brand); }
+a.play{ text-decoration:none; }
+a.play[aria-disabled="true"]{ opacity:.4; pointer-events:none; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <div class="tag">Made by Spitz 🍔</div>
+      <h1>Spitz <span>Arcade</span></h1>
+    </div>
+    <p class="proto">Pick a game, then the questions you want to practice.</p>
+  </header>
+
+  <section>
+    <h2><span class="n">1</span>Pick a game</h2>
+    <div class="games" id="games"></div>
+  </section>
+
+  <section>
+    <h2><span class="n">2</span>Pick your questions</h2>
+    <p class="proto" style="margin:0 0 14px">Right now each game plays all the topics in its own set. Mixing sets and choosing topics is coming next.</p>
+    <div class="sets" id="sets"></div>
+  </section>
+
+  <section class="team">
+    <b>Class games</b> for the classroom board
+    <div class="teach">
+      <a href="games/line_up_the_shot.html">Line Up the Shot</a>
+      <a href="games/loot_drop.html">Loot Drop</a>
+      <a href="games/speedrun_splits.html">Speedrun Splits</a>
+      <a href="games/splat_range_leaderboard.html">Splat Range leaderboard</a>
+    </div>
+  </section>
+</div>
+
+<div class="bar">
+  <div class="in">
+    <div class="sum"><div id="sumtxt">Pick a game</div></div>
+    <a class="play" id="play" href="#" aria-disabled="true">Play</a>
+  </div>
+</div>
+
+<script>
+var GAMES=[
+  {id:'splat_range',set:'linear',name:'Splat Range',d:'Paint-splat target range',acc:'#B6FF3D',g:'◎'},
+  {id:'star_swarm',set:'linear',name:'Star Swarm',d:'Pixel space shooter',acc:'#3DE0FF',g:'✦'},
+  {id:'shift_racer',set:'shift',name:'Shift Racer',d:'Fuel up and race',acc:'#FFD60A',g:'➤'},
+  {id:'jump_man_multiplication',set:'mult',name:'Jump Man',d:'Tower climber',acc:'#FFB020',g:'▲'},
+  {id:'football_buds',set:'mult',name:'Football Buds',d:'Four quarters vs the Rivals',acc:'#7CE04A',g:'◆'},
+  {id:'hoop_buds',set:'mult',name:'Hoop Buds',d:'First to 21',acc:'#FFD23F',g:'●'},
+  {id:'dash',set:'mult',name:'Dash',d:'Jump the spikes',acc:'#2DE2E6',g:'■'},
+  {id:'skate',set:'mult',name:'Skate',d:'Land the tricks',acc:'#C8FF3D',g:'✚'}
+];
+var SETS=[
+  {id:'mult',name:'Multiplication facts',unit:'Warm-up',topics:[['f03','Facts 0–3'],['f46','Facts 4–6'],['f79','Facts 7–9'],['f1012','Facts 10–12']]},
+  {id:'linear',name:'Linear equations',unit:'Slope & forms',topics:[['si','Slope-intercept form'],['ps','Point-slope form'],['gr','Graphs'],['hv','HOY & VUX']]},
+  {id:'shift',name:'Transformations',unit:'Translating lines',topics:[['vs','Vertical shifts'],['hs','Horizontal shifts'],['gr','Graphs'],['ne','New equations']]}
+];
+var st={game:null,set:'mult',t:{mult:['f03','f46','f79','f1012'],linear:['si','ps','gr','hv'],shift:['vs','hs','gr','ne']}};
+try{ var sv=JSON.parse(localStorage.getItem('spitz_hub')||'null'); if(sv&&sv.t) st=sv; }catch(e){}
+function $(i){ return document.getElementById(i); }
+function save(){ try{ localStorage.setItem('spitz_hub',JSON.stringify(st)); }catch(e){} }
+
+$('games').innerHTML=GAMES.map(function(g){ return '<button class="game" style="--acc:'+g.acc+'" data-g="'+g.id+'" aria-pressed="false"><div class="art">'+g.g+'</div><b>'+g.name+'</b><small>'+g.d+'</small></button>'; }).join('');
+$('sets').innerHTML=SETS.map(function(s){ return '<div class="set" data-s="'+s.id+'"><label class="head"><input type="radio" name="set" id="set-'+s.id+'" value="'+s.id+'"><span>'+s.name+'<br><span class="unit">'+s.unit+'</span></span></label><div class="chips">'+
+  s.topics.map(function(t){ return '<label class="chip"><input type="checkbox" id="t-'+s.id+'-'+t[0]+'" data-s="'+s.id+'" value="'+t[0]+'"><span>'+t[1]+'</span></label>'; }).join('')+'</div></div>'; }).join('');
+
+/* For now each game runs its own question set; the other sets unlock once the shared question banks land. */
+function gameOf(){ return GAMES.filter(function(x){ return x.id===st.game; })[0]; }
+function render(){
+  var g=gameOf(); if(g) st.set=g.set;
+  document.querySelectorAll('.game').forEach(function(b){ b.setAttribute('aria-pressed',b.dataset.g===st.game?'true':'false'); });
+  document.querySelectorAll('.set').forEach(function(el){ var on=el.dataset.s===st.set, off=g&&!on, r=el.querySelector('input[type=radio]');
+    el.classList.toggle('on',on); el.classList.toggle('off',!!off); r.checked=on; r.disabled=!!off;
+    var tag=el.querySelector('.soon'); if(off&&!tag){ el.querySelector('.unit').insertAdjacentHTML('afterend','<br><span class="soon">Coming soon for this game</span>'); } else if(!off&&tag){ tag.previousSibling.remove(); tag.remove(); } });
+  document.querySelectorAll('.chip input').forEach(function(c){ c.checked=true; c.disabled=true; });
+  var s=SETS.filter(function(x){ return x.id===st.set; })[0], ts=st.t[st.set], ok=g&&ts.length, p=$('play');
+  p.setAttribute('aria-disabled',ok?'false':'true');
+  p.href=ok?'games/'+g.id+'.html?set='+st.set+'&topics='+ts.join(','):'#';
+  $('sumtxt').textContent=!g?'Pick a game':!ts.length?'Pick at least one topic':g.name+' with '+s.name;
+}
+$('games').addEventListener('click',function(e){ var b=e.target.closest('.game'); if(!b) return; st.game=b.dataset.g; save(); render(); });
+$('sets').addEventListener('change',function(e){ var el=e.target;
+  if(el.type==='radio'){ st.set=el.value; }
+  else { var a=st.t[el.dataset.s]; if(el.checked){ if(a.indexOf(el.value)<0) a.push(el.value); } else st.t[el.dataset.s]=a.filter(function(v){ return v!==el.value; }); st.set=el.dataset.s; }
+  save(); render(); });
+render();
+</script>
+</body>
+</html>
