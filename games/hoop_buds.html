@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Hoop Buds: Multiplication Facts</title>
+<title>Hoop Buds · Spitz Arcade</title>
 <link href="https://fonts.googleapis.com/css2?family=Righteous&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
 :root{ --paper:#0A0712; --panel:#160F24; --panel-2:#221838; --text:#FFF6EE; --muted:#B4A8CC; --border:#3A2B5E; --accent:#FF7A1A;
@@ -199,7 +199,31 @@ body{ background:radial-gradient(80% 60% at 70% 0%, #2A1446 0%, #0A0712 65%); }
 .sz-ask button{ height:96px; padding:0 44px; border-radius:22px; font:800 32px/1 Inter,system-ui,sans-serif; background:var(--panel); border:3px solid var(--border); color:var(--text); }
 .sz-ask #sz-askyes{ background:var(--sz-mark); border-color:var(--sz-mark); color:#111; }
 [class$="-logo"]{ cursor:pointer; }
+
+/* ================= v3 LAYOUT + COLORS ================= */
+
+#stage{ grid-template-columns:minmax(0,1fr) 984px; grid-template-rows:84px minmax(0,1fr); column-gap:22px; }
+.hb-top{ grid-area:1/2; justify-content:center; }
+.hb-brand{ position:absolute; left:30px; top:20px; }
+.hb-sp{ display:none; }
+#hb-main{ display:contents; }
+.hb-range{ grid-area:2/2; }
+.hb-range{ box-sizing:content-box; width:1054px; height:936px; border-width:4px; flex:none; transform:scale(0.925); transform-origin:0 0;
+  margin:0 -79.6px -70.8px 0; align-self:center; justify-self:center; }
+
+.hb-q{ grid-area:2/1; order:0; }
+#hb-start .hb-steps{ counter-reset:jer; gap:26px; }
+#hb-start .hb-step{ position:relative; overflow:hidden; padding-top:96px; border-radius:26px 26px 60px 60px; }
+#hb-start .hb-step::before{ counter-increment:jer; content:counter(jer); position:absolute; right:22px; top:4px; font:400 110px/1 var(--display); color:var(--orange); opacity:.85; }
+#hb-start .hb-step:nth-child(2){ transform:translateY(22px); }
+html.sz-alg .hb-ch{ min-height:66px; font-size:34px; padding:6px 16px; }
+html.sz-alg .hb-ch .k{ width:44px; height:44px; font-size:24px; }
+html.sz-alg .hb-fb{ min-height:96px; font-size:25px; padding:12px 18px; }
+html.sz-alg .hb-q{ gap:10px; }
+html.sz-alg .hb-next{ height:68px; }
 </style>
+<script>/* a hub link with an algebra set: answers can be long, so layouts that tile short answers fall back to a list */
+if(/[?&]set=(?!mult\b)[a-z]/.test(location.search)) document.documentElement.classList.add('sz-alg');</script>
 </head>
 <body>
 <div id="stage">
@@ -219,16 +243,16 @@ body{ background:radial-gradient(80% 60% at 70% 0%, #2A1446 0%, #0A0712 65%); }
       <div class="hb-qhead"><span class="hb-tag" id="hb-tag">Facts</span><span class="hb-reward" id="hb-reward"></span></div>
       <div class="hb-prompt" id="hb-prompt"></div>
       <div id="hb-body"><div id="hb-visual"></div><div class="hb-choices" id="hb-choices"></div></div>
-      <div class="hb-fb" id="hb-fb">Huddle up! Answer 2 facts before every possession.</div>
+      <div class="hb-fb" id="hb-fb">Huddle up! Answer 2 questions before every possession.</div>
       <button class="hb-next" id="hb-next" disabled>Next question ›</button>
     </div>
   </div>
 
   <div class="hb-over" id="hb-start"><div class="hb-box">
     <div class="sz-eyebrow">Spitz <b>Arcade</b></div><h2 class="hb-big"><b>HOOP</b> <i>BUDS</i></h2>
-    <p class="hb-sub">Multiplication facts, 0 to 12. Buds vs Rivals, first to 21. Win the huddle, then win the possession.</p>
+    <p class="hb-sub"><span class="sz-setname">Multiplication facts, 0 to 12.</span> Buds vs Rivals, first to 21. Win the huddle, then win the possession.</p>
     <div class="hb-steps">
-      <div class="hb-step"><b>1. Huddle</b>Answer 2 facts before every possession. Both right makes your green zone bigger. Misses shrink it, so don’t guess.</div>
+      <div class="hb-step"><b>1. Huddle</b>Answer 2 questions before every possession. Both right makes your green zone bigger. Misses shrink it, so don’t guess.</div>
       <div class="hb-step"><b>2. Offense</b>Hold Space to shoot and let go in the green. Closer shots are easier. Hop over the defender to dunk.</div>
       <div class="hb-step"><b>3. Defense</b>Stay in front of the Rival. Press Space to jump and block when you see the !</div>
     </div>
@@ -466,7 +490,7 @@ function hud(){ hudLive(); $('hb-budsv').textContent=S.buds; $('hb-rivalsv').tex
 var nextT=0, lockT=0;
 function showQ(){ var q=S.q; $('hb-tag').textContent=q.topic; $('hb-prompt').innerHTML=q.prompt; $('hb-visual').innerHTML=q.visual; $('hb-q').classList.toggle('vis',!!q.visual);
   $('hb-choices').innerHTML=q.choices.map(function(c,i){ return '<button class="hb-ch" data-i="'+i+'"><span class="k">'+(i+1)+'</span><span class="t">'+c.html+'</span></button>'; }).join('');
-  var fb=$('hb-fb'); if(!S.answered){ fb.className='hb-fb'; fb.innerHTML='Huddle up! Answer 2 facts before every possession.'; } $('hb-next').disabled=true;
+  var fb=$('hb-fb'); if(!S.answered){ fb.className='hb-fb'; fb.innerHTML='Huddle up! Answer 2 questions before every possession.'; } $('hb-next').disabled=true;
   if(S.qDone) markAnswered(S.picked,false); hud(); }
 function newQ(){ clearTimeout(nextT); clearTimeout(lockT); S.q=nextQuestion(); S.qDone=false; S.picked=-1; save(); showQ(); }
 function startHuddle(){ S.hud=[]; S.ready=false; newQ(); }
@@ -514,7 +538,7 @@ function afterPlay(){ if(S.buds>=GOAL||S.rivals>=GOAL){ endRun(); return; } setP
 function tip(){ var n=sum(S.hud); PL.live=true; PL.t=0; PL.fire=S.streak>=8; SND.hike();
   PL.zone=PL.fire?1.7:n===2?1.4:n===1?1:0.6; PL.spd=PL.fire?1.2:n===2?1.1:n===1?1:0.9;
   if(PL.off>0){ S.snapsO++; PL.stay=PL.fire?0:Math.max(0,PL.stay+(n===2?-0.15:n===0?0.15:0)); } else { S.snapsD++; PL.ps=PL.fire?1:n===2?0.85:n===1?0.65:0.4; PL.pm=n===2?-0.08:n===0?0.08:0; }
-  if(PL.fire) pop('ON FIRE!','','#FF8A3D'); else if(n===2) pop('BOOST!','','#7CE04A'); else if(n===0) pop('WEAK PLAY','Missed facts in the huddle','#FF7A7A');
+  if(PL.fire) pop('ON FIRE!','','#FF8A3D'); else if(n===2) pop('BOOST!','','#7CE04A'); else if(n===0) pop('WEAK PLAY','Missed questions in the huddle','#FF7A7A');
   var fb=$('hb-fb'); fb.className='hb-fb'; fb.innerHTML='<span class="h">Ball is live!</span>'+(PL.off>0?'Get open and shoot, or dunk it.':'Stay in front. Jump to block his shot.'); hud(); }
 function fall(o,dt){ if(o.h>0||o.vy>0){ o.h+=o.vy*dt; o.vy-=GRAV*dt; if(o.h<=0){ o.h=0; o.vy=0; } } }
 function hop(o){ o.vy=JV; o.h=0.01; SND.jump(); }
@@ -643,7 +667,7 @@ function render(){ var live=S.started&&!S.over, i, x, MX=W/2, me=PL.me, rv=PL.rv
   function lines(a){ cx.font='700 30px Inter, sans-serif'; cx.fillStyle='#FFB020'; a.forEach(function(s,j){ cx.fillText(s,MX,278+j*44); }); }
   if(!live) return;
   if(PL.dead>0){ box(PL.sub?170:120,PL.col); cx.fillStyle=PL.col; cx.font='400 54px '+DF; cx.fillText(PL.msg,MX,226); if(PL.sub){ cx.font='700 30px Inter, sans-serif'; cx.fillStyle='#fff'; cx.fillText(PL.sub,MX,282); } }
-  else if(!PL.live&&!S.ready){ box(150,'#C07BFF'); cx.fillStyle='#fff'; cx.font='400 50px '+DF; cx.fillText('HUDDLE',MX,222); cx.font='700 32px Inter, sans-serif'; cx.fillStyle='#FFB020'; cx.fillText('Answer 2 facts to '+(PL.off>0?'call the play':'set the defense')+'  →',MX,272); }
+  else if(!PL.live&&!S.ready){ box(150,'#C07BFF'); cx.fillStyle='#fff'; cx.font='400 50px '+DF; cx.fillText('HUDDLE',MX,222); cx.font='700 32px Inter, sans-serif'; cx.fillStyle='#FFB020'; cx.fillText('Answer 2 questions to '+(PL.off>0?'call the play':'set the defense')+'  →',MX,272); }
   else if(!PL.live&&PL.off>0&&S.snapsO===0){ box(276,'#7CE04A'); cx.fillStyle='#fff'; cx.font='400 46px '+DF; cx.fillText('HOLD SPACE TO SHOOT',MX,220); lines(['Let go in the green. Closer = bigger green.','Back up to get open. ↑ hops over the defender.','At the rim, SPACE dunks. A dunk never misses.']); }
   else if(!PL.live&&PL.off<0&&S.snapsD===0){ box(276,'#FF7A7A'); cx.fillStyle='#fff'; cx.font='400 46px '+DF; cx.fillText('DEFENSE!',MX,220); lines(['Stay close, between him and your hoop.','When you see  !  press SPACE to jump and block.','Time it: jump as he goes up.']); }
   else if(!PL.live){ cx.globalAlpha=0.65+0.35*Math.sin(now()/260); label('PRESS SPACE',MX,236,'#fff',44); cx.globalAlpha=1; } }
@@ -708,6 +732,25 @@ window.__G={ state:function(){ return S; }, play:function(){ return PL; }, key:f
   huddle:function(n){ S.hud=[1,1].map(function(v,i){ return i<n?1:0; }); S.ready=true; }, startHuddle:startHuddle, huddleOpen:huddleOpen, zoneHalf:zoneHalf, covered:covered, canDunk:canDunk,
   consts:{RUN:RUN,JV:JV,GRAV:GRAV,LH:LH,RH:RH,ARC:ARC,DUNK:DUNK,SWEEP:SWEEP,MID:MID,GOAL:GOAL}, build:build, show:function(type){ S.q=build(type); S.qDone=false; S.picked=-1; showQ(); }, end:function(){ endRun(); }, types:Object.keys(GEN) };
 })();
+</script>
+<script>/* the start screen names the question set the hub link picked */
+(function(){ var m=/[?&]set=([a-z]+)/.exec(location.search); if(m&&window.SpitzQ&&SpitzQ.sets&&SpitzQ.sets[m[1]]) document.querySelectorAll('.sz-setname').forEach(function(e){ e.textContent=SpitzQ.sets[m[1]].name+'.'; }); })();</script>
+<!-- ================= FULL SCREEN REMINDER: shows until the game is full screen; click it or press F ================= -->
+<style>
+.sz-fs{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:9999; display:flex; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:999px;
+  border:2px solid rgba(255,255,255,.4); background:rgba(0,0,0,.78); color:#fff; font:700 18px/1 Inter,system-ui,sans-serif; cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,.4); transition:opacity .4s; }
+.sz-fs kbd{ display:inline-grid; place-items:center; min-width:34px; height:34px; border-radius:8px; background:#fff; color:#111; font:800 20px/1 Inter,system-ui,sans-serif; }
+.sz-fs.quiet{ opacity:.4; } .sz-fs:hover{ opacity:1; }
+.sz-fs[hidden]{ display:none; }
+</style>
+<button class="sz-fs" id="sz-fs" hidden aria-label="Full screen, key F"><kbd>F</kbd>Press F for full screen</button>
+<script>
+(function(){ var b=document.getElementById('sz-fs'), t0=Date.now();
+  function fs(){ return !!(document.fullscreenElement||document.webkitFullscreenElement); }
+  function upd(){ b.hidden=fs(); var st=document.querySelector('[id$="-start"]'), onStart=!!(st&&!st.hidden&&st.offsetParent);
+    b.classList.toggle('quiet', !onStart && Date.now()-t0>8000); }
+  b.addEventListener('click',function(){ document.dispatchEvent(new KeyboardEvent('keydown',{key:'f',bubbles:true})); setTimeout(upd,300); });
+  document.addEventListener('fullscreenchange',upd); document.addEventListener('webkitfullscreenchange',upd); setInterval(upd,1000); upd(); })();
 </script>
 </body>
 </html>

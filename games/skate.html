@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Skate: Multiplication Facts</title>
+<title>Skate · Spitz Arcade</title>
 <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
 :root{ --paper:#100E18; --panel:#1B1A1F; --panel-2:#26242C; --text:#F7F7F2; --muted:#B0ACC0; --border:#3A3744; --accent:#C8FF3D;
@@ -180,7 +180,38 @@ button:disabled{ cursor:default; }
 .sz-ask button{ height:96px; padding:0 44px; border-radius:22px; font:800 32px/1 Inter,system-ui,sans-serif; background:var(--panel); border:3px solid var(--border); color:var(--text); }
 .sz-ask #sz-askyes{ background:var(--sz-mark); border-color:var(--sz-mark); color:#111; }
 [class$="-logo"]{ cursor:pointer; }
+
+/* ================= v3 LAYOUT + COLORS ================= */
+
+#stage{ grid-template-columns:958px minmax(0,1fr); grid-template-rows:minmax(0,1fr) auto; column-gap:24px; row-gap:14px; }
+.sk-top{ grid-area:2/1; display:flex; align-items:center; gap:14px; white-space:nowrap; }
+.sk-brand{ margin:0 8px 0 0; }
+.sk-sp{ display:none; }
+.sk-chip{ flex:1 1 0; height:76px; min-width:0; }
+.sk-chip:nth-of-type(2){ background:var(--pink); } .sk-chip:nth-of-type(2) .l{ color:rgba(255,255,255,.85); } .sk-chip:nth-of-type(2) .v{ color:#fff; }
+#sk-main{ display:contents; }
+.sk-range{ grid-area:1/1; }
+.sk-range{ box-sizing:content-box; width:1054px; height:936px; border-width:5px; flex:none; transform:scale(0.9); transform-origin:0 0;
+  margin:0 -106.4px -94.6px 0; align-self:center; justify-self:center; }
+
+.sk-range{ align-self:end; }
+.sk-q{ grid-area:1/2; min-height:0; position:static; }
+.sk-leg{ position:absolute; left:1010px; right:28px; bottom:22px; margin:0; }
+.sk-prompt{ font-size:96px; min-height:0; padding:0; }
+html:not(.sz-alg) .sk-q:not(.vis) .sk-choices{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+html:not(.sz-alg) .sk-q:not(.vis) .sk-ch{ position:relative; min-height:132px; justify-content:center; text-align:center; padding:14px 18px 14px 18px; font-size:58px; }
+html:not(.sz-alg) .sk-q:not(.vis) .sk-ch .k{ position:absolute; left:12px; top:12px; width:44px; height:44px; font-size:24px; }
+
+.sk-q:not(.vis) .sk-ch{ min-height:112px; border-radius:28px; }
+.sk-fb{ min-height:110px; }
+html.sz-alg .sk-ch{ min-height:66px; font-size:34px; padding:6px 16px; }
+html.sz-alg .sk-ch .k{ width:44px; height:44px; font-size:24px; }
+html.sz-alg .sk-fb{ min-height:96px; font-size:25px; padding:12px 18px; }
+html.sz-alg .sk-q{ gap:10px; }
+html.sz-alg .sk-next{ height:68px; }
 </style>
+<script>/* a hub link with an algebra set: answers can be long, so layouts that tile short answers fall back to a list */
+if(/[?&]set=(?!mult\b)[a-z]/.test(location.search)) document.documentElement.classList.add('sz-alg');</script>
 </head>
 <body>
 <div id="stage">
@@ -200,7 +231,7 @@ button:disabled{ cursor:default; }
       <div class="sk-qhead"><span class="sk-tag" id="sk-tag">Facts</span><span class="sk-reward" id="sk-reward"></span></div>
       <div class="sk-prompt" id="sk-prompt"></div>
       <div id="sk-body"><div id="sk-visual"></div><div class="sk-choices" id="sk-choices"></div></div>
-      <div class="sk-fb" id="sk-fb">Set up! Answer 3 facts before every line.</div>
+      <div class="sk-fb" id="sk-fb">Set up! Answer 3 questions before every line.</div>
       <button class="sk-next" id="sk-next" disabled>Next question ›</button>
       <div class="sk-leg"><div class="sk-leghead">Tricks in the air. More tricks in one jump multiply.</div><div class="sk-legend"><span><b>←</b>Kickflip<em>100</em></span><span><b>↓</b>Grab<em>150</em></span><span><b>→</b>360 spin<em>200</em></span></div></div>
     </div>
@@ -208,9 +239,9 @@ button:disabled{ cursor:default; }
 
   <div class="sk-over" id="sk-start"><div class="sk-box">
     <div class="sz-eyebrow">Spitz <b>Arcade</b></div><h2 class="sk-big"><b>S</b><i>K</i><b>A</b><i>T</i><b>E</b></h2>
-    <p class="sk-sub">Multiplication facts, 0 to 12. You have 5 minutes. Set up with facts, then skate a line and land your tricks.</p>
+    <p class="sk-sub"><span class="sz-setname">Multiplication facts, 0 to 12.</span> You have 5 minutes. Set up with questions, then skate a line and land your tricks.</p>
     <div class="sk-steps">
-      <div class="sk-step"><b>1. Set up</b>Answer 3 facts before every line. Each right answer adds ×1 to your tricks. A miss adds nothing, so don’t guess.</div>
+      <div class="sk-step"><b>1. Set up</b>Answer 3 questions before every line. Each right answer adds ×1 to your tricks. A miss adds nothing, so don’t guess.</div>
       <div class="sk-step"><b>2. Drop in</b>Press Space to drop in. You roll by yourself. Space jumps the cones, cans and benches. Ramps launch you.</div>
       <div class="sk-step"><b>3. Tricks</b>In the air: ←&nbsp;kickflip, ↓&nbsp;grab, →&nbsp;360&nbsp;spin. Land on a rail to grind. Finish the trick before you land.</div>
     </div>
@@ -462,7 +493,7 @@ function hud(){ hudLive(); put('sk-bestv',fmt(S.bestLine)); put('sk-streak',S.st
   var h='Set-up'; for(var i=0;i<NEED;i++) h+='<span class="sk-hp'+(i<S.hud.length?(S.hud[i]?' y':' n'):'')+'"></span>'; $('sk-reward').innerHTML=h; }
 
 /* ================= QUESTIONS UI ================= */
-var nextT=0, lockT=0, FIRST='Set up! Answer '+NEED+' facts before every line.';
+var nextT=0, lockT=0, FIRST='Set up! Answer '+NEED+' questions before every line.';
 function showQ(){ var q=S.q; $('sk-tag').textContent=q.topic; $('sk-prompt').innerHTML=q.prompt; $('sk-visual').innerHTML=q.visual; $('sk-q').classList.toggle('vis',!!q.visual);
   $('sk-choices').innerHTML=q.choices.map(function(c,i){ return '<button class="sk-ch" data-i="'+i+'"><span class="k">'+(i+1)+'</span><span class="t">'+c.html+'</span></button>'; }).join('');
   var fb=$('sk-fb'); if(!S.answered){ fb.className='sk-fb'; fb.innerHTML=FIRST; } $('sk-next').disabled=true;
@@ -519,7 +550,7 @@ function pop(txt,lab,col){ pops.push({t:0,txt:txt,lab:lab||'',col:col||'#fff'});
 function tryMove(){ if(setupOpen()){ SND.empty(); nudge(); } }
 function ground(x){ for(var i=0;i<PL.f.length;i++){ var f=PL.f[i]; if(f.t==='ramp'&&x>=f.x&&x<=f.x+f.w) return (x-f.x)/f.w*f.h; } return 0; }
 function dropIn(){ var n=sum(S.hud); PL.live=true; PL.t=0; PL.fire=S.streak>=FIRE; PL.mult=multOf(n,PL.fire); PL.v=PL.V*0.6; S.drops++; SND.drop(); muStart();
-  if(PL.fire) pop('ON FIRE!','Every trick '+multStr(PL.mult),'#FF8A1F'); else if(n===NEED) pop('PERFECT SET-UP!','Every trick '+multStr(PL.mult),'#7CE04A'); else if(n===0) pop('WOBBLY','Missed every fact: tricks worth half','#FF7A7A');
+  if(PL.fire) pop('ON FIRE!','Every trick '+multStr(PL.mult),'#FF8A1F'); else if(n===NEED) pop('PERFECT SET-UP!','Every trick '+multStr(PL.mult),'#7CE04A'); else if(n===0) pop('WOBBLY','Missed every question: tricks worth half','#FF7A7A');
   var fb=$('sk-fb'); fb.className='sk-fb'; fb.innerHTML='<span class="h">You are rolling! Tricks '+multStr(PL.mult)+'.</span>Jump the obstacles. Do tricks in the air.'; hud(); }
 function comboPts(){ var s=0; PL.combo.forEach(function(c){ s+=c.p; }); return Math.round(s)*PL.combo.length; }
 function comboName(){ return PL.combo.map(function(c){ return c.n; }).join(' + '); }
@@ -678,7 +709,7 @@ function render(){ var live=S.started&&!S.over, i, f, sx, o, MX=W/2, L=PL.letter
   cx.fillStyle='rgba(8,9,13,.8)'; rr(cx,W-334,14,320,116,18); cx.fill();
   var ln='LINE '+(S.lines+(PL.dead>0?0:1)); cx.textAlign='left'; cx.fillStyle=CYAN; fitFont(ln,42,186); cx.fillText(ln,W-314,66);
   cx.textAlign='right'; cx.fillStyle=mc; fitFont(multStr(m),56,92); cx.fillText(multStr(m),W-30,72);
-  cx.textAlign='center'; cx.fillStyle=PL.last?'#FFD23F':'#9BA5B8'; cx.font='800 22px Inter, sans-serif'; cx.fillText(PL.last?'LAST LINE!':on?'THIS LINE  '+fmt(PL.pts):'FACTS RIGHT  '+sum(S.hud)+' OF '+NEED,W-174,108);
+  cx.textAlign='center'; cx.fillStyle=PL.last?'#FFD23F':'#9BA5B8'; cx.font='800 22px Inter, sans-serif'; cx.fillText(PL.last?'LAST LINE!':on?'THIS LINE  '+fmt(PL.pts):'ANSWERS RIGHT  '+sum(S.hud)+' OF '+NEED,W-174,108);
   // touch buttons
   if(live&&PL.dead<=0&&(PL.live||S.ready)) Object.keys(BTN).forEach(function(k){ var Q=BTN[k], hot=Object.keys(ptr).some(function(p){ return ptr[p]===k; }); if(k!=='j'&&!PL.live) return;
     cx.fillStyle=hot?'rgba(200,255,61,.85)':'rgba(8,9,13,.6)'; cx.beginPath(); cx.arc(Q.x,Q.y,Q.r,0,6.28); cx.fill(); cx.lineWidth=4; cx.strokeStyle='rgba(243,245,249,.65)'; cx.stroke();
@@ -687,7 +718,7 @@ function render(){ var live=S.started&&!S.over, i, f, sx, o, MX=W/2, L=PL.letter
   function box(h,col){ cx.fillStyle='rgba(8,9,13,.9)'; cx.fillRect(MX-380,150,760,h); cx.strokeStyle=col; cx.lineWidth=4; cx.strokeRect(MX-380,150,760,h); cx.textAlign='center'; }
   if(!live) return;
   if(PL.dead>0){ box(170,PL.col); cx.fillStyle=PL.col; fitFont(PL.msg,54,700); cx.fillText(PL.msg,MX,226); cx.font='700 30px Inter, sans-serif'; cx.fillStyle='#fff'; cx.fillText(PL.sub,MX,282); }
-  else if(!PL.live&&!S.ready){ box(150,CYAN); cx.fillStyle='#fff'; cx.font='400 50px '+DF; cx.fillText('SET UP',MX,222); cx.font='700 32px Inter, sans-serif'; cx.fillStyle='#FFB020'; cx.fillText('Answer '+NEED+' facts to power your tricks  →',MX,272); }
+  else if(!PL.live&&!S.ready){ box(150,CYAN); cx.fillStyle='#fff'; cx.font='400 50px '+DF; cx.fillText('SET UP',MX,222); cx.font='700 32px Inter, sans-serif'; cx.fillStyle='#FFB020'; cx.fillText('Answer '+NEED+' questions to power your tricks  →',MX,272); }
   else if(!PL.live&&S.drops===0){ box(312,LIME); cx.fillStyle='#fff'; fitFont('PRESS SPACE TO DROP IN',46,700); cx.fillText('PRESS SPACE TO DROP IN',MX,220); cx.font='700 29px Inter, sans-serif'; cx.fillStyle='#FFB020';
     ['You roll by yourself. SPACE jumps.','In the air:  ← kickflip    ↓ grab    → 360 spin','Finish the trick before you land.','Land on a rail to grind.'].forEach(function(s,j){ cx.fillText(s,MX,276+j*46); }); }
   else if(!PL.live){ cx.globalAlpha=0.65+0.35*Math.sin(now()/260); label('PRESS SPACE TO DROP IN',MX,236,'#fff',44); cx.globalAlpha=1; label('Tricks '+multStr(m),MX,292,mc,38); } }
@@ -758,6 +789,25 @@ window.__G={ state:function(){ return S; }, play:function(){ return PL; }, jump:
   setup:function(n){ S.hud=[0,0,0].map(function(v,i){ return i<n?1:0; }); S.ready=true; }, startSetup:startSetup, setupOpen:setupOpen, multOf:multOf,
   consts:{GY:GY,SX:SX,GRAV:GRAV,JV:JV,RAMPV:RAMPV,POPV:POPV,V0:V0,RAILH:RAILH,TR:TR,OB:OB,NEED:NEED,RUNSECS:RUNSECS,FIRE:FIRE,CLEAR:CLEAR,CLEANB:CLEANB,WORDB:WORDB}, build:build, show:function(type){ S.q=build(type); S.qDone=false; S.picked=-1; showQ(); }, end:function(){ endRun(); }, types:Object.keys(GEN) };
 })();
+</script>
+<script>/* the start screen names the question set the hub link picked */
+(function(){ var m=/[?&]set=([a-z]+)/.exec(location.search); if(m&&window.SpitzQ&&SpitzQ.sets&&SpitzQ.sets[m[1]]) document.querySelectorAll('.sz-setname').forEach(function(e){ e.textContent=SpitzQ.sets[m[1]].name+'.'; }); })();</script>
+<!-- ================= FULL SCREEN REMINDER: shows until the game is full screen; click it or press F ================= -->
+<style>
+.sz-fs{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:9999; display:flex; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:999px;
+  border:2px solid rgba(255,255,255,.4); background:rgba(0,0,0,.78); color:#fff; font:700 18px/1 Inter,system-ui,sans-serif; cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,.4); transition:opacity .4s; }
+.sz-fs kbd{ display:inline-grid; place-items:center; min-width:34px; height:34px; border-radius:8px; background:#fff; color:#111; font:800 20px/1 Inter,system-ui,sans-serif; }
+.sz-fs.quiet{ opacity:.4; } .sz-fs:hover{ opacity:1; }
+.sz-fs[hidden]{ display:none; }
+</style>
+<button class="sz-fs" id="sz-fs" hidden aria-label="Full screen, key F"><kbd>F</kbd>Press F for full screen</button>
+<script>
+(function(){ var b=document.getElementById('sz-fs'), t0=Date.now();
+  function fs(){ return !!(document.fullscreenElement||document.webkitFullscreenElement); }
+  function upd(){ b.hidden=fs(); var st=document.querySelector('[id$="-start"]'), onStart=!!(st&&!st.hidden&&st.offsetParent);
+    b.classList.toggle('quiet', !onStart && Date.now()-t0>8000); }
+  b.addEventListener('click',function(){ document.dispatchEvent(new KeyboardEvent('keydown',{key:'f',bubbles:true})); setTimeout(upd,300); });
+  document.addEventListener('fullscreenchange',upd); document.addEventListener('webkitfullscreenchange',upd); setInterval(upd,1000); upd(); })();
 </script>
 </body>
 </html>

@@ -185,7 +185,35 @@ body{ background:#14110F; }
 .sz-ask button{ height:96px; padding:0 44px; border-radius:22px; font:800 32px/1 Inter,system-ui,sans-serif; background:var(--panel); border:3px solid var(--border); color:var(--text); }
 .sz-ask #sz-askyes{ background:var(--sz-mark); border-color:var(--sz-mark); color:#111; }
 [class$="-logo"]{ cursor:pointer; }
+
+/* ================= v3 LAYOUT + COLORS ================= */
+
+#stage{ grid-template-rows:minmax(0,1fr) 104px; }
+.sr-top{ grid-row:2; padding:10px 22px; border-radius:60px; background:#211C19; box-shadow:0 10px 30px rgba(0,0,0,.35), inset 0 -6px 0 #2D2723; }
+.sr-chip{ height:76px; }
+#sr-main{ grid-row:1; grid-template-columns:1000px minmax(0,1fr); gap:26px; }
+.sr-range{ box-sizing:content-box; width:1054px; height:936px; border-width:4px; flex:none; transform:scale(0.94); transform-origin:0 0;
+  margin:0 -63.7px -56.6px 0; align-self:center; justify-self:center; }
+
+.sr-range{ border-radius:20px; box-shadow:12px 12px 0 var(--cyan); }
+.sr-q{ gap:10px; padding-top:40px; box-shadow:12px 12px 0 var(--pink); }
+.sr-q.open{ box-shadow:12px 12px 0 var(--lime); }
+.sr-ch{ border-radius:42% 38% 46% 40% / 50% 44% 52% 46%; }
+.sr-ch:not(:disabled):hover{ background:color-mix(in srgb, var(--pc) 12%, #2A2420); }
+.sr-q.vis .sr-ch{ border-radius:20px; }
+html:not(.sz-alg) .sr-q:not(.vis) .sr-choices{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+html:not(.sz-alg) .sr-q:not(.vis) .sr-ch{ position:relative; min-height:132px; justify-content:center; text-align:center; padding:14px 18px 14px 18px; font-size:58px; }
+html:not(.sz-alg) .sr-q:not(.vis) .sr-ch .k{ position:absolute; left:12px; top:12px; width:44px; height:44px; font-size:24px; }
+
+html:not(.sz-alg) .sr-q:not(.vis) .sr-ch{ font-size:42px; min-height:108px; }
+.sr-fb{ min-height:120px; }
+/* start screen: paint-taped cards on the wall */
+#sr-start .sr-steps{ gap:34px; margin:10px 0 40px; }
+.sr-step{ border:0; border-radius:6px; box-shadow:0 14px 24px rgba(0,0,0,.4); position:relative; }
+#sr-start .sr-step:nth-child(1){ transform:rotate(-3deg); border-top:12px solid var(--pink); } #sr-start .sr-step:nth-child(2){ transform:rotate(1.5deg); border-top:12px solid var(--lime); } #sr-start .sr-step:nth-child(3){ transform:rotate(-1deg); border-top:12px solid var(--cyan); }
 </style>
+<script>/* a hub link with an algebra set: answers can be long, so layouts that tile short answers fall back to a list */
+if(/[?&]set=(?!mult\b)[a-z]/.test(location.search)) document.documentElement.classList.add('sz-alg');</script>
 </head>
 <body>
 <div id="stage">
@@ -224,7 +252,7 @@ body{ background:#14110F; }
 
   <div class="sr-over" id="sr-start"><div class="sr-box">
     <div class="sz-eyebrow">Spitz <b>Arcade</b></div><h2 class="sr-big"><b>SPLAT</b> <i>RANGE</i></h2>
-    <p class="sr-sub">Slope-intercept form, point-slope form, graphs, HOY and VUX. You have 5 minutes: answer to load paint, then hit the targets.</p>
+    <p class="sr-sub"><span class="sz-setname">Slope-intercept form, point-slope form, graphs, HOY and VUX.</span> You have 5 minutes: answer to load paint, then hit the targets.</p>
     <div class="sr-steps">
       <div class="sr-step"><b>1. Answer</b>Each right answer loads paint and earns cash. A wrong answer costs $5 and breaks your streak.</div>
       <div class="sr-step"><b>2. Shoot</b>Each shot uses 1 paint. Hit targets in a row for a combo. In Bonus Waves, shoot the right answer for free.</div>
@@ -806,6 +834,25 @@ if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){ /
 /* test hooks */
 window.__G={ state:function(){ return S; }, targets:function(){ return targets; }, fire:fire, build:build, show:function(type){ S.q=build(type); S.qDone=false; S.picked=-1; showQ(); }, end:function(){ S.endAt=now()-1; timerDraw(); }, types:Object.keys(GEN), startWave:startWave, wave:function(){ return wave; }, makeCode:makeCode, readCode:readCode, frenzy:frenzy };
 })();
+</script>
+<script>/* the start screen names the question set the hub link picked */
+(function(){ var m=/[?&]set=([a-z]+)/.exec(location.search); if(m&&window.SpitzQ&&SpitzQ.sets&&SpitzQ.sets[m[1]]) document.querySelectorAll('.sz-setname').forEach(function(e){ e.textContent=SpitzQ.sets[m[1]].name+'.'; }); })();</script>
+<!-- ================= FULL SCREEN REMINDER: shows until the game is full screen; click it or press F ================= -->
+<style>
+.sz-fs{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:9999; display:flex; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:999px;
+  border:2px solid rgba(255,255,255,.4); background:rgba(0,0,0,.78); color:#fff; font:700 18px/1 Inter,system-ui,sans-serif; cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,.4); transition:opacity .4s; }
+.sz-fs kbd{ display:inline-grid; place-items:center; min-width:34px; height:34px; border-radius:8px; background:#fff; color:#111; font:800 20px/1 Inter,system-ui,sans-serif; }
+.sz-fs.quiet{ opacity:.4; } .sz-fs:hover{ opacity:1; }
+.sz-fs[hidden]{ display:none; }
+</style>
+<button class="sz-fs" id="sz-fs" hidden aria-label="Full screen, key F"><kbd>F</kbd>Press F for full screen</button>
+<script>
+(function(){ var b=document.getElementById('sz-fs'), t0=Date.now();
+  function fs(){ return !!(document.fullscreenElement||document.webkitFullscreenElement); }
+  function upd(){ b.hidden=fs(); var st=document.querySelector('[id$="-start"]'), onStart=!!(st&&!st.hidden&&st.offsetParent);
+    b.classList.toggle('quiet', !onStart && Date.now()-t0>8000); }
+  b.addEventListener('click',function(){ document.dispatchEvent(new KeyboardEvent('keydown',{key:'f',bubbles:true})); setTimeout(upd,300); });
+  document.addEventListener('fullscreenchange',upd); document.addEventListener('webkitfullscreenchange',upd); setInterval(upd,1000); upd(); })();
 </script>
 </body>
 </html>

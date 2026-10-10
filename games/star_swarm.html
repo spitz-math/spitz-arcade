@@ -187,7 +187,29 @@ button:disabled{ cursor:default; }
 .sz-ask button{ height:96px; padding:0 44px; border-radius:22px; font:800 32px/1 Inter,system-ui,sans-serif; background:var(--panel); border:3px solid var(--border); color:var(--text); }
 .sz-ask #sz-askyes{ background:var(--sz-mark); border-color:var(--sz-mark); color:#111; }
 [class$="-logo"]{ cursor:pointer; }
+
+/* ================= v3 LAYOUT + COLORS ================= */
+
+#stage{ grid-template-rows:minmax(0,1fr); }
+.sw-top{ position:absolute; left:46px; top:44px; width:1046px; z-index:4; gap:10px; pointer-events:none; }
+.sw-top button{ pointer-events:auto; }
+.sw-brand{ margin-right:8px; }
+.sw-chip{ height:64px; min-width:0; padding:4px 14px; background:rgba(3,5,12,.55); border:0; border-top:2px solid rgba(61,224,255,.5); border-radius:0; }
+.sw-chip .v{ font-size:30px; }
+#sw-main{ grid-template-columns:1060px minmax(0,1fr); gap:20px; }
+.sw-space{ box-sizing:content-box; width:1054px; height:936px; border-width:3px; flex:none; transform:scale(1.0); transform-origin:0 0;
+  margin:0 0.0px 0.0px 0; align-self:center; justify-self:center; }
+
+#sw-start .sw-box{ width:1400px; text-align:left; }
+#sw-start .sw-big{ font-size:120px; }
+#sw-start .sw-steps{ grid-template-columns:1fr; gap:0; border-left:2px solid var(--cyan); }
+#sw-start .sw-step{ border:0; background:none; padding:12px 26px; display:grid; grid-template-columns:200px 1fr; gap:10px; }
+#sw-start .sw-step b{ margin:0; }
+#sw-start .sw-row{ justify-content:flex-start; } #sw-start .sw-keys{ text-align:left; }
+#sw-start .sz-eyebrow::after{ content:none; }
 </style>
+<script>/* a hub link with an algebra set: answers can be long, so layouts that tile short answers fall back to a list */
+if(/[?&]set=(?!mult\b)[a-z]/.test(location.search)) document.documentElement.classList.add('sz-alg');</script>
 </head>
 <body>
 <div id="stage">
@@ -226,7 +248,7 @@ button:disabled{ cursor:default; }
 
   <div class="sw-over" id="sw-start"><div class="sw-box">
     <div class="sz-eyebrow">Spitz <b>Arcade</b></div><h2 class="sw-big"><b>STAR</b> <i>SWARM</i></h2>
-    <p class="sw-sub">Slope-intercept form, point-slope form, graphs, HOY and VUX. You have 5 minutes: answer to charge your lasers, then zap the swarm.</p>
+    <p class="sw-sub"><span class="sz-setname">Slope-intercept form, point-slope form, graphs, HOY and VUX.</span> You have 5 minutes: answer to charge your lasers, then zap the swarm.</p>
     <div class="sw-steps">
       <div class="sw-step"><b>1. Answer</b>Each right answer charges your lasers and earns cash. A wrong answer costs $5 and breaks your streak.</div>
       <div class="sw-step"><b>2. Zap</b>Each shot uses 1 laser. Diving bugs are worth double, so dodge them or zap them. Stop to answer and your shield goes up.</div>
@@ -924,6 +946,25 @@ window.__G={ state:function(){ return S; }, aliens:function(){ return aliens; },
   build:build, show:function(type){ S.q=build(type); S.qDone=false; S.picked=-1; showQ(); }, end:function(){ S.endAt=now()-1; timerDraw(); }, types:Object.keys(GEN),
   startWave:startWave, wave:function(){ return wave; }, makeCode:makeCode, readCode:readCode, parseBoard:parseBoard, frenzy:frenzy };
 })();
+</script>
+<script>/* the start screen names the question set the hub link picked */
+(function(){ var m=/[?&]set=([a-z]+)/.exec(location.search); if(m&&window.SpitzQ&&SpitzQ.sets&&SpitzQ.sets[m[1]]) document.querySelectorAll('.sz-setname').forEach(function(e){ e.textContent=SpitzQ.sets[m[1]].name+'.'; }); })();</script>
+<!-- ================= FULL SCREEN REMINDER: shows until the game is full screen; click it or press F ================= -->
+<style>
+.sz-fs{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:9999; display:flex; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:999px;
+  border:2px solid rgba(255,255,255,.4); background:rgba(0,0,0,.78); color:#fff; font:700 18px/1 Inter,system-ui,sans-serif; cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,.4); transition:opacity .4s; }
+.sz-fs kbd{ display:inline-grid; place-items:center; min-width:34px; height:34px; border-radius:8px; background:#fff; color:#111; font:800 20px/1 Inter,system-ui,sans-serif; }
+.sz-fs.quiet{ opacity:.4; } .sz-fs:hover{ opacity:1; }
+.sz-fs[hidden]{ display:none; }
+</style>
+<button class="sz-fs" id="sz-fs" hidden aria-label="Full screen, key F"><kbd>F</kbd>Press F for full screen</button>
+<script>
+(function(){ var b=document.getElementById('sz-fs'), t0=Date.now();
+  function fs(){ return !!(document.fullscreenElement||document.webkitFullscreenElement); }
+  function upd(){ b.hidden=fs(); var st=document.querySelector('[id$="-start"]'), onStart=!!(st&&!st.hidden&&st.offsetParent);
+    b.classList.toggle('quiet', !onStart && Date.now()-t0>8000); }
+  b.addEventListener('click',function(){ document.dispatchEvent(new KeyboardEvent('keydown',{key:'f',bubbles:true})); setTimeout(upd,300); });
+  document.addEventListener('fullscreenchange',upd); document.addEventListener('webkitfullscreenchange',upd); setInterval(upd,1000); upd(); })();
 </script>
 </body>
 </html>
