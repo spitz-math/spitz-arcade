@@ -1,8 +1,8 @@
 /* Spitz Arcade shared question sets.
    Every solo game loads this file. A game asks SpitzQ.forGame(prefix) for its questions,
    and the hub link picks the set and topics:  game.html?set=slope&topics=write,yint
-   Each set below is the exact generator code from the game it came from (Hoop Buds, Splat Range,
-   Shift Racer), so every answer is still checked independently before it is shown. */
+   The first five sets started as the generator code in Hoop Buds, Splat Range and Shift Racer (now kept in tools/sets/).
+   Every answer is checked independently before it is shown. */
 (function(){
 'use strict';
 
@@ -42,13 +42,18 @@ function makeMult(PFX){
      Facts are grouped by their smaller factor, so the end screen shows which tables need work. */
   var GROUPS={ 'Facts 0–3':[0,3], 'Facts 4–6':[4,6], 'Facts 7–9':[7,9], 'Facts 10–12':[10,12] };
   function fact(a,b){ return a+' × '+b; }
+  /* three wrong answers in plausibility order, with a random number of them below the answer: the choices are
+     sorted smallest to largest, so this keeps the right answer from always landing in the same spot */
+  function spread(ans,cand){ var lo=[], hi=[], seen={}; seen[ans]=1;
+    cand.forEach(function(c){ if(c[0]<0||seen[c[0]]) return; seen[c[0]]=1; (c[0]<ans?lo:hi).push(c); });
+    var k=Math.floor(Math.random()*4), out=lo.slice(0,k); out=out.concat(hi.slice(0,3-out.length)); return out.concat(lo.slice(k,k+3-out.length)); }
   function mulQ(topic){ var g=GROUPS[topic], s=ri(g[0],g[1]), o=ri(s,12), flip=Math.random()<0.5, a=flip?o:s, b=flip?s:o, ans=a*b;
     var near=[[a*(b+1),'That is '+fact(a,b+1)+'.'],[(a+1)*b,'That is '+fact(a+1,b)+'.']]; if(b>0) near.push([a*(b-1),'That is '+fact(a,b-1)+'.']); if(a>0) near.push([(a-1)*b,'That is '+fact(a-1,b)+'.']);
     near.sort(function(){ return Math.random()-0.5; });
     var special=a===0||b===0||a===1||b===1, addWhy=(a===0||b===0)?'Anything times 0 is 0.':(a===1||b===1)?'Anything times 1 stays the same.':'You added. '+fact(a,b)+' means '+a+' groups of '+b+'.';
-    var cand=(special||Math.random()<0.5)? [[a+b,addWhy]].concat(near) : near.concat([[a+b,addWhy]]), skip='Skip-count by '+Math.max(a,b)+', '+Math.min(a,b)+' times.';
-    cand=cand.concat([[ans+10,skip],[ans+2,skip],[ans+1,skip],[ans+3,skip]]);
-    var ch=[C(''+ans,ans)], seen={}; seen[ans]=1; cand.forEach(function(c){ if(ch.length<4&&c[0]>=0&&!seen[c[0]]){ seen[c[0]]=1; ch.push(C(''+c[0],c[0],c[1])); } });
+    var cand=(special||Math.random()<0.5)? [[a+b,addWhy]].concat(near) : near.concat([[a+b,addWhy]]), skip=(a===0||b===0)? addWhy : 'Skip-count by '+Math.max(a,b)+', '+Math.min(a,b)+' times.';
+    cand=cand.concat([[ans+10,skip],[ans-10,skip],[ans+2,skip],[ans-2,skip],[ans+1,skip],[ans-1,skip]]);
+    var ch=[C(''+ans,ans)].concat(spread(ans,cand).map(function(c){ return C(''+c[0],c[0],c[1]); }));
     return { topic:topic, prompt:eq(fact(a,b)+' = ?'), data:{a:a,b:b}, choices:ch, explain:eq(fact(a,b)+' = <span class="c-ans">'+ans+'</span>'),
       check:function(v){ var t=0; for(var i=0;i<a;i++) t+=b; return v===t; } }; }                      /* repeated addition, separate from a*b */
   var GEN={}; Object.keys(GROUPS).forEach(function(t){ GEN[t]=function(){ return mulQ(t); }; });
@@ -127,7 +132,7 @@ function makeLinear(PFX){
       explain:'In y = mx + b, b is the number without x. The y-intercept is '+B(num(b))+', the point '+P(0,b)+'.' }; },
   siBuild:function(){ var m=pick(SLOPES), b=nz(-9,9); if(m.d===1&&Math.abs(m.n)===Math.abs(b)) return null;
     var bad1=m.d===1? siStr(R(b,1),m.n) : null; if(!bad1) return null;
-    return { topic:'Slope-intercept form', prompt:'Which line has slope '+M(m)+' and y-intercept '+B(num(b))+'?', data:{m:m,b:b},
+    return { topic:'Slope-intercept form', prompt:'Which equation has slope '+M(m)+' and y-intercept '+B(num(b))+'?', data:{m:m,b:b},
       check:function(v){ return v.A!==undefined && onLine(v,0,b) && onLine(v,m.d,b+m.n); },
       choices:[ C(siStr(m,b),lineSI(m,b)), C(bad1,lineSI(R(b,1),m.n),'Swapped. The slope goes with x and the y-intercept stands alone: y = mx + b.'),
         C(siStr(m,-b),lineSI(m,-b),'Check b’s sign: the y-intercept is '+num(b)+'.'),
@@ -175,7 +180,7 @@ function makeLinear(PFX){
       check:function(v){ return v.A!==undefined && onLine(v,h,k) && onLine(v,h+m.d,k+m.n); },
       choices:[ C(psStr(m,h,k),linePS(m,h,k)), C(psStr(m,-h,-k),linePS(m,-h,-k),'Both signs flipped. The form subtracts the point: y − y₁ = m(x − x₁).'),
         C(psStr(m,k,h),linePS(m,k,h),'x and y are swapped. The x-coordinate goes with x and the y-coordinate goes with y.'),
-        C(psStr(m,-h,k),linePS(m,-h,k),'The x sign is flipped. x − ('+num(h)+') becomes x'+sgn(-h)+'.') ],
+        C(psStr(m,-h,k),linePS(m,-h,k),'The x sign is off. x₁ = '+num(h)+', so it is (x'+sgn(-h)+').') ],
       explain:'y − y₁ = m(x − x₁) with x₁ = '+num(h)+' and y₁ = '+num(k)+': '+eq(psStr(m,h,k))+'.' }; },
   psPoint:function(){ var m=pick(SLOPES), h=nz(-9,9), k=nz(-9,9); if(Math.abs(h)===Math.abs(k)) return null; var L=linePS(m,h,k);
     return { topic:'Point-slope form', prompt:'What <span class="c-pt">point</span> does '+eq(psStr(m,h,k))+' use?', data:{m:m,h:h,k:k},
@@ -195,7 +200,7 @@ function makeLinear(PFX){
     var z=C('0',{hv:'0'}, 'This line is vertical. VUX: Vertical, Undefined slope, X = a number.'),
         u=C('Undefined',{hv:'u'},'This line is horizontal. HOY: Horizontal, 0 slope, Y = a number.'),
         n=C(num(c),{hv:'c'},'The '+num(c)+' tells where the line crosses the '+(hz?'y':'x')+'-axis, not its slope.'),
-        o=C('1',{hv:'1'},'There is no x-term to give a slope of 1. Use '+(hz?'HOY':'VUX')+'.');
+        o=C('1',{hv:'1'},hz? 'There is no x-term, so nothing gives a slope of 1. HOY: Horizontal, 0 slope.' : 'x = a number is a vertical line, not y = 1x. VUX: Vertical, Undefined slope.');
     return { topic:'HOY & VUX', prompt:'What is the <span class="c-m">slope</span> of '+eq((hz?'y':'x')+' = '+num(c))+'?', data:{hz:hz},
       check:function(v){ return v.hv===(hz?'0':'u'); },
       choices: hz? [C('0',{hv:'0'}),u,n,o] : [C('Undefined',{hv:'u'}),z,n,o],
@@ -317,7 +322,7 @@ function makeShift(PFX){
       check:function(v){ return v.A!==undefined&&sameLine(v,L); },
       choices:[ CL(m,nb), CL(m,b-c,'Distribute: in '+eq(inner)+' the '+num(m.n)+' multiplies the '+Math.abs(c)+' too.'),
         CL(m,b+m.n*c,'Sign slip. Substitute exactly what is inside: '+eq(inner)+'.'),
-        CL(R(m.n-c,1),b,'The slope stays '+num(m.n)+'. Replace x with (x'+sgn(-c)+') instead.') ],
+        CL(R(m.n-c,1),b,num(m.n)+'x and '+Math.abs(c)+' are not like terms, so they don’t combine. The slope stays '+num(m.n)+'.') ],
       explain:'Replace x with (x'+sgn(-c)+'): '+eq(inner)+' = '+eq(num(m.n)+'x'+sgn(-m.n*c)+sgn(b))+', so '+eq(fx('g',m,nb))+'.' }; },
   eqCompare:function(){ var m=pick(SLOPES), b=nz(-9,9), d=nz(-9,9), b2=b+d, L=lineSI(m,b2); if(b2===0) return null;
     return { topic:'New equations', prompt:eq(fx('f',m,b))+' and '+eq(fx('g',m,b2))+'. How was f(x) shifted up or down to make g(x)?', data:{m:m,b:b,b2:b2},
@@ -520,20 +525,19 @@ function makeInt(PFX){
     return { topic:'Adding integers', prompt:eq(num(a)+' + '+par(b)+' = ?'), data:{a:a,b:b},
       check:function(v){ return v-b===a; },                                                       /* undo the addition */
       choices:choices(s,[[-s,'Check the sign.'],[wrongWay,same?'Same signs: add the sizes.':'Different signs: subtract the sizes.'],
-        [a-b,'This problem adds, not subtracts.'],[s+10,'Check your regrouping.'],[s-10,'Check your regrouping.']]),
+        [-wrongWay,same?'Same signs: add the sizes and keep the sign.':'Different signs: subtract the sizes.'],[s+(Math.random()<0.5?10:-10),'Check your regrouping.']]),
       explain:addRule(a,b) }; },
   intSub:function(){ var p=pair(1,100), a=p[0], b=p[1], d=a-b; if(Math.abs(a)===Math.abs(b)) return null;
     return { topic:'Subtracting integers', prompt:eq(num(a)+' − '+par(b)+' = ?'), data:{a:a,b:b},
       check:function(v){ return v+b===a; },                                                       /* undo the subtraction */
-      choices:choices(d,[[a+b,'Subtracting means adding the opposite.'],[-d,'Check the sign.'],[b-a,'The order matters: '+num(a)+' comes first.'],
-        [d+10,'Check your regrouping.'],[d-10,'Check your regrouping.']]),
+      choices:choices(d,[[a+b,'Subtracting means adding the opposite.'],[-d,'Check the sign.'],[-(a+b),'Add the opposite first, then use the sign rules.'],
+        [d+(Math.random()<0.5?10:-10),'Check your regrouping.']]),
       explain:'Add the opposite: '+eqS(num(a)+' − '+par(b)+' = '+num(a)+' + '+par(-b)+' = <span class="c-ans">'+num(d)+'</span>')+'.' }; },
-  intMul:function(){ var p=pair(2,12), a=p[0], b=p[1], m=a*b, A=Math.abs(a), B=Math.abs(b), sg=m<0?-1:1;
+  intMul:function(){ var p=pair(2,12), a=p[0], b=p[1], m=a*b, A=Math.abs(a), B=Math.abs(b), sg=m<0?-1:1, n=sg*[(A+1)*B,A*(B+1),(A-1)*B,A*(B-1)][ri(0,3)];
     var rule=(a<0)===(b<0)? 'Same signs give a positive.' : 'Different signs give a negative.';
     return { topic:'Multiplying integers', prompt:eq(num(a)+' × '+par(b)+' = ?'), data:{a:a,b:b},
       check:function(v){ var t=0; for(var i=0;i<A;i++) t+=b; return v===(a<0?-t:t); },          /* repeated addition, separate from a*b */
-      choices:choices(m,[[-m,'Check the sign. '+rule],[sg*(A+1)*B,'Check the fact: '+A+' × '+B+' = '+(A*B)+'.'],[sg*A*(B+1),'Check the fact: '+A+' × '+B+' = '+(A*B)+'.'],
-        [-sg*(A+1)*B,'Check the fact and the sign.'],[a+b,'You added. This problem multiplies.']]),
+      choices:choices(m,[[-m,'Check the sign. '+rule],[n,'Check the fact: '+A+' × '+B+' = '+(A*B)+'.'],[-n,'Check the fact and the sign.'],[a+b,'You added. This problem multiplies.']]),
       explain:rule+' '+A+' × '+B+' = '+(A*B)+', so '+eqS(num(a)+' × '+par(b)+' = <span class="c-ans">'+num(m)+'</span>')+'.' }; }
   };
   function build(type){ for(var tries=0;tries<400;tries++){ var q=GEN[type](); if(!q||q.choices.length!==4) continue;
@@ -556,32 +560,39 @@ function makeSq(PFX){
   function rt(n){ return '√<span style="text-decoration:overline">'+n+'</span>'; }
   function ans(h){ return '<span class="c-ans">'+h+'</span>'; }
   function times(a,b){ var t=0; for(var i=0;i<Math.abs(a);i++) t+=b; return a<0?-t:t; }          /* repeated addition, separate from a*b */
+  /* wrong answers in plausibility order, with a random number of them below the answer: choices are sorted
+     smallest to largest, so this keeps the right answer from always sitting in the same spot */
+  function spread(a,cands,min){ var lo=[], hi=[], seen={}; seen[a]=1;
+    cands.forEach(function(c){ if(c[0]<min||seen[c[0]]) return; seen[c[0]]=1; (c[0]<a?lo:hi).push(c); });
+    var k=Math.floor(Math.random()*4), out=lo.slice(0,k); out=out.concat(hi.slice(0,3-out.length)); return out.concat(lo.slice(k,k+3-out.length)); }
   function choices(a,cands,label){ label=label||num; var ch=[C(label(a),a)], seen={}; seen[a]=1;
     cands.forEach(function(c){ if(ch.length<4&&!seen[c[0]]&&c[0]>=0){ seen[c[0]]=1; ch.push(C(label(c[0]),c[0],c[1])); } }); return ch; }
   var GEN={
   sqSquare:function(){ var n=ri(2,15), s=n*n;
     return { topic:'Squaring', prompt:eq(n+'² = ?'), data:{n:n},
       check:function(v){ return v===times(n,n); },
-      choices:choices(s,[[2*n,n+'² means '+n+' × '+n+', not '+n+' × 2.'],[(n+1)*(n+1),'That is '+(n+1)+'².'],[(n-1)*(n-1),'That is '+(n-1)+'².'],[s+10,'Check the multiplication.'],[n+2,n+'² means '+n+' × '+n+'.']]),
+      choices:choices(s,spread(s,[[2*n,n+'² means '+n+' × '+n+', not '+n+' × 2.'],[(n+1)*(n+1),'That is '+(n+1)+'².'],[(n-1)*(n-1),'That is '+(n-1)+'².'],
+        [n*(n+1),'That is '+n+' × '+(n+1)+'.'],[n*(n-1),'That is '+n+' × '+(n-1)+'.'],[s+10,'Check the multiplication.'],[s-10,'Check the multiplication.'],[n+2,n+'² means '+n+' × '+n+'.']],1)),
       explain:n+'² means '+n+' × '+n+' = '+ans(s)+'.' }; },
   sqRoot:function(){ var n=ri(2,15), s=n*n;
     return { topic:'Square roots', prompt:eq(rt(s)+' = ?'), data:{n:n},
       check:function(v){ return v>=0 && times(v,v)===s; },                                     /* the positive number that times itself makes s */
-      choices:choices(n,[[Math.round(s/2),'Square root doesn’t mean half. Find the number that times itself makes '+s+'.'],[n+1,'Check: '+(n+1)+' × '+(n+1)+' = '+((n+1)*(n+1))+'.'],[n-1,'Check: '+(n-1)+' × '+(n-1)+' = '+((n-1)*(n-1))+'.'],[n+2,'Check: '+(n+2)+' × '+(n+2)+' = '+((n+2)*(n+2))+'.']]),
+      choices:choices(n,spread(n,[[Math.round(s/2),'Square root doesn’t mean half. Find the number that times itself makes '+s+'.']].concat([1,-1,2,-2,-3].map(function(d){ var k=n+d; return [k,'Check: '+k+' × '+k+' = '+(k*k)+'.']; })),1)),
       explain:rt(s)+' asks what number times itself makes '+s+': '+n+' × '+n+' = '+s+', so '+eqS(rt(s)+' = '+ans(n))+'.' }; },
   sqNeg:function(){ var n=ri(2,12), s=n*n, paren=Math.random()<0.6, a=paren?s:-s;
-    var p=paren? '('+num(-n)+')²' : num(-n)+'²';
+    var p=paren? '('+num(-n)+')²' : num(-n)+'²', sg=paren?1:-1, k=n+(Math.random()<0.5?1:-1);
+    var third= Math.random()<0.34? C(num(-sg*2*n),-sg*2*n,'Squaring means times itself, not times 2. Then check the sign.') : C(num(sg*k*k),sg*k*k,'That is '+(paren?'':MINUS)+k+'².');
     return { topic:'Negatives', prompt:eq(p+' = ?'), data:{n:n,paren:paren},
       check:function(v){ return v===(paren? times(-n,-n) : -times(n,n)); },
       choices:[ C(num(a),a), C(num(-a),-a, paren? 'The negative is inside the parentheses, so it gets squared too.' : 'No parentheses: square '+n+' first, then put the negative in front.'),
-        C(num(2*n),2*n,'Squaring means times itself, not times 2.'), C(num(-2*n),-2*n,'Squaring means times itself, not times 2.') ],
+        C(num(sg*2*n),sg*2*n,'Squaring means times itself, not times 2.'), third ],
       explain: paren? 'The negative is inside: ('+num(-n)+')('+num(-n)+') = '+ans(num(s))+'.' : 'Square first, then the negative: '+MINUS+'('+n+' × '+n+') = '+ans(num(-s))+'.' }; },
   sqEst:function(){ var lo=ri(2,14), N=ri(lo*lo+1,(lo+1)*(lo+1)-1), half=Math.floor(N/2);
     function lab(k){ return k+' and '+(k+1); }
     return { topic:'Estimating roots', prompt:eq(rt(N)+' is between',62), data:{N:N},
       check:function(v){ return times(v,v)<N && N<times(v+1,v+1); },
-      choices:choices(lo,[[lo+1,(lo+1)+'² = '+((lo+1)*(lo+1))+', which is more than '+N+'.'],[lo-1,lo+'² = '+(lo*lo)+' is still under '+N+', so go higher.'],
-        [half,'That is about half of '+N+'. Compare '+N+' to perfect squares.'],[lo+2,(lo+2)+'² = '+((lo+2)*(lo+2))+', which is more than '+N+'.']],lab),
+      choices:choices(lo,spread(lo,[[half,'That is about half of '+N+'. Compare '+N+' to perfect squares.']].concat([1,-1,2,-2,-3].map(function(d){ var k=lo+d;
+        return [k, d>0? k+'² = '+(k*k)+', which is more than '+N+'.' : (k+1)+'² = '+((k+1)*(k+1))+' is still under '+N+', so go higher.']; })),1),lab),
       explain:lo+'² = '+(lo*lo)+' and '+(lo+1)+'² = '+((lo+1)*(lo+1))+'. '+N+' is between them, so '+rt(N)+' is between '+ans(lab(lo))+'.' }; }
   };
   function build(type){ for(var tries=0;tries<400;tries++){ var q=GEN[type](); if(!q||q.choices.length!==4) continue;
@@ -704,6 +715,96 @@ function makePlot(PFX,withB){
 function makePlot0(PFX){ return makePlot(PFX,false); }
 function makePlotB(PFX){ return makePlot(PFX,true); }
 
+function makeFam(PFX){
+  /* ================= QUESTION GENERATOR: function families =================
+     Name the family from an equation or a graph: linear, quadratic or exponential. "None of these" is right now and then
+     (absolute value, square root, cube, 1/x) so students check the shape instead of guessing among three.
+     The answer is checked by numbers alone: constant differences (linear), constant second differences (quadratic),
+     constant ratios (exponential), on two windows of x. */
+  var MINUS='−';
+  function ri(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
+  function nz(a,b){ var v; do{ v=ri(a,b); }while(v===0); return v; }
+  function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+  function num(n){ return n<0? MINUS+(-n) : ''+n; }
+  function sgn(v){ return v>0? ' + '+v : v<0? ' '+MINUS+' '+(-v) : ''; }
+  function cx(c,v){ return c===1? v : c===-1? MINUS+v : num(c)+v; }
+  function frac(n,d){ return '<span class="'+PFX+'-fr"><span>'+n+'</span><span>'+d+'</span></span>'; }
+  function C(html,val,why){ return {html:html,val:val,why:why||'',key:html}; }
+  function eq(h){ return '<span class="'+PFX+'-eq">'+h+'</span>'; }
+  function sup(h){ return '<sup>'+h+'</sup>'; }
+  var FONT=' font-family="Inter,sans-serif" font-weight="800"';
+  var FAM=['lin','quad','exp','none'], LABEL={lin:'Linear',quad:'Quadratic',exp:'Exponential',none:'None of these'};
+
+  /* each maker returns {f, html, kind} — kind only picks the explanation; the check never reads it */
+  var MAKE={
+    lin:[ function(){ var m=nz(-5,5), b=nz(-9,9); return {f:function(x){ return m*x+b; }, html:'y = '+cx(m,'x')+sgn(b), kind:'line'}; },
+          function(){ var m=nz(-4,4), b=nz(-9,9); return {f:function(x){ return b+m*x; }, html:'y = '+num(b)+(m>0?' + ':' '+MINUS+' ')+cx(Math.abs(m),'x'), kind:'line'}; },
+          function(){ var d=pick([2,3,4]), n=pick([1,-1,3,-3]), b=nz(-6,6); if(Math.abs(n)===d) return null; return {f:function(x){ return n*x/d+b; }, html:'y = '+(n<0?MINUS:'')+frac(Math.abs(n),d)+'x'+sgn(b), kind:'line'}; },
+          function(){ var m=pick([2,3,4,5,10]); return {f:function(x){ return m*x; }, html:'y = '+m+'x', kind:'line'}; } ],
+    quad:[ function(){ var a=nz(-3,3), c=nz(-9,9); return {f:function(x){ return a*x*x+c; }, html:'y = '+cx(a,'x'+sup(2))+sgn(c), kind:'para'}; },
+           function(){ var a=nz(-2,3), b=nz(-6,6), c=nz(-9,9); return {f:function(x){ return a*x*x+b*x+c; }, html:'y = '+cx(a,'x'+sup(2))+(b>0?' + ':' '+MINUS+' ')+cx(Math.abs(b),'x')+sgn(c), kind:'para'}; },
+           function(){ var a=pick([1,-1,2]), h=nz(-5,5), k=nz(-9,9); return {f:function(x){ return a*(x-h)*(x-h)+k; }, html:'y = '+(a===1?'':a===-1?MINUS:a)+'(x'+sgn(-h)+')'+sup(2)+sgn(k), kind:'para'}; },
+           function(){ var p=nz(-6,6); return {f:function(x){ return x*(x+p); }, html:'y = x(x'+sgn(p)+')', kind:'para'}; } ],
+    exp:[ function(){ var a=pick([1,2,3,4,5,10]), b=pick([2,3,4,5]); return {f:function(x){ return a*Math.pow(b,x); }, html:'y = '+(a===1?'':a+'(')+b+(a===1?'':')')+sup('x'), kind:'grow'}; },
+          function(){ var a=pick([2,4,8,10,50,100]); return {f:function(x){ return a*Math.pow(0.5,x); }, html:'y = '+a+'('+frac(1,2)+')'+sup('x'), kind:'decay'}; },
+          function(){ var a=pick([100,200,500,1000]), r=pick(['1.05','1.1','0.9','0.8','1.5']); return {f:function(x){ return a*Math.pow(+r,x); }, html:'y = '+a+'('+r+')'+sup('x'), kind:+r>1?'grow':'decay'}; },
+          function(){ var b=pick([2,3,5]); return {f:function(x){ return Math.pow(b,x); }, html:'y = '+b+sup('x'), kind:'grow'}; } ],
+    none:[ function(){ var c=nz(-5,5); return {f:function(x){ return Math.abs(x)+c; }, html:'y = |x|'+sgn(c), kind:'abs'}; },
+           function(){ var c=nz(-5,5); return {f:function(x){ return Math.sqrt(x)+c; }, html:'y = √<span style="text-decoration:overline">x</span>'+sgn(c), kind:'root'}; },
+           function(){ var c=nz(-5,5); return {f:function(x){ return x*x*x+c; }, html:'y = x'+sup(3)+sgn(c), kind:'cube'}; },
+           function(){ var k=pick([1,2,4,6]); return {f:function(x){ return k/x; }, html:'y = '+frac(k,'x'), kind:'inv'}; } ]
+  };
+  /* family by numbers alone; both windows must agree */
+  function famOf(vals){ var d1=[], d2=[], r=[]; for(var i=1;i<vals.length;i++) d1.push(vals[i]-vals[i-1]); for(i=1;i<d1.length;i++) d2.push(d1[i]-d1[i-1]);
+    for(i=1;i<vals.length;i++) r.push(vals[i-1]===0? NaN : vals[i]/vals[i-1]);
+    function flat(a){ return a.every(function(v){ return isFinite(v)&&Math.abs(v-a[0])<1e-9*Math.max(1,Math.abs(a[0])); }); }
+    if(flat(d1)&&Math.abs(d1[0])>1e-9) return 'lin'; if(flat(d2)&&Math.abs(d2[0])>1e-9) return 'quad'; if(flat(r)&&r[0]>0&&Math.abs(r[0]-1)>1e-9) return 'exp'; return 'none'; }
+  function classify(f){ var out=null;
+    [[-2,-1,0,1,2],[1,2,3,4,5]].forEach(function(xs){ var v=xs.map(f); if(!v.every(isFinite)) return; var t=famOf(v); out= out===null||out===t? t : 'none'; });
+    return out||'none'; }
+
+  var WHY={ lin:'Linear: x has power 1, a straight line.', quad:'Quadratic: it has x'+sup(2)+', a parabola.',
+    exp:'Exponential: x is the exponent.', none:'It’s one of the three. Look at where x is.' };
+  var EXPL={ line:'x has power 1: <b>linear</b>.', para:'The highest power of x is 2: <b>quadratic</b>.',
+    grow:'x is the exponent: <b>exponential</b> growth.', decay:'x is the exponent: <b>exponential</b> decay.',
+    abs:'Absolute value: <b>none of these</b>.', root:'Square root: <b>none of these</b>.', cube:'x has power 3: <b>none of these</b>.', inv:'x is in the denominator: <b>none of these</b>.' };
+  var EXPLG={ line:'A straight line is <b>linear</b>.', para:'A U-shaped parabola is <b>quadratic</b>.', grow:'Flat near 0, then shoots up: <b>exponential</b> growth.',
+    decay:'Drops fast, then flattens near 0: <b>exponential</b> decay.', abs:'A V shape: <b>none of these</b>.',
+    root:'Starts at a point and bends: <b>none of these</b>.', cube:'Rises, flattens, rises: <b>none of these</b>.', inv:'Two separate pieces: <b>none of these</b>.' };
+
+  function gSVG(f){ var S=380, u=S/12, X=function(x){ return ((x+6)*u).toFixed(1); }, Y=function(y){ return ((6-y)*u).toFixed(1); }, h='', segs=[], cur=[];
+    for(var i=-6;i<=6;i++){ h+='<line x1="'+X(i)+'" y1="0" x2="'+X(i)+'" y2="'+S+'" stroke="#2A3142" stroke-width="2"/><line x1="0" y1="'+Y(i)+'" x2="'+S+'" y2="'+Y(i)+'" stroke="#2A3142" stroke-width="2"/>'; }
+    h+='<line x1="0" y1="'+Y(0)+'" x2="'+S+'" y2="'+Y(0)+'" stroke="#C9D1E0" stroke-width="3"/><line x1="'+X(0)+'" y1="0" x2="'+X(0)+'" y2="'+S+'" stroke="#C9D1E0" stroke-width="3"/>';
+    [-4,-2,2,4].forEach(function(n){ h+='<text x="'+X(n)+'" y="'+(+Y(0)+24)+'" text-anchor="middle" font-size="20" fill="#9BA5B8"'+FONT+'>'+num(n)+'</text>'+
+      '<text x="'+(+X(0)-8)+'" y="'+(+Y(n)+7)+'" text-anchor="end" font-size="20" fill="#9BA5B8"'+FONT+'>'+num(n)+'</text>'; });
+    for(var t=-700;t<=700;t+=4){ var x=t/100, y=f(x); if(isFinite(y)&&Math.abs(y)<9) cur.push(X(x)+' '+Y(y)); else if(cur.length){ segs.push(cur); cur=[]; } }
+    if(cur.length) segs.push(cur);
+    segs.forEach(function(s){ if(s.length>1) h+='<path d="M'+s.join('L')+'" fill="none" stroke="#FF4B4B" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>'; });
+    return '<svg class="'+PFX+'-graph" width="'+S+'" height="'+S+'" viewBox="0 0 '+S+' '+S+'" role="img" aria-label="Graph of a function">'+h+'</svg>'; }
+  /* graphs need the shape on screen: some of the curve inside the window, and a parabola's turn visible */
+  function shows(g,fam){ var on=0; for(var x=-5;x<=5;x+=0.5){ var y=g.f(x); if(isFinite(y)&&Math.abs(y)<=5.5) on++; } if(on<6) return false;
+    if(fam==='quad'){ var best=null; for(x=-5;x<=5;x+=0.25){ var v=g.f(x); if(best===null||Math.abs(g.f(x+0.25)-v)+Math.abs(v-g.f(x-0.25))<best[1]) best=[x,Math.abs(g.f(x+0.25)-v)+Math.abs(v-g.f(x-0.25))]; }
+      return Math.abs(best[0])<=3&&Math.abs(g.f(best[0]))<=4; }                               /* the turn sits near the middle, so both arms show */
+    return true; }
+
+  function famQ(graph){ var fam=pick(['lin','lin','quad','quad','exp','exp','none']), g=pick(MAKE[fam])(); if(!g) return null;
+    if(graph){ if(fam==='exp'&&(g.f(0)>3||g.f(0)<0.4)) return null; if(fam==='lin'&&Math.abs(g.f(1)-g.f(0))>3) return null; if(fam==='quad'&&Math.abs(g.f(1)+g.f(-1)-2*g.f(0))>4) return null; if(!shows(g,fam)) return null; }
+    var order=[fam].concat(FAM.filter(function(k){ return k!==fam; }));
+    return { topic:graph?'From the graph':'From the equation', prompt: graph? 'Which family is this function?' : 'Which family is '+eq(g.html)+'?',
+      visual: graph? gSVG(g.f) : '', data:{fam:fam}, keepOrder:true,
+      check:function(v){ return v.k===classify(g.f); },
+      choices: order.map(function(k,i){ return C(LABEL[k],{k:k,i:FAM.indexOf(k)},i?(fam==='none'?'It isn’t '+LABEL[k].toLowerCase()+'. Check the shape.':k==='none'?WHY.none:WHY[fam]):''); }),
+      explain:(graph?EXPLG:EXPL)[g.kind] }; }
+
+  var GEN={ famEq:function(){ return famQ(false); }, famGraph:function(){ return famQ(true); } };
+  function build(type){ for(var tries=0;tries<400;tries++){ var q=GEN[type](); if(!q) continue;
+      if(!q.check(q.choices[0].val)) continue;                                                  // the answer must pass the independent check
+      if(q.choices.slice(1).some(function(c){ return q.check(c.val); })) continue;              // and no distractor may pass it
+      q.type=type; q.choices.forEach(function(c,i){ c.ok=i===0; });
+      q.choices.sort(function(a,b){ return a.val.i-b.val.i; });                                 // always Linear, Quadratic, Exponential, None
+      delete q.keepOrder; q.visual=q.visual||''; delete q.check; return q; } throw new Error('generator failed: '+type); }
+  return { build:build }; }
+
 var SETS={
   mult:{ name:'Multiplication facts', make:makeMult, big:true, topics:[['f03','Facts 0–3',['Facts 0–3'],1],['f46','Facts 4–6',['Facts 4–6'],2],['f79','Facts 7–9',['Facts 7–9'],3],['f1012','Facts 10–12',['Facts 10–12'],2]] },
   slope:{ name:'Slope-intercept form', make:makeLinear, topics:[['write','Write the equation',['siBuild']],['slope','Find the slope',['siSlope']],['yint','Find the y-intercept',['siYInt']],['graph','Read a graph',['graphSlope','graphYInt','graphXInt']]] },
@@ -713,8 +814,9 @@ var SETS={
   func:{ name:'Functions', make:makeFunc, topics:[['points','Ordered pairs',['fnPoints']],['table','Tables',['fnTable']],['map','Mapping diagrams',['fnMap']],['graph','Graphs',['fnGraph']]] },
   int:{ name:'Integers', make:makeInt, big:true, topics:[['add','Adding',['intAdd']],['sub','Subtracting',['intSub']],['mult','Multiplying',['intMul']]] },
   sq:{ name:'Squares & roots', make:makeSq, big:true, topics:[['square','Squaring',['sqSquare']],['root','Square roots',['sqRoot']],['neg','Negatives',['sqNeg']],['est','Estimating roots',['sqEst']]] },
-  plot0:{ name:'Graphing y = mx', make:makePlot0, topics:[['match','Pick the line',['plotMatch']],['eq','Write the equation',['plotEq']],['plot','Plot it',['plotSteps']],['point','Points on the line',['plotPoint']]] },
-  plot:{ name:'Graphing y = mx + b', make:makePlotB, topics:[['match','Pick the line',['plotMatch']],['eq','Write the equation',['plotEq']],['plot','Plot it',['plotSteps']],['point','Points on the line',['plotPoint']]] }
+  plot0:{ name:'Graphing y = mx', make:makePlot0, topics:[['match','Pick the line',['plotMatch']],['eq','Write the equation',['plotEq']]] },
+  plot:{ name:'Graphing y = mx + b', make:makePlotB, topics:[['match','Pick the line',['plotMatch']],['eq','Write the equation',['plotEq']]] },
+  fam:{ name:'Function families', make:makeFam, topics:[['eq','From the equation',['famEq']],['graph','From the graph',['famGraph']]] }
 };
 
 function plain(h){ return String(h).replace(/<span class="[a-z]+-fr"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g,'$1/$2').replace(/<[^>]+>/g,''); }

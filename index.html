@@ -140,7 +140,7 @@ var SETS=[
 ];
 var st={game:null,set:'mult',t:{}};
 SETS.forEach(function(x){ st.t[x.id]=x.topics.map(function(t){ return t[0]; }); });
-try{ var sv=JSON.parse(localStorage.getItem('spitz_hub2')||'null'); if(sv&&sv.t) SETS.forEach(function(x){ if(sv.t[x.id]) st.t[x.id]=sv.t[x.id]; }), st.game=sv.game||null, st.set=sv.set||'mult'; }catch(e){}
+try{ var sv=JSON.parse(localStorage.getItem('spitz_hub2')||'null'); if(sv&&sv.t) SETS.forEach(function(x){ if(sv.t[x.id]) st.t[x.id]=sv.t[x.id].filter(function(t){ return x.topics.some(function(y){ return y[0]===t; }); }); }), st.game=sv.game||null, st.set=sv.set||'mult'; }catch(e){}
 function $(i){ return document.getElementById(i); }
 function save(){ try{ localStorage.setItem('spitz_hub2',JSON.stringify(st)); }catch(e){} }
 
