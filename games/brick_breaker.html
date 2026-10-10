@@ -645,5 +645,10 @@ window.__G={ state:function(){ return S; }, balls:function(){ return balls; }, p
   b.addEventListener('click',function(){ document.dispatchEvent(new KeyboardEvent('keydown',{key:'f',bubbles:true})); setTimeout(upd,300); });
   document.addEventListener('fullscreenchange',upd); document.addEventListener('webkitfullscreenchange',upd); setInterval(upd,1000); upd(); })();
 </script>
+<script>/* Brick Breaker: the hint sits at the bottom of the wall, under the paddle and scaled with the stage, so it never covers the question card */
+(function(){ var b=document.getElementById('sz-fs'), f=document.getElementById('bb-field');
+  function place(){ var r=f.getBoundingClientRect(), k=r.width/780; b.style.left=(r.left+r.width/2)+'px'; b.style.bottom=(innerHeight-r.bottom+6*k)+'px'; b.style.transformOrigin='50% 100%'; b.style.transform='translateX(-50%) scale('+k+')'; }
+  addEventListener('resize',place); setInterval(place,1000); place(); })();
+</script>
 </body>
 </html>
