@@ -4,12 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Football Buds: Multiplication Facts</title>
-<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Graduate&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
-:root{ --paper:#0E1016; --panel:#191C25; --panel-2:#242936; --text:#F3F5F9; --muted:#9BA5B8; --border:#343B4D; --accent:#7CE04A;
-  --pink:#FF8A3D; --lime:#7CE04A; --cyan:#2DE2E6; --orange:#FF8A1F;
-  --c-line:#FF4B4B; --c-m:#FFC82E; --c-b:#FF3DB4; --c-pt:#FFF04D; --c-ans:#C77DFF; --c-x:#2DE2C8; --ok:#4ADE80; --no:#FF7A7A;
-  --display:'Luckiest Guy','Inter',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif; }
+:root{ --paper:#06120B; --panel:#0E2216; --panel-2:#16301F; --text:#F7F3E3; --muted:#A9C0AA; --border:#2A4A34; --accent:#FFC629;
+  --pink:#F7F3E3; --lime:#FFC629; --cyan:#FFC629; --orange:#FF9A1F;
+  --c-line:#FF4B4B; --c-m:#FFC82E; --c-b:#FF3DB4; --c-pt:#FFF04D; --c-ans:#D9A6FF; --c-x:#2DE2C8; --ok:#5BE37D; --no:#FF7A7A;
+  --display:'Graduate','Inter',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif;
+  --sz-mark:#FFC629; --sz-ink:#A9C0AA; --chalk:#1C3A28; --wood:#7A532E; }
 *{ box-sizing:border-box; }
 html,body{ margin:0; height:100%; background:var(--paper); overflow:hidden; }
 body{ color:var(--text); font-family:var(--body); -webkit-user-select:none; user-select:none; touch-action:manipulation; }
@@ -137,12 +138,73 @@ button:disabled{ cursor:default; }
 .fb-hp.y{ background:var(--ok); border-color:var(--ok); } .fb-hp.n{ background:var(--no); border-color:var(--no); }
 .fb-result{ font:400 44px/1.1 var(--display); color:var(--text); margin-top:2px; }
 .fb-final{ font-size:130px; }
+
+/* ================= FOOTBALL THEME: Friday night lights ================= */
+body{ background:radial-gradient(120% 70% at 50% -10%, #17402A 0%, #06120B 60%); }
+#stage{ background:repeating-linear-gradient(90deg, rgba(255,255,255,.025) 0 96px, transparent 96px 192px); }
+.fb-logo{ font-size:40px; letter-spacing:.01em; }
+/* the top bar is a TV scorebug: one joined strip, team color blocks, clock in the middle */
+.fb-top{ gap:0; }
+.fb-brand{ order:0; } .fb-sp{ order:1; }
+#fb-budschip{ order:2; } #fb-timerchip{ order:3; } #fb-rivalschip{ order:4; } #fb-streakchip{ order:5; margin-left:14px; border-radius:16px; }
+.fb-chip{ border-radius:0; border-width:0 0 6px 0; height:80px; min-width:190px; background:#0B1B12; align-items:center; text-align:center; }
+#fb-budschip{ border-radius:16px 0 0 16px; background:linear-gradient(#2668B8,#17457F); border-bottom-color:#5CA8FF; }
+#fb-rivalschip{ border-radius:0 16px 16px 0; background:linear-gradient(#B8342C,#7E1D18); border-bottom-color:#FF7A6E; }
+#fb-budschip .v,#fb-rivalschip .v{ color:#fff; font-size:44px; } #fb-budschip .l,#fb-rivalschip .l{ color:rgba(255,255,255,.85); }
+#fb-timerchip{ background:#0B1B12; border-bottom-color:var(--accent); min-width:220px; }
+#fb-timerchip .v{ color:var(--accent); }
+.fb-chip .v{ font-size:38px; }
+/* the field frame */
+.fb-range{ border:6px solid #F7F3E3; border-radius:18px; box-shadow:0 0 0 4px #0B1B12, 0 20px 60px rgba(0,0,0,.5); }
+/* the question panel is the coach's chalkboard playbook on a clipboard */
+.fb-q{ position:relative; border-radius:22px; border:14px solid var(--wood); padding:30px 26px 22px;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='.06' stroke-width='5' stroke-linecap='round'%3E%3Cpath d='M30 30l30 30M60 30L30 60'/%3E%3Ccircle cx='160' cy='70' r='18'/%3E%3Cpath d='M70 150q40-50 90-20' stroke-dasharray='8 10'/%3E%3Cpath d='M150 120l12 10-15 6'/%3E%3Ccircle cx='60' cy='175' r='16'/%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(90% 60% at 30% 20%, #234A33 0%, var(--chalk) 70%);
+  box-shadow:inset 0 0 60px rgba(0,0,0,.45), 0 16px 40px rgba(0,0,0,.45); }
+.fb-q::before{ content:''; position:absolute; left:50%; top:-30px; transform:translateX(-50%); width:200px; height:40px; border-radius:10px 10px 14px 14px;
+  background:linear-gradient(#E9EDF2,#9AA4B1); box-shadow:0 4px 0 #6B7480, inset 0 -6px 0 rgba(0,0,0,.15); }
+.fb-q.open{ border-color:#9A6A3A; } .fb-q.nudge{ border-color:var(--accent); }
+.fb-tag{ background:rgba(0,0,0,.25); border:2px dashed rgba(247,243,227,.45); color:#F7F3E3; font-family:var(--display); font-weight:400; letter-spacing:.06em; }
+.fb-prompt{ color:#FBFAF3; text-shadow:0 0 2px rgba(255,255,255,.35), 0 3px 0 rgba(0,0,0,.25); }
+.fb-ch{ background:rgba(0,0,0,.18); border:3px dashed rgba(247,243,227,.4); color:#FBFAF3; }
+.fb-ch .k{ background:var(--accent); color:#1B1405; font-family:var(--display); border-radius:10px; }
+.fb-ch:not(:disabled):hover{ border-color:var(--accent); border-style:solid; }
+.fb-ch.right{ border-style:solid; } .fb-ch.wrong{ border-style:solid; }
+.fb-fb{ background:rgba(0,0,0,.28); border-color:rgba(247,243,227,.3); color:#DCE6D8; }
+.fb-hp{ border-radius:4px; width:40px; } .fb-hp.y{ background:var(--accent); border-color:var(--accent); }
+.fb-reward{ color:#DCE6D8; font-family:var(--display); font-weight:400; }
+/* start and end screens: stadium light beams over the field */
+.fb-over{ background:
+   radial-gradient(40% 55% at 15% -5%, rgba(255,250,215,.20), transparent 70%), radial-gradient(40% 55% at 85% -5%, rgba(255,250,215,.20), transparent 70%),
+   linear-gradient(180deg, rgba(6,18,11,.96) 0%, rgba(6,18,11,.97) 70%, rgba(30,90,48,.97) 100%); }
+.fb-big{ font-size:104px; letter-spacing:.01em; text-shadow:0 6px 0 rgba(0,0,0,.45); }
+.fb-big b{ color:#F7F3E3; } .fb-big i{ color:var(--accent); }
+.fb-step{ background:var(--chalk); border:3px dashed rgba(247,243,227,.35); }
+.fb-step b{ color:var(--accent); font-size:28px; }
+.fb-go{ background:var(--accent); color:#1B1405; box-shadow:0 8px 0 #B38600; }
+.fb-final{ color:var(--accent); } .fb-name{ color:#F7F3E3; }
+.fb-stat{ background:var(--chalk); }
+
+/* ================= SPITZ ARCADE BRAND (shared by every game: keep identical) ================= */
+.sz-credit{ display:inline-flex !important; align-items:center; gap:10px; font:800 18px/1 Inter,system-ui,sans-serif !important; letter-spacing:.16em !important; text-transform:uppercase; color:var(--sz-ink) !important; white-space:nowrap; }
+.sz-credit::before{ content:''; flex:none; width:26px; height:5px; border-radius:3px; background:var(--sz-mark); }
+.sz-eyebrow{ display:inline-flex; align-items:center; gap:14px; margin:0 0 18px; font:800 24px/1 Inter,system-ui,sans-serif; letter-spacing:.34em; text-transform:uppercase; color:var(--sz-ink); }
+.sz-eyebrow::before,.sz-eyebrow::after{ content:''; width:40px; height:5px; border-radius:3px; background:var(--sz-mark); }
+.sz-eyebrow b{ color:var(--sz-mark); font-weight:800; }
+.sz-mus{ height:84px; padding:0 26px; border-radius:20px; background:var(--panel); border:3px solid var(--border); font:800 30px/1 Inter,system-ui,sans-serif; color:var(--sz-ink); white-space:nowrap; }
+.sz-mus.on{ border-color:var(--sz-mark); color:var(--text); }
+.sz-ask{ z-index:40; } .sz-ask h2{ margin:0 0 6px; font:400 84px/1.05 var(--display); color:var(--text); }
+.sz-ask .sz-askrow{ display:flex; justify-content:center; gap:20px; }
+.sz-ask button{ height:96px; padding:0 44px; border-radius:22px; font:800 32px/1 Inter,system-ui,sans-serif; background:var(--panel); border:3px solid var(--border); color:var(--text); }
+.sz-ask #sz-askyes{ background:var(--sz-mark); border-color:var(--sz-mark); color:#111; }
+[class$="-logo"]{ cursor:pointer; }
 </style>
 </head>
 <body>
 <div id="stage">
   <div class="fb-top">
-    <div class="fb-brand"><h1 class="fb-logo"><b>FOOTBALL</b> <i>BUDS</i></h1><span class="fb-credit">Made by Spitz 🍔</span></div>
+    <div class="fb-brand"><h1 class="fb-logo"><b>FOOTBALL</b> <i>BUDS</i></h1><span class="fb-credit sz-credit">Made by Spitz 🍔</span></div>
     <div class="fb-chip fb-timer" id="fb-timerchip"><span class="l" id="fb-qtr">Quarter 1</span><span class="v" id="fb-time">1:15</span></div>
     <span class="fb-sp"></span>
     <div class="fb-chip" id="fb-budschip"><span class="l">Buds</span><span class="v" id="fb-budsv">0</span></div>
@@ -163,19 +225,19 @@ button:disabled{ cursor:default; }
   </div>
 
   <div class="fb-over" id="fb-start"><div class="fb-box">
-    <h2 class="fb-big"><b>FOOTBALL</b> <i>BUDS</i></h2>
+    <div class="sz-eyebrow">Spitz <b>Arcade</b></div><h2 class="fb-big"><b>FOOTBALL</b> <i>BUDS</i></h2>
     <p class="fb-sub">Multiplication facts, 0 to 12. Buds vs Rivals, four quarters. Win the huddle, then win the play.</p>
     <div class="fb-steps">
       <div class="fb-step"><b>1. Huddle</b>Answer 3 facts before every snap. All 3 right gives a speed boost. Misses make your players slow, so don’t guess.</div>
       <div class="fb-step"><b>2. Offense</b>Space to hike. Space again to pass when your bud is OPEN. Then run and jump over the tacklers.</div>
       <div class="fb-step"><b>3. Defense</b>When the Rivals have the ball, chase the runner and press Space to dive and tackle him.</div>
     </div>
-    <div class="fb-row"><input class="fb-input" id="fb-nameinput" maxlength="24" placeholder="Your first and last name" autocomplete="off" aria-label="Your name"></div>
+    <div class="fb-row"><input class="fb-input" id="fb-nameinput" maxlength="24" placeholder="Your first and last name" autocomplete="off" aria-label="Your name"><button class="sz-mus" id="sz-mus" aria-label="Music on or off, key N">♪ Music on</button></div>
     <button class="fb-go" id="fb-go" disabled>Start</button>
-    <div class="fb-keys">Keys: 1–4 answer · Space hike, pass, dive · ← → run · ↑ jump · M mute · F full screen</div>
-  </div><span class="fb-credit">Made by Spitz 🍔</span></div>
+    <div class="fb-keys">Keys: 1–4 answer · Space hike, pass, dive · ← → run · ↑ jump · N music · M mute · Shift+R new game · F full screen</div>
+  </div><span class="fb-credit sz-credit">Made by Spitz 🍔</span></div>
 
-  <div class="fb-over" id="fb-end" hidden><div class="fb-box">
+  <div class="fb-over" id="fb-end" hidden><div class="fb-box"><div class="sz-eyebrow">Spitz <b>Arcade</b></div>
     <p class="fb-sub" style="margin:0">Final score. Show this screen to your teacher.</p>
     <div class="fb-name" id="fb-endname"></div>
     <div class="fb-final" id="fb-endscore">0</div>
@@ -183,8 +245,13 @@ button:disabled{ cursor:default; }
     <div class="fb-stats" id="fb-endstats"></div>
     <div class="fb-topics" id="fb-endtopics"></div>
     <button class="fb-again" id="fb-again">Play again</button>
-  </div><span class="fb-credit">Made by Spitz 🍔</span></div>
+  </div><span class="fb-credit sz-credit">Made by Spitz 🍔</span></div>
 
+  <div class="fb-over sz-ask" id="sz-ask" hidden role="dialog" aria-modal="true" aria-labelledby="sz-asktitle"><div class="fb-box">
+    <h2 id="sz-asktitle">Start a new game?</h2>
+    <p class="fb-sub">This erases the current run and starts over from the beginning.</p>
+    <div class="sz-askrow"><button id="sz-askno">No, keep playing (N)</button><button id="sz-askyes">Yes, new game (Y)</button></div>
+  </div></div>
   <canvas id="fb-confetti" width="1920" height="1080" aria-hidden="true"></canvas>
   <div class="fb-toast" id="fb-toast" hidden></div>
 </div>
@@ -213,27 +280,90 @@ function brass(f,t0,dur,vol){ var a=ac(); if(!a||muted) return; var t=a.currentT
   [-6,6].forEach(function(det){ var o=a.createOscillator(); o.type='sawtooth'; o.frequency.value=f; o.detune.value=det; o.connect(lp); o.start(t); o.stop(t+dur+0.03); });
   lp.connect(g); g.connect(a.destination); count(); }
 var G4=392,C5=523.25,E5=659.25,G5=783.99,A5=880,B5=987.77,C6=1046.5,E6=1318.5;
+function crowd(t0,dur,vol,cut){ noise(t0,vol,dur*1000,0,cut||1100); noise(t0+0.04,vol*0.7,dur*900,0,(cut||1100)*1.6); }
+function snare(t0,vol){ noise(t0,vol||0.32,90,1700); tone(210,170,t0,0.06,'triangle',(vol||0.32)*0.5); }
 var SND={
-  jump:function(){ tone(300,620,0,0.14,'square',0.08); },
-  land:function(){ noise(0,0.18,50,0,500); },
-  hike:function(){ tone(520,520,0,0.06,'square',0.1); tone(700,700,0.09,0.09,'square',0.1); },
-  pass:function(){ noise(0,0.3,220,0,2200); tone(500,900,0,0.2,'sine',0.08); },
-  whistle:function(){ tone(2300,2100,0,0.32,'square',0.05); tone(2350,2150,0,0.32,'square',0.04); },
-  star:function(){ tone(880,1320,0,0.12,'triangle',0.2); },
-  gold:function(){ brass(C5,0,0.09,0.12); brass(E5,0.08,0.09,0.12); brass(G5,0.16,0.3,0.13); tone(C6,C6,0.18,0.3,'triangle',0.1); },
-  crash:function(){ noise(0,0.6,180,0,500); tone(150,50,0,0.22,'sawtooth',0.2); },
-  empty:function(){ tone(320,280,0,0.05,'square',0.1); tone(320,280,0.08,0.05,'square',0.1); },
-  correct:function(){ tone(C5,C5,0,0.12,'triangle',0.2); tone(E5,E5,0.08,0.12,'triangle',0.2); tone(G5,G5,0.16,0.14,'triangle',0.2); tone(C6,C6,0.24,0.3,'triangle',0.18); tone(180,520,0.3,0.35,'sawtooth',0.07); },
-  cash:function(){ tone(2093,2093,0,0.08,'square',0.06); tone(2637,2637,0.07,0.18,'square',0.06); noise(0,0.25,40,4000); },
-  miss:function(){ tone(233,165,0.02,0.38,'triangle',0.22); },
+  jump:function(){ tone(260,520,0,0.13,'triangle',0.1); noise(0,0.08,60,2500); },
+  land:function(){ noise(0,0.2,60,0,420); },
+  hike:function(){ [0,0.2].forEach(function(t){ tone(170,120,t,0.1,'sawtooth',0.16); noise(t,0.22,80,0,900); }); },          // "Hut! Hut!"
+  pass:function(){ noise(0,0.28,240,0,2400); tone(420,820,0,0.22,'sine',0.07); },
+  whistle:function(){ tone(2300,2100,0,0.34,'square',0.05); tone(2350,2150,0,0.34,'square',0.04); tone(2280,2280,0.38,0.12,'square',0.05); },
+  star:function(){ brass(C5,0,0.08,0.11); brass(G5,0.08,0.2,0.12); crowd(0.02,0.5,0.12); },                                    // first down, catch, perfect huddle
+  gold:function(){ crowd(0,1.8,0.28,1300); snare(0); snare(0.06); jingle(); },                                              // touchdown: the crowd and the Spitz charge
+  crash:function(){ noise(0,0.5,160,0,450); tone(130,55,0,0.2,'sawtooth',0.18); },
+  empty:function(){ tone(300,260,0,0.06,'square',0.09); tone(300,260,0.09,0.06,'square',0.09); },
+  correct:function(){ tone(C5,C5,0,0.16,'triangle',0.16); tone(E5,E5,0.07,0.16,'triangle',0.15); tone(G5,G5,0.14,0.32,'triangle',0.15); tone(G4,G4,0.14,0.32,'sine',0.08); },   // a soft rising chime, no drum
+  cash:function(){ tone(2093,2093,0,0.08,'square',0.06); tone(2637,2637,0.07,0.18,'square',0.06); },
+  miss:function(){ tone(196,147,0.02,0.42,'triangle',0.2); tone(98,74,0.02,0.42,'sine',0.12); },                            // a low sousaphone "wah"
   tick:function(){ tone(1200,1200,0,0.05,'square',0.08); },
-  win:function(){ var t=0.1; brass(G4,t,0.11); brass(C5,t+0.12,0.11); brass(E5,t+0.24,0.11); brass(C5,t+0.38,0.34,0.11); brass(E5,t+0.38,0.34,0.11); brass(G5,t+0.38,0.34,0.13);
-    brass(E5,t+0.76,0.16,0.11); brass(A5,t+0.76,0.16,0.13); brass(G5,t+0.94,0.16,0.11); brass(B5,t+0.94,0.16,0.13);
-    [C5,E5,G5,C6].forEach(function(f){ brass(f,t+1.14,1.3,0.11); }); tone(E6,E6,t+1.2,0.9,'triangle',0.1); }
+  win:function(){ crowd(0,2.6,0.3,1400); var t=0.1; [0,0.07,0.14,0.21].forEach(function(d){ snare(t+d,0.25); });
+    brass(G4,t+0.3,0.11); brass(C5,t+0.42,0.11); brass(E5,t+0.54,0.11); brass(G5,t+0.68,0.34,0.13); brass(E5,t+1.06,0.12); [C5,E5,G5,C6].forEach(function(f){ brass(f,t+1.2,1.3,0.11); }); }
 };
 
+/* ================= SONG: "Under the Lights" (drumline and brass, 116 bpm, B-flat) =================
+   Bass drums and a tuba line underneath; snares, cymbals and brass stabs on top. The top layer drops back during the huddle. */
+var FB_CH=[[116.54,[466.16,587.33,698.46]],[155.56,[466.16,622.25,783.99]],[174.61,[523.25,698.46,880.00]],[116.54,[466.16,587.33,698.46]],
+           [98.00,[392.00,466.16,587.33]],[155.56,[466.16,622.25,783.99]],[174.61,[523.25,698.46,880.00]],[174.61,[523.25,622.25,880.00]]];
+var FB_SN=[3,0,1,0, 3,0,1,1, 0,1,3,0, 1,0,2,2];                                     // snare: 3 accent, 2 roll, 1 tap, 0 rest
+var FB_TUBA=[0,-1,-1,-1, 7,-1,-1,-1, 12,-1,7,-1, 0,-1,-1,-1];                       // semitones above the root, -1 rest
+var SONG={ level:0.11, echo:0.26,
+  want:function(){ return !!S&&S.started&&!S.over; },
+  busy:function(){ return !!PL&&(PL.live||PL.dead>0); },
+  sd:function(){ return 0.129; },
+  voice:function(f,t0,dur){ brass(f,t0,dur,0.13); brass(f/2,t0,dur,0.06); },
+  step:function(ctx,g,i,t,sd){ var bar=Math.floor(i/16), c=FB_CH[bar%8], k=i%16, pass2=bar%16>=8;
+    if(k%4===0) mKick(ctx,g.out,t,k===0?0.75:0.5,150,55);                                                        // bass drums on the beat
+    if(FB_TUBA[k]>=0) mNote(ctx,g.out,'triangle',c[0]/2*Math.pow(2,FB_TUBA[k]/12),t,sd*2.4,0.42,700,null,0.02);  // tuba
+    var s=FB_SN[k]; if(s===3) mHit(ctx,g,g.act,t,0.11,0.42,1600); else if(s===1) mHit(ctx,g,g.act,t,0.05,0.18,2400);
+    else if(s===2){ mHit(ctx,g,g.act,t,0.05,0.2,2000); mHit(ctx,g,g.act,t+sd/2,0.05,0.22,2000); }
+    if(k===0&&bar%4===0) mHit(ctx,g,g.act,t,0.9,0.16,5000);                                                       // cymbal crash every 4 bars
+    if(k%8===0) mHit(ctx,g,g.act,t+sd*2,0.04,0.08,7000);
+    if(pass2&&(k===0||k===6||k===10)) c[1].forEach(function(f){ var o=mNote(ctx,g.act,'sawtooth',f,t,sd*(k===0?3:1.4),0.075,1900,g.echo,0.02); o.detune.value=(f%7)-3; });   // brass stabs, second pass
+  } };
+
+/* ================= SPITZ KIT (shared by every game: music switch, jingle) =================
+   M mutes everything; N turns just the music off (remembered on this Chromebook). */
+var SZ_MUSIC_OFF=false, SZ_IN=-1e9, szOnMusic=function(){};
+try{ SZ_MUSIC_OFF=localStorage.getItem('spitz_music_off')==='1'; }catch(e){}
+['pointerdown','keydown'].forEach(function(n){ addEventListener(n,function(){ SZ_IN=Date.now(); },true); });
+function szActive(ms){ return Date.now()-SZ_IN<(ms||2500); }
+function musicToggle(){ SZ_MUSIC_OFF=!SZ_MUSIC_OFF; try{ localStorage.setItem('spitz_music_off',SZ_MUSIC_OFF?'1':'0'); }catch(e){} musBtn(); toast(SZ_MUSIC_OFF?'Music off':'Music on'); szOnMusic(); }
+function musBtn(){ var b=document.getElementById('sz-mus'); if(b){ b.textContent=SZ_MUSIC_OFF?'♪ Music off':'♪ Music on'; b.classList.toggle('on',!SZ_MUSIC_OFF); } }
+/* the Spitz jingle: the same notes open every game, played on that game's own instrument */
+var JINGLE=[[392.00,0,0.12],[523.25,0.13,0.12],[659.25,0.26,0.12],[783.99,0.40,0.34],[659.25,0.78,0.12],[783.99,0.92,0.7]];
+function jingle(){ JINGLE.forEach(function(n){ SZ_VOICE(n[0],n[1],n[2]); }); }
+
+/* ================= SPITZ MUSIC (shared engine; the game supplies SONG) =================
+   Synthesized, no audio files. It plays only during a run, sits under the sound effects (25 Chromebooks play it at once),
+   and backs off while the student reads a question. */
+var MUS={ on:false, g:null, i:0, t:0 }, SZ_VOICE=function(f,t0,dur){ SONG.voice(f,t0,dur); };
+function musGraph(ctx,dest){ var out=ctx.createGain(), act=ctx.createGain(), d=ctx.createDelay(1), fb=ctx.createGain(), wet=ctx.createGain(); out.gain.value=SONG.level; out.connect(dest); act.connect(out);
+  d.delayTime.value=SONG.echo||0.3; fb.gain.value=0.28; wet.gain.value=0.3; d.connect(fb); fb.connect(d); d.connect(wet); wet.connect(act);
+  var n=Math.floor(ctx.sampleRate*0.3), buf=ctx.createBuffer(1,n,ctx.sampleRate), ch=buf.getChannelData(0); for(var i=0;i<n;i++) ch[i]=Math.random()*2-1;
+  return {out:out,act:act,echo:d,noise:buf}; }
+function mNote(ctx,to,type,fr,t,dur,vol,cut,echo,att){ var o=ctx.createOscillator(), f=ctx.createBiquadFilter(), e=ctx.createGain(); o.type=type; o.frequency.value=fr; f.type='lowpass'; f.frequency.value=cut||2400;
+  e.gain.setValueAtTime(0.0001,t); e.gain.exponentialRampToValueAtTime(vol,t+(att||0.008)); e.gain.setValueAtTime(vol,t+Math.max(att||0.008,dur*0.55)); e.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(f); f.connect(e); e.connect(to); if(echo) e.connect(echo); o.start(t); o.stop(t+dur+0.03); return o; }
+function mHit(ctx,g,to,t,dur,vol,hp,lp){ var s=ctx.createBufferSource(), f=ctx.createBiquadFilter(), e=ctx.createGain(); s.buffer=g.noise; f.type=lp?'lowpass':'highpass'; f.frequency.value=lp||hp;
+  e.gain.setValueAtTime(vol,t); e.gain.exponentialRampToValueAtTime(0.0001,t+dur); s.connect(f); f.connect(e); e.connect(to); s.start(t); s.stop(t+dur+0.03); }
+function mKick(ctx,to,t,vol,hi,lo){ var o=ctx.createOscillator(), e=ctx.createGain(); o.type='sine'; o.frequency.setValueAtTime(hi||200,t); o.frequency.exponentialRampToValueAtTime(lo||48,t+0.12);
+  e.gain.setValueAtTime(0.0001,t); e.gain.exponentialRampToValueAtTime(vol||0.8,t+0.005); e.gain.exponentialRampToValueAtTime(0.0001,t+0.2); o.connect(e); e.connect(to); o.start(t); o.stop(t+0.22); }
+function musicTick(){ var a=AC, want=SONG.want()&&!muted&&!SZ_MUSIC_OFF;
+  if(!want){ if(MUS.on){ MUS.on=false; var g=MUS.g; MUS.g=null; if(g&&a){ g.out.gain.setTargetAtTime(0,a.currentTime,0.2); setTimeout(function(){ try{ g.out.disconnect(); }catch(e){} },1400); } } return; }
+  if(!a||a.state!=='running') return;                                              // browsers hold sound until the first click or key press
+  if(!MUS.on){ MUS.on=true; MUS.g=musGraph(a,a.destination); MUS.g.out.gain.setValueAtTime(0.0001,a.currentTime); MUS.g.out.gain.linearRampToValueAtTime(SONG.level,a.currentTime+1.2); MUS.i=0; MUS.t=a.currentTime+0.1; }
+  MUS.g.act.gain.setTargetAtTime(SONG.busy()?1:0.35,a.currentTime,0.35);            // playing: full band. Reading a question: it backs off so they can think
+  if(MUS.t<a.currentTime) MUS.t=a.currentTime+0.05;                                 // the tab was in the background: pick up from now
+  while(MUS.t<a.currentTime+0.5){ var sd=SONG.sd(); SONG.step(a,MUS.g,MUS.i,MUS.t,sd); MUS.t+=sd; MUS.i++; } }
+setInterval(musicTick,120);
+/* test hook: render the music off line and measure it */
+window.__music=function(sec){ var C=window.OfflineAudioContext||window.webkitOfflineAudioContext, c=new C(1,44100*sec,44100), g=musGraph(c,c.destination), t=0.05, i=0;
+  while(t<sec){ var sd=SONG.sd(); SONG.step(c,g,i,t,sd); t+=sd; i++; }
+  return c.startRendering().then(function(buf){ var d=buf.getChannelData(0), pk=0, sq=0, bad=0, n=d.length; for(var j=0;j<n;j++){ var v=d[j]; if(v!==v) bad++; pk=Math.max(pk,Math.abs(v)); sq+=v*v; }
+    return {peak:pk, rms:Math.sqrt(sq/n), bad:bad, steps:i}; }); };
+
 /* ================= CONFETTI (always on, even with reduced motion) ================= */
-var parts=[], craf=0, CFC=['#FF8A3D','#7CE04A','#2DE2E6','#4DB8FF','#FFF04D','#C77DFF','#FFFFFF'];
+var parts=[], craf=0, CFC=['#FFC629','#F7F3E3','#2668B8','#5BE37D','#FFE38A','#FFFFFF','#FF9A1F'];
 function confetti(x,y,n,spread){ for(var i=0;i<n;i++){ var a=-Math.PI/2+(Math.random()-0.5)*spread, sp=8+Math.random()*15;
     parts.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,w:10+Math.random()*12,h:6+Math.random()*8,r:Math.random()*6.28,vr:(Math.random()-0.5)*0.5,c:CFC[i%CFC.length],life:0,max:85+Math.random()*60}); }
   window.__conf=(window.__conf||0)+n; if(!craf) craf=requestAnimationFrame(cfStep); }
@@ -355,7 +485,8 @@ function answer(i){ if(!huddleOpen()||S.qDone||!S.q) return; var c=S.q.choices[i
 $('fb-choices').addEventListener('click',function(e){ var b=e.target.closest('.fb-ch'); if(b) answer(+b.dataset.i); });
 
 /* ================= THE FIELD ================= */
-var cv=$('fb-canvas'), cx=cv.getContext('2d'), W=1054, H=936, DF="'Luckiest Guy', Inter, sans-serif";
+var cv=$('fb-canvas'), cx=cv.getContext('2d'), W=1054, H=936, DF="Graduate, Inter, sans-serif";
+['fillText','strokeText'].forEach(function(m){ var f=cx[m]; cx[m]=function(t,x,y,mw){ return f.call(cx,t,x,y,mw||700); }; });
 var YD=24, GY=700, FT=560, GRAV=2000, JV=620, RUN=300, DIVE=520, WIND_D=210, CAMX=340;
 var cam=25*YD, camx=CAMX, pops=[], gt=0, keys={l:false,r:false}, ptr={}, jumpQ=false, actQ=false;
 var BTN={ l:{x:92,y:H-86,r:64}, r:{x:244,y:H-86,r:64}, a:{x:W-276,y:H-86,r:72}, j:{x:W-104,y:H-86,r:72} };
@@ -369,7 +500,7 @@ function setPlay(){ var L=S.los*YD, k=level(), i;
     for(i=0;i<n;i++){ var y=S.los+16+i*17+Math.random()*5; if(y>98){ if(i>0) continue; y=98; } PL.defs.push(defender('safe',y*YD)); }
     PL.cov=PL.defs[1]; PL.depth=Math.min(S.los+12+Math.floor(Math.random()*9),104); PL.base=2.3-0.12*k; PL.ph=Math.random()*6.28; PL.delay=1.2-0.08*k; PL.wind=0.40-0.02*k; PL.ds=RUN*(0.72+0.03*k); }
   else { PL.qb=guy(L+5*YD,1); PL.wr=guy(L+14,1); PL.me=guy(Math.max(-6*YD,L-13*YD),0); PL.mate=guy(L-6*YD,0);
-    PL.type=Math.random()<0.42?'run':'pass'; PL.tThrow=1.1+Math.random()*0.8; PL.depth=Math.max(-4,S.los-8-Math.random()*8); PL.cs=RUN*(0.78+0.02*k); PL.pj=0.5+0.05*k; }
+    PL.type=Math.random()<0.42?'run':'pass'; PL.tThrow=1.1+Math.random()*0.8; PL.depth=Math.max(-4,S.los-8-Math.random()*8); PL.cs=RUN*(0.88+0.03*k); PL.pj=0.64+0.05*k; }
   PL.carrier=PL.qb; camx=S.poss>0?CAMX:W-CAMX; keys.l=keys.r=false; jumpQ=actQ=false; }
 function nudge(){ var q=$('fb-q'); q.classList.remove('nudge'); void q.offsetWidth; q.classList.add('nudge'); }
 function pop(txt,lab,col){ pops.push({t:0,txt:txt,lab:lab||'',col:col||'#fff'}); }
@@ -433,7 +564,7 @@ function updDef(dt){ var me=PL.me, mate=PL.mate, qb=PL.qb, wr=PL.wr, c=PL.carrie
     if(jumpQ&&me.h===0) hop(me);
     if(actQ&&me.h<1){ me.st='dive'; me.t=0; me.dir=me.face; me.diveDist=c?Math.abs(c.x-me.x):999; SND.pass(); } }
   me.x=Math.max(-9*YD,Math.min(109*YD,me.x)); jumpQ=actQ=false; fall(me,dt); fall(qb,dt); fall(wr,dt);
-  if(PL.t>0.5&&c){ var md=Math.sign(c.x-mate.x)||1; mate.x+=md*RUN*0.62*dt; mate.face=md; mate.walk+=dt; mate.st='run'; } else mate.st='idle';
+  if(PL.t>0.5&&c){ var md=Math.sign(c.x-mate.x)||1; mate.x+=md*RUN*0.5*dt; mate.face=md; mate.walk+=dt; mate.st='run'; } else mate.st='idle';
   if(c===qb){ if(PL.type==='run'||PL.passed){ if(PL.t>0.5) runLeft(qb); } else if(PL.t>=PL.tThrow) throwTo(qb,wr,true); else { qb.x+=18*dt; qb.st='idle'; } }
   c=PL.carrier;
   if(wr===c) runLeft(wr); else { var v=wr.x>PL.depth*YD? PL.cs : (wr.x>-6*YD?25:0); wr.x-=v*dt; wr.walk+=dt*(v>100?1:0.3); wr.st=v?'run':'idle'; wr.face=-1; }
@@ -446,9 +577,9 @@ function updDef(dt){ var me=PL.me, mate=PL.mate, qb=PL.qb, wr=PL.wr, c=PL.carrie
   if(c){ var ds=[me,mate];
     for(k=0;k<2;k++){ var d=ds[k], dist=c.x-d.x;
       if(c.st==='run'&&c.h===0&&dist>0&&d.st!=='down'){
-        if(d===me&&me.st==='dive'){ if(me.diveDist>170&&dist<150) hop(c); }
-        else if(dist<105&&!d.rolled){ d.rolled=true; if(Math.random()<(d===me?PL.pj:0.75)) hop(c); } }
-      if(d.st!=='down'&&d.h<40&&Math.abs(dist)<(d.st==='dive'?36:26)&&c.h<34){ tackled(c,d===me); return; } }
+        if(d===me&&me.st==='dive'){ if(me.diveDist>140&&dist<150) hop(c); }
+        else if(dist<105&&!d.rolled){ d.rolled=true; if(Math.random()<(d===me?PL.pj:0.88)) hop(c); } }
+      if(d.st!=='down'&&d.h<40&&Math.abs(dist)<(d.st==='dive'?32:26)&&c.h<34){ tackled(c,d===me); return; } }
     if(c.x<=0) touchdown(); } }
 function update(dt){ if(!S.started||S.over) return;
   pops.forEach(function(o){ o.t+=dt; }); pops=pops.filter(function(o){ return o.t<1.4; });
@@ -518,7 +649,7 @@ function render(){ var live=S.started&&!S.over, i, x, MX=W/2;
   function lines(a){ cx.font='700 30px Inter, sans-serif'; cx.fillStyle='#FFB020'; a.forEach(function(s,j){ cx.fillText(s,MX,278+j*44); }); }
   if(!live) return;
   if(PL.dead>0){ box(PL.sub?170:120,PL.col); cx.fillStyle=PL.col; cx.font='400 54px '+DF; cx.fillText(PL.msg,MX,226); if(PL.sub){ cx.font='700 30px Inter, sans-serif'; cx.fillStyle='#fff'; cx.fillText(PL.sub,MX,282); } }
-  else if(!PL.live&&!S.ready){ box(150,'#2DE2E6'); cx.fillStyle='#fff'; cx.font='400 50px '+DF; cx.fillText('HUDDLE',MX,222); cx.font='700 32px Inter, sans-serif'; cx.fillStyle='#FFB020'; cx.fillText('Answer 3 facts to '+(PL.off>0?'call the play':'set the defense')+'  →',MX,272); }
+  else if(!PL.live&&!S.ready){ box(150,'#FFC629'); cx.fillStyle='#fff'; cx.font='400 50px '+DF; cx.fillText('HUDDLE',MX,222); cx.font='700 32px Inter, sans-serif'; cx.fillStyle='#FFB020'; cx.fillText('Answer 3 facts to '+(PL.off>0?'call the play':'set the defense')+'  →',MX,272); }
   else if(!PL.live&&PL.off>0&&S.snapsO===0){ box(232,'#7CE04A'); cx.fillStyle='#fff'; cx.font='400 46px '+DF; cx.fillText('SPACE = HIKE, THEN PASS',MX,220); lines(['Throw when your bud is OPEN. Then ← → run','and ↑ jump over tacklers when you see  !']); }
   else if(!PL.live&&PL.off<0&&S.snapsD===0){ box(232,'#FF7A7A'); cx.fillStyle='#fff'; cx.font='400 46px '+DF; cx.fillText('DEFENSE! SPACE = SNAP',MX,220); lines(['← → chase the ball. SPACE again = dive.','Dive when he is close. ↑ jump to pick off a pass.']); }
   else if(!PL.live){ cx.globalAlpha=0.65+0.35*Math.sin(now()/260); label('SPACE TO '+(PL.off>0?'HIKE':'SNAP'),MX,236,'#fff',44); cx.globalAlpha=1; } }
@@ -551,8 +682,11 @@ var armT=0; $('fb-again').addEventListener('click',function(){ var b=this; if(!b
 function fullscreen(){ var d=document, e=d.documentElement; if(d.fullscreenElement||d.webkitFullscreenElement) (d.exitFullscreen||d.webkitExitFullscreen).call(d);
   else { var r=e.requestFullscreen||e.webkitRequestFullscreen; if(r){ var p=r.call(e); if(p&&p.catch) p.catch(function(){}); } } }
 function keyDir(e){ var k=e.key.toLowerCase(); return (k==='arrowleft'||k==='a')?'l':(k==='arrowright'||k==='d')?'r':(k==='arrowup'||k==='w')?'j':k===' '?'a':''; }
-document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altKey) return; if(e.target&&e.target.tagName==='INPUT') return; var k=e.key.toLowerCase(), d=keyDir(e);
+document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altKey) return; if(e.target&&e.target.tagName==='INPUT') return;
+  if(!$('sz-ask').hidden){ e.preventDefault(); if(k0(e)==='y') newRun(); else if(k0(e)==='n'||e.key==='Escape') askNew(false); return; }
+  if(k0(e)==='r'&&e.shiftKey){ e.preventDefault(); if(S.started) askNew(true); return; } var k=e.key.toLowerCase(), d=keyDir(e);
   if(k==='f'){ e.preventDefault(); fullscreen(); return; }
+  if(k==='n'){ e.preventDefault(); musicToggle(); return; }
   if(k==='m'){ e.preventDefault(); muted=!muted; save(); toast(muted?'Sound off':'Sound on'); if(!muted) SND.tick(); return; }
   if(k==='s'){ e.preventDefault(); return; }                                    // S sits in the WASD cluster: it must do nothing
   if(d){ e.preventDefault(); if(!S.started||S.over) return; if(d==='a'){ if(!e.repeat) actQ=true; } else if(d==='j'){ if(!e.repeat){ jumpQ=true; tryMove(); } } else { if(!e.repeat) tryMove(); keys[d]=true; } return; }
@@ -560,6 +694,14 @@ document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altK
 document.addEventListener('keyup',function(e){ var d=keyDir(e); if(d==='l'||d==='r') keys[d]=false; });
 function fit(){ var s=Math.min(innerWidth/1920,innerHeight/1080), y=$('stage').style; y.transform='scale('+s+')'; y.left=((innerWidth-1920*s)/2)+'px'; y.top=((innerHeight-1080*s)/2)+'px'; }
 addEventListener('resize',fit);
+
+function k0(e){ return (e.key||'').toLowerCase(); }
+function askNew(o){ $('sz-ask').hidden=!o; }
+function newRun(){ var n=S.name; S=fresh(); S.name=n; try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} location.reload(); }   // S is replaced first, so a save that fires before the reload writes the fresh run
+$('sz-askyes').addEventListener('click',newRun); $('sz-askno').addEventListener('click',function(){ askNew(false); });
+document.querySelector('.fb-top .fb-logo').addEventListener('click',function(){ if(S.started) askNew(true); });
+$('sz-mus').addEventListener('click',function(e){ e.stopPropagation(); ac(); musicToggle(); }); musBtn();
+$('fb-go').addEventListener('click',function(){ if(S.started) jingle(); });
 
 /* ================= BOOT ================= */
 S=load()||fresh(); fit(); setPlay(); cam=PL.qb.x;

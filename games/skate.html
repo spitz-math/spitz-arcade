@@ -6,10 +6,12 @@
 <title>Skate: Multiplication Facts</title>
 <link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
-:root{ --paper:#100E18; --panel:#1B1828; --panel-2:#272338; --text:#F3F5F9; --muted:#A39FBC; --border:#3B3555; --accent:#C8FF3D;
+:root{ --paper:#100E18; --panel:#1B1A1F; --panel-2:#26242C; --text:#F7F7F2; --muted:#B0ACC0; --border:#3A3744; --accent:#C8FF3D;
   --pink:#FF4FA3; --lime:#C8FF3D; --cyan:#2DE2E6; --orange:#FF8A1F;
-  --c-line:#FF4B4B; --c-m:#FFC82E; --c-b:#FF3DB4; --c-pt:#FFF04D; --c-ans:#C77DFF; --c-x:#2DE2C8; --ok:#4ADE80; --no:#FF7A7A;
-  --display:'Permanent Marker','Inter',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif; }
+  --c-line:#FF4B4B; --c-m:#FFC82E; --c-b:#FF3DB4; --c-pt:#FFF04D; --c-ans:#D9A6FF; --c-x:#2DE2C8; --ok:#4ADE80; --no:#FF7A7A;
+  --display:'Permanent Marker','Inter',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif;
+  --sz-mark:#C8FF3D; --sz-ink:#B0ACC0;
+  --grip:radial-gradient(rgba(255,255,255,.07) 1px, transparent 1.5px) 0 0/7px 7px, radial-gradient(rgba(0,0,0,.5) 1px, transparent 1.5px) 3px 4px/9px 9px; }
 *{ box-sizing:border-box; }
 html,body{ margin:0; height:100%; background:var(--paper); overflow:hidden; }
 body{ color:var(--text); font-family:var(--body); -webkit-user-select:none; user-select:none; touch-action:manipulation; }
@@ -143,12 +145,47 @@ button:disabled{ cursor:default; }
 .sk-legend span{ height:68px; min-width:0; display:flex; align-items:center; gap:8px; padding:0 10px; border-radius:16px; background:var(--panel-2); border:2px solid var(--border); font:800 24px/1 var(--body); white-space:nowrap; }
 .sk-legend b{ flex:none; width:40px; height:40px; border-radius:10px; display:grid; place-items:center; background:var(--paper); color:var(--lime); font:800 26px/1 var(--body); }
 .sk-legend em{ margin-left:auto; font-style:normal; font-size:22px; color:var(--muted); }
+
+/* ================= SKATE THEME: grip tape and stickers ================= */
+#stage{ background:radial-gradient(70% 50% at 50% 0%, rgba(255,79,163,.18), transparent 70%), #100E18; }
+.sk-q,.sk-range{ border-radius:56px; border:5px solid #0B0A0E; box-shadow:0 0 0 3px #3A3744, 0 20px 50px rgba(0,0,0,.5); }
+.sk-q{ background:var(--grip), #1B1A1F; padding:28px 30px; }
+.sk-q.open{ box-shadow:0 0 0 4px var(--lime), 0 20px 50px rgba(0,0,0,.5); }
+/* stickers: white die-cut edge, a slight tilt, a drop shadow */
+.sk-chip,.sk-tag,.sk-shopbtn{ border:4px solid #F7F7F2; box-shadow:4px 5px 0 rgba(0,0,0,.55); }
+.sk-chip{ border-radius:18px; background:#26242C; } .sk-chip:nth-of-type(odd){ transform:rotate(-1.5deg); } .sk-chip:nth-of-type(even){ transform:rotate(1.5deg); }
+.sk-tag{ transform:rotate(-3deg); background:var(--pink); color:#fff; border-radius:12px; font-family:var(--display); font-weight:400; letter-spacing:.02em; }
+.sk-ch{ border-radius:999px; background:rgba(0,0,0,.35); border:3px solid #3A3744; }
+.sk-ch .k{ border-radius:50%; background:var(--lime); color:#111; border:3px solid #F7F7F2; transform:rotate(-8deg); font-family:var(--display); }
+.sk-ch:not(:disabled):hover{ border-color:var(--lime); }
+.sk-fb{ border-radius:28px; background:rgba(0,0,0,.45); }
+.sk-logo{ transform:rotate(-2deg); } .sk-logo b{ color:var(--lime); } .sk-logo i{ color:var(--pink); }
+.sk-over{ background:var(--grip), rgba(16,14,24,.97); }
+.sk-big{ font-size:150px; transform:rotate(-3deg); text-shadow:6px 6px 0 #000; }
+.sk-step{ border-radius:24px; border:4px solid #F7F7F2; box-shadow:5px 6px 0 rgba(0,0,0,.6); } .sk-step:nth-child(1){ transform:rotate(-1.5deg); } .sk-step:nth-child(3){ transform:rotate(1.5deg); }
+.sk-stat{ border-radius:24px; border:4px solid #F7F7F2; box-shadow:5px 6px 0 rgba(0,0,0,.6); }
+.sk-go{ border-radius:999px; border:4px solid #F7F7F2; box-shadow:5px 6px 0 rgba(0,0,0,.6); }
+.sk-input,.sz-mus{ border-radius:999px; }
+
+/* ================= SPITZ ARCADE BRAND (shared by every game: keep identical) ================= */
+.sz-credit{ display:inline-flex !important; align-items:center; gap:10px; font:800 18px/1 Inter,system-ui,sans-serif !important; letter-spacing:.16em !important; text-transform:uppercase; color:var(--sz-ink) !important; white-space:nowrap; }
+.sz-credit::before{ content:''; flex:none; width:26px; height:5px; border-radius:3px; background:var(--sz-mark); }
+.sz-eyebrow{ display:inline-flex; align-items:center; gap:14px; margin:0 0 18px; font:800 24px/1 Inter,system-ui,sans-serif; letter-spacing:.34em; text-transform:uppercase; color:var(--sz-ink); }
+.sz-eyebrow::before,.sz-eyebrow::after{ content:''; width:40px; height:5px; border-radius:3px; background:var(--sz-mark); }
+.sz-eyebrow b{ color:var(--sz-mark); font-weight:800; }
+.sz-mus{ height:84px; padding:0 26px; border-radius:20px; background:var(--panel); border:3px solid var(--border); font:800 30px/1 Inter,system-ui,sans-serif; color:var(--sz-ink); white-space:nowrap; }
+.sz-mus.on{ border-color:var(--sz-mark); color:var(--text); }
+.sz-ask{ z-index:40; } .sz-ask h2{ margin:0 0 6px; font:400 84px/1.05 var(--display); color:var(--text); }
+.sz-ask .sz-askrow{ display:flex; justify-content:center; gap:20px; }
+.sz-ask button{ height:96px; padding:0 44px; border-radius:22px; font:800 32px/1 Inter,system-ui,sans-serif; background:var(--panel); border:3px solid var(--border); color:var(--text); }
+.sz-ask #sz-askyes{ background:var(--sz-mark); border-color:var(--sz-mark); color:#111; }
+[class$="-logo"]{ cursor:pointer; }
 </style>
 </head>
 <body>
 <div id="stage">
   <div class="sk-top">
-    <div class="sk-brand"><h1 class="sk-logo"><b>S</b><i>K</i><b>A</b><i>T</i><b>E</b></h1><span class="sk-credit">Made by Spitz 🍔</span></div>
+    <div class="sk-brand"><h1 class="sk-logo"><b>S</b><i>K</i><b>A</b><i>T</i><b>E</b></h1><span class="sk-credit sz-credit">Made by Spitz 🍔</span></div>
     <div class="sk-chip sk-timer" id="sk-timerchip"><span class="l">Time</span><span class="v" id="sk-time">5:00</span></div>
     <span class="sk-sp"></span>
     <div class="sk-chip" id="sk-scorechip"><span class="l">Score</span><span class="v" id="sk-scorev">0</span></div>
@@ -170,19 +207,19 @@ button:disabled{ cursor:default; }
   </div>
 
   <div class="sk-over" id="sk-start"><div class="sk-box">
-    <h2 class="sk-big"><b>S</b><i>K</i><b>A</b><i>T</i><b>E</b></h2>
+    <div class="sz-eyebrow">Spitz <b>Arcade</b></div><h2 class="sk-big"><b>S</b><i>K</i><b>A</b><i>T</i><b>E</b></h2>
     <p class="sk-sub">Multiplication facts, 0 to 12. You have 5 minutes. Set up with facts, then skate a line and land your tricks.</p>
     <div class="sk-steps">
       <div class="sk-step"><b>1. Set up</b>Answer 3 facts before every line. Each right answer adds ×1 to your tricks. A miss adds nothing, so don’t guess.</div>
       <div class="sk-step"><b>2. Drop in</b>Press Space to drop in. You roll by yourself. Space jumps the cones, cans and benches. Ramps launch you.</div>
       <div class="sk-step"><b>3. Tricks</b>In the air: ←&nbsp;kickflip, ↓&nbsp;grab, →&nbsp;360&nbsp;spin. Land on a rail to grind. Finish the trick before you land.</div>
     </div>
-    <div class="sk-row"><input class="sk-input" id="sk-nameinput" maxlength="24" placeholder="Your first and last name" autocomplete="off" aria-label="Your name"></div>
+    <div class="sk-row"><input class="sk-input" id="sk-nameinput" maxlength="24" placeholder="Your first and last name" autocomplete="off" aria-label="Your name"><button class="sz-mus" id="sz-mus" aria-label="Music on or off, key N">♪ Music on</button></div>
     <button class="sk-go" id="sk-go" disabled>Start</button>
-    <div class="sk-keys">Keys: 1–4 answer · Space or ↑ jump · ← kickflip · ↓ grab · → 360 spin · M mute · F full screen</div>
-  </div><span class="sk-credit">Made by Spitz 🍔</span></div>
+    <div class="sk-keys">Keys: 1–4 answer · Space or ↑ jump · ← kickflip · ↓ grab · → 360 spin · N music · M mute · Shift+R new game · F full screen</div>
+  </div><span class="sk-credit sz-credit">Made by Spitz 🍔</span></div>
 
-  <div class="sk-over" id="sk-end" hidden><div class="sk-box">
+  <div class="sk-over" id="sk-end" hidden><div class="sk-box"><div class="sz-eyebrow">Spitz <b>Arcade</b></div>
     <p class="sk-sub" style="margin:0">Time! Show this screen to your teacher.</p>
     <div class="sk-name" id="sk-endname"></div>
     <div class="sk-final" id="sk-endscore">0</div>
@@ -190,8 +227,13 @@ button:disabled{ cursor:default; }
     <div class="sk-stats" id="sk-endstats"></div>
     <div class="sk-topics" id="sk-endtopics"></div>
     <button class="sk-again" id="sk-again">Play again</button>
-  </div><span class="sk-credit">Made by Spitz 🍔</span></div>
+  </div><span class="sk-credit sz-credit">Made by Spitz 🍔</span></div>
 
+  <div class="sk-over sz-ask" id="sz-ask" hidden role="dialog" aria-modal="true" aria-labelledby="sz-asktitle"><div class="sk-box">
+    <h2 id="sz-asktitle">Start a new game?</h2>
+    <p class="sk-sub">This erases the current run and starts over from the beginning.</p>
+    <div class="sz-askrow"><button id="sz-askno">No, keep playing (N)</button><button id="sz-askyes">Yes, new game (Y)</button></div>
+  </div></div>
   <canvas id="sk-confetti" width="1920" height="1080" aria-hidden="true"></canvas>
   <div class="sk-toast" id="sk-toast" hidden></div>
 </div>
@@ -232,7 +274,7 @@ var SND={
   gold:function(){ brass(C5,0,0.09,0.12); brass(E5,0.08,0.09,0.12); brass(G5,0.16,0.3,0.13); tone(C6,C6,0.18,0.3,'triangle',0.1); },
   crash:function(){ noise(0,0.6,180,0,500); tone(150,50,0,0.22,'sawtooth',0.2); },
   empty:function(){ tone(320,280,0,0.05,'square',0.1); tone(320,280,0.08,0.05,'square',0.1); },
-  correct:function(){ tone(C5,C5,0,0.12,'triangle',0.2); tone(E5,E5,0.08,0.12,'triangle',0.2); tone(G5,G5,0.16,0.14,'triangle',0.2); tone(C6,C6,0.24,0.3,'triangle',0.18); tone(180,520,0.3,0.35,'sawtooth',0.07); },
+  correct:function(){ tone(E5,E5,0,0.1,'triangle',0.15); tone(B5,B5,0.07,0.26,'triangle',0.14); tone(E5/2,E5/2,0.07,0.26,'sine',0.06); },   // a soft chime
   cash:function(){ tone(2093,2093,0,0.08,'square',0.06); tone(2637,2637,0.07,0.18,'square',0.06); noise(0,0.25,40,4000); },
   miss:function(){ tone(233,165,0.02,0.38,'triangle',0.22); },
   tick:function(){ tone(1200,1200,0,0.05,'square',0.08); },
@@ -282,7 +324,7 @@ function muStep(M,pos,t){ var bar=Math.floor(pos/16)%32, s=pos%16, e=s>>1, on=!(
   else if(on){ if(ch){ if(e&1) muSnare(M,t,0.9); else muKick(M,t); } else { if(e===0||e===4||e===5) muKick(M,t); if(e===2||e===6) muSnare(M,t,1); } } }
 function muTick(){ var a=AC; if(!MU.on||!a||document.hidden) return; if(MU.next<a.currentTime) MU.next=a.currentTime+0.05;
   while(MU.next<a.currentTime+0.15){ muStep(MUS,MU.pos,MU.next); MU.next+=S16; MU.pos=(MU.pos+1)%512; window.__mus=(window.__mus||0)+1; } }
-function muStart(){ var a=ac(), t; if(!a||muted||MU.on) return; if(!MUS) MUS=muBuild(a,a.destination); t=a.currentTime;
+function muStart(){ var a=ac(), t; if(!a||muted||SZ_MUSIC_OFF||MU.on) return; if(!MUS) MUS=muBuild(a,a.destination); t=a.currentTime;
   MU.on=true; MU.next=t+0.06; MUS.out.gain.cancelScheduledValues(t); MUS.out.gain.setValueAtTime(1,t); if((MU.pos/16)%4) muNoise(MUS,MU.next,0.9,0.8,MUS.cr);       // every line comes in on a crash
   clearInterval(MU.iv); MU.iv=setInterval(muTick,25); muTick(); }
 /* sting = end on one last hit of the home chord (a line just finished); otherwise just fade (mute, time up) */
@@ -296,6 +338,18 @@ document.addEventListener('visibilitychange',function(){ if(MU.on&&MUS&&AC) MUS.
 function muRender(secs,startBar,only){ var C=window.OfflineAudioContext||window.webkitOfflineAudioContext, a=new C(1,Math.ceil(44100*secs),44100), M=muBuild(a,a.destination), t=0.05, pos=(startBar||0)*16;
   M.out.gain.value=1; if(only){ M.comp.threshold.value=0; M.gt.vol.gain.value*=only==='gt'; M.bs.vol.gain.value*=only==='bs'; M.ld.vol.gain.value*=only==='ld'; M.dr.gain.value*=only==='dr'; }
   while(t<secs){ muStep(M,pos,t); t+=S16; pos=(pos+1)%512; } return a.startRendering(); }
+
+/* ================= SPITZ KIT (shared by every game: music switch, jingle) =================
+   M mutes everything; N turns just the music off (remembered on this Chromebook). */
+var SZ_MUSIC_OFF=false, SZ_IN=-1e9, szOnMusic=function(){};
+try{ SZ_MUSIC_OFF=localStorage.getItem('spitz_music_off')==='1'; }catch(e){}
+['pointerdown','keydown'].forEach(function(n){ addEventListener(n,function(){ SZ_IN=Date.now(); },true); });
+function szActive(ms){ return Date.now()-SZ_IN<(ms||2500); }
+function musicToggle(){ SZ_MUSIC_OFF=!SZ_MUSIC_OFF; try{ localStorage.setItem('spitz_music_off',SZ_MUSIC_OFF?'1':'0'); }catch(e){} musBtn(); toast(SZ_MUSIC_OFF?'Music off':'Music on'); szOnMusic(); }
+function musBtn(){ var b=document.getElementById('sz-mus'); if(b){ b.textContent=SZ_MUSIC_OFF?'♪ Music off':'♪ Music on'; b.classList.toggle('on',!SZ_MUSIC_OFF); } }
+/* the Spitz jingle: the same notes open every game, played on that game's own instrument */
+var JINGLE=[[392.00,0,0.12],[523.25,0.13,0.12],[659.25,0.26,0.12],[783.99,0.40,0.34],[659.25,0.78,0.12],[783.99,0.92,0.7]];
+function jingle(){ JINGLE.forEach(function(n){ SZ_VOICE(n[0],n[1],n[2]); }); }
 
 /* ================= CONFETTI (always on, even with reduced motion) ================= */
 var parts=[], craf=0, CFC=['#FF4FA3','#C8FF3D','#2DE2E6','#FFD23F','#FF8A1F','#C77DFF','#FFFFFF'];
@@ -668,13 +722,26 @@ var armT=0; $('sk-again').addEventListener('click',function(){ var b=this; if(!b
 function fullscreen(){ var d=document, e=d.documentElement; if(d.fullscreenElement||d.webkitFullscreenElement) (d.exitFullscreen||d.webkitExitFullscreen).call(d);
   else { var r=e.requestFullscreen||e.webkitRequestFullscreen; if(r){ var p=r.call(e); if(p&&p.catch) p.catch(function(){}); } } }
 function keyAct(e){ var k=e.key.toLowerCase(); return (k===' '||k==='arrowup'||k==='w')?'j':(k==='arrowleft'||k==='a')?'flip':(k==='arrowdown'||k==='s')?'grab':(k==='arrowright'||k==='d')?'spin':''; }
-document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altKey) return; if(e.target&&e.target.tagName==='INPUT') return; var k=e.key.toLowerCase(), d=keyAct(e);
+document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altKey) return; if(e.target&&e.target.tagName==='INPUT') return;
+  if(!$('sz-ask').hidden){ e.preventDefault(); if(k0(e)==='y') newRun(); else if(k0(e)==='n'||e.key==='Escape') askNew(false); return; }
+  if(k0(e)==='r'&&e.shiftKey){ e.preventDefault(); if(S.started) askNew(true); return; } var k=e.key.toLowerCase(), d=keyAct(e);
   if(k==='f'){ e.preventDefault(); fullscreen(); return; }
+  if(k==='n'){ e.preventDefault(); musicToggle(); return; }
   if(k==='m'){ e.preventDefault(); muted=!muted; save(); toast(muted?'Sound off':'Sound on'); if(muted) muStop(false); else { SND.tick(); if(S.started&&!S.over&&PL.live) muStart(); } return; }
   if(d){ e.preventDefault(); if(!S.started||S.over||e.repeat) return; if(d==='j') jumpQ=true; else trickQ=d; return; }
   if(/^[1-4]$/.test(e.key)) answer(+e.key-1); });
 function fit(){ var s=Math.min(innerWidth/1920,innerHeight/1080), y=$('stage').style; y.transform='scale('+s+')'; y.left=((innerWidth-1920*s)/2)+'px'; y.top=((innerHeight-1080*s)/2)+'px'; }
 addEventListener('resize',fit);
+
+var SZ_VOICE=function(f,t0,dur){ tone(f*0.5,f*0.5,t0,dur,'sawtooth',0.05); tone(f,f,t0,dur,'triangle',0.11); };
+szOnMusic=function(){ if(SZ_MUSIC_OFF) muStop(false); else if(S.started&&!S.over&&PL.live) muStart(); };
+function k0(e){ return (e.key||'').toLowerCase(); }
+function askNew(o){ $('sz-ask').hidden=!o; }
+function newRun(){ var n=S.name; S=fresh(); S.name=n; try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} location.reload(); }   // S is replaced first, so a save that fires before the reload writes the fresh run
+$('sz-askyes').addEventListener('click',newRun); $('sz-askno').addEventListener('click',function(){ askNew(false); });
+document.querySelector('.sk-top .sk-logo').addEventListener('click',function(){ if(S.started) askNew(true); });
+$('sz-mus').addEventListener('click',function(e){ e.stopPropagation(); ac(); musicToggle(); }); musBtn();
+$('sk-go').addEventListener('click',function(){ if(S.started) jingle(); });
 
 /* ================= BOOT ================= */
 S=load()||fresh(); fit(); setPlay();

@@ -4,12 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Splat Range</title>
-<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Rubik+Spray+Paint&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
-:root{ --paper:#0E1016; --panel:#191C25; --panel-2:#242936; --text:#F3F5F9; --muted:#9BA5B8; --border:#343B4D; --accent:#B6FF3D;
+:root{ --paper:#14110F; --panel:#211C19; --panel-2:#2D2723; --text:#FBF7F2; --muted:#B5AAA0; --border:#463C35; --accent:#B6FF3D;
   --pink:#FF3DB4; --lime:#B6FF3D; --cyan:#2DE2E6; --orange:#FF8A1F;
-  --c-line:#FF4B4B; --c-m:#FFC82E; --c-b:#FF3DB4; --c-pt:#FFF04D; --c-ans:#C77DFF; --c-x:#2DE2C8; --ok:#4ADE80; --no:#FF7A7A;
-  --display:'Bungee','Inter',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif; }
+  --c-line:#FF4B4B; --c-m:#FFC82E; --c-b:#FF3DB4; --c-pt:#FFF04D; --c-ans:#D9A6FF; --c-x:#2DE2C8; --ok:#4ADE80; --no:#FF7A7A;
+  --display:'Lilita One','Inter',system-ui,sans-serif; --spray:'Rubik Spray Paint','Lilita One',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif;
+  --sz-mark:#FF3DB4; --sz-ink:#B5AAA0;
+  --drips:radial-gradient(14px 26px at 8% 0, var(--pink) 98%, transparent) , radial-gradient(10px 40px at 22% 0, var(--lime) 98%, transparent), radial-gradient(12px 20px at 47% 0, var(--cyan) 98%, transparent), radial-gradient(9px 34px at 71% 0, var(--orange) 98%, transparent), radial-gradient(13px 24px at 90% 0, var(--pink) 98%, transparent); }
 *{ box-sizing:border-box; }
 html,body{ margin:0; height:100%; background:var(--paper); overflow:hidden; }
 body{ color:var(--text); font-family:var(--body); -webkit-user-select:none; user-select:none; touch-action:manipulation; }
@@ -133,12 +135,62 @@ button:disabled{ cursor:default; }
 .sr-note{ font:700 28px/1.3 var(--body); color:var(--muted); margin:12px 0 22px; }
 .sr-toast{ position:absolute; left:50%; top:110px; transform:translateX(-50%); z-index:30; padding:16px 30px; border-radius:999px; background:#fff; color:#0E1016; font:800 30px/1 var(--body); }
 #sr-confetti{ position:absolute; left:0; top:0; width:1920px; height:1080px; z-index:18; pointer-events:none; }
+
+/* ================= SPLAT RANGE THEME: paint park ================= */
+body{ background:#14110F; }
+#stage{ background:
+  radial-gradient(160px 120px at 4% 96%, rgba(255,61,180,.16), transparent 70%), radial-gradient(200px 140px at 97% 8%, rgba(182,255,61,.12), transparent 70%),
+  repeating-linear-gradient(0deg, rgba(255,255,255,.018) 0 1px, transparent 1px 3px), #14110F; }
+.sr-logo{ font-family:var(--spray); font-size:56px; letter-spacing:.01em; }
+/* the top bar: paint cans, each with its own color lid */
+.sr-chip{ border-radius:14px 14px 20px 20px; border:3px solid var(--border); border-top:10px solid var(--c); --c:var(--border); }
+.sr-chip:nth-of-type(2){ --c:var(--pink); } #sr-paintchip{ --c:var(--lime); } #sr-cashchip{ --c:#FFF04D; } #sr-streakchip{ --c:var(--orange); } #sr-timerchip{ --c:var(--cyan); }
+.sr-shopbtn{ border-radius:999px; box-shadow:5px 5px 0 var(--pink); }
+/* the range keeps its wooden frame, edged in paint */
+.sr-range{ border:4px solid #2D2723; box-shadow:6px 6px 0 var(--lime); }
+/* the question panel is a concrete wall with fresh paint dripping from the top */
+.sr-q{ position:relative; border-radius:8px 8px 22px 22px; border:3px solid var(--border); padding-top:46px;
+  background:var(--drips), radial-gradient(90% 60% at 80% 100%, rgba(255,255,255,.035), transparent), repeating-linear-gradient(90deg, rgba(0,0,0,.18) 0 2px, transparent 2px 160px), #24201C;
+  background-repeat:no-repeat, no-repeat, repeat, no-repeat; background-size:100% 46px, auto, auto, auto; box-shadow:6px 6px 0 var(--pink); }
+.sr-q.open{ box-shadow:6px 6px 0 var(--lime); border-color:var(--lime); }
+.sr-tag{ transform:rotate(-2deg); border-radius:6px; border:0; background:var(--lime); color:#14110F; font-family:var(--display); font-weight:400; letter-spacing:.04em; box-shadow:3px 3px 0 #000; }
+.sr-reward{ font-family:var(--display); font-weight:400; color:var(--lime); }
+.sr-ch{ border-radius:16px; border:3px solid var(--border); background:#2A2420; }
+.sr-ch:nth-child(1){ --pc:var(--pink); } .sr-ch:nth-child(2){ --pc:var(--lime); } .sr-ch:nth-child(3){ --pc:var(--cyan); } .sr-ch:nth-child(4){ --pc:var(--orange); }
+.sr-ch .k{ border-radius:50% 46% 52% 44%; background:var(--pc); color:#14110F; font-family:var(--display); }
+.sr-ch:not(:disabled):hover{ border-color:var(--pc); }
+.sr-fb{ border-radius:16px; background:#191512; }
+.sr-next{ border-radius:999px; background:var(--lime); color:#14110F; box-shadow:5px 5px 0 var(--pink); }
+.sr-shop{ background:rgba(20,17,15,.97); } .sr-shophead h2{ font-family:var(--spray); color:var(--pink); }
+.sr-card{ border-radius:16px; } .sr-buy{ border-radius:999px; }
+/* start and end screens: graffiti title on the wall */
+.sr-over{ background:radial-gradient(40% 40% at 50% 22%, rgba(255,61,180,.18), transparent 70%), rgba(18,15,13,.97); }
+.sr-big{ font-family:var(--spray); font-size:150px; } .sr-big b{ color:var(--pink); } .sr-big i{ color:var(--lime); }
+.sr-step{ border-radius:16px; border-top:10px solid var(--pink); } .sr-step:nth-child(2){ border-top-color:var(--lime); } .sr-step:nth-child(3){ border-top-color:var(--cyan); }
+.sr-step b{ font-family:var(--display); font-weight:400; color:var(--text); font-size:32px; }
+.sr-go{ border-radius:999px; color:#14110F; box-shadow:7px 7px 0 var(--pink); }
+.sr-final{ font-family:var(--display); color:var(--lime); } .sr-name{ font-family:var(--display); color:var(--pink); }
+.sr-again{ border-radius:999px; }
+
+/* ================= SPITZ ARCADE BRAND (shared by every game: keep identical) ================= */
+.sz-credit{ display:inline-flex !important; align-items:center; gap:10px; font:800 18px/1 Inter,system-ui,sans-serif !important; letter-spacing:.16em !important; text-transform:uppercase; color:var(--sz-ink) !important; white-space:nowrap; }
+.sz-credit::before{ content:''; flex:none; width:26px; height:5px; border-radius:3px; background:var(--sz-mark); }
+.sz-eyebrow{ display:inline-flex; align-items:center; gap:14px; margin:0 0 18px; font:800 24px/1 Inter,system-ui,sans-serif; letter-spacing:.34em; text-transform:uppercase; color:var(--sz-ink); }
+.sz-eyebrow::before,.sz-eyebrow::after{ content:''; width:40px; height:5px; border-radius:3px; background:var(--sz-mark); }
+.sz-eyebrow b{ color:var(--sz-mark); font-weight:800; }
+.sz-mus{ height:84px; padding:0 26px; border-radius:20px; background:var(--panel); border:3px solid var(--border); font:800 30px/1 Inter,system-ui,sans-serif; color:var(--sz-ink); white-space:nowrap; }
+.sz-mus.on{ border-color:var(--sz-mark); color:var(--text); }
+.sz-ask{ z-index:40; } .sz-ask h2{ margin:0 0 6px; font:400 84px/1.05 var(--display); color:var(--text); }
+.sz-ask .sz-askrow{ display:flex; justify-content:center; gap:20px; }
+.sz-ask button{ height:96px; padding:0 44px; border-radius:22px; font:800 32px/1 Inter,system-ui,sans-serif; background:var(--panel); border:3px solid var(--border); color:var(--text); }
+.sz-ask #sz-askyes{ background:var(--sz-mark); border-color:var(--sz-mark); color:#111; }
+[class$="-logo"]{ cursor:pointer; }
 </style>
 </head>
 <body>
 <div id="stage">
   <div class="sr-top">
-    <div class="sr-brand"><h1 class="sr-logo"><b>SPLAT</b> <i>RANGE</i></h1><span class="sr-credit">Made by Spitz 🍔</span></div>
+    <div class="sr-brand"><h1 class="sr-logo"><b>SPLAT</b> <i>RANGE</i></h1><span class="sr-credit sz-credit">Made by Spitz 🍔</span></div>
     <div class="sr-chip sr-timer" id="sr-timerchip"><span class="l">Time</span><span class="v" id="sr-time">5:00</span></div>
     <span class="sr-sp"></span>
     <div class="sr-chip"><span class="l">Score</span><span class="v" id="sr-score">0</span></div>
@@ -171,19 +223,19 @@ button:disabled{ cursor:default; }
   </div>
 
   <div class="sr-over" id="sr-start"><div class="sr-box">
-    <h2 class="sr-big"><b>SPLAT</b> <i>RANGE</i></h2>
+    <div class="sz-eyebrow">Spitz <b>Arcade</b></div><h2 class="sr-big"><b>SPLAT</b> <i>RANGE</i></h2>
     <p class="sr-sub">Slope-intercept form, point-slope form, graphs, HOY and VUX. You have 5 minutes: answer to load paint, then hit the targets.</p>
     <div class="sr-steps">
       <div class="sr-step"><b>1. Answer</b>Each right answer loads paint and earns cash. A wrong answer costs $5 and breaks your streak.</div>
       <div class="sr-step"><b>2. Shoot</b>Each shot uses 1 paint. Hit targets in a row for a combo. In Bonus Waves, shoot the right answer for free.</div>
       <div class="sr-step"><b>3. Upgrade</b>Spend cash in the Shop on bigger splats, more paint, score multipliers and power-ups.</div>
     </div>
-    <div class="sr-row"><input class="sr-input" id="sr-nameinput" maxlength="24" placeholder="Your first and last name" autocomplete="off" aria-label="Your name"></div>
+    <div class="sr-row"><input class="sr-input" id="sr-nameinput" maxlength="24" placeholder="Your first and last name" autocomplete="off" aria-label="Your name"><button class="sz-mus" id="sz-mus" aria-label="Music on or off, key N">♪ Music on</button></div>
     <button class="sr-go" id="sr-go" disabled>Start</button>
-    <div class="sr-keys">Keys: 1–4 answer · Enter next question · S shop · M mute · F full screen</div>
-  </div><span class="sr-credit">Made by Spitz 🍔</span></div>
+    <div class="sr-keys">Keys: 1–4 answer · Enter next question · S shop · N music · M mute · Shift+R new game · F full screen</div>
+  </div><span class="sr-credit sz-credit">Made by Spitz 🍔</span></div>
 
-  <div class="sr-over" id="sr-end" hidden><div class="sr-box">
+  <div class="sr-over" id="sr-end" hidden><div class="sr-box"><div class="sz-eyebrow">Spitz <b>Arcade</b></div>
     <p class="sr-sub" style="margin:0">Time!</p>
     <div class="sr-name" id="sr-endname"></div>
     <div class="sr-final" id="sr-endscore">0</div>
@@ -192,8 +244,13 @@ button:disabled{ cursor:default; }
     <div class="sr-code"><span class="l">Your score code</span><span id="sr-endcode"></span></div>
     <p class="sr-note">Type your name and this code into the class Google Form.</p>
     <button class="sr-again" id="sr-again">Play again</button>
-  </div><span class="sr-credit">Made by Spitz 🍔</span></div>
+  </div><span class="sr-credit sz-credit">Made by Spitz 🍔</span></div>
 
+  <div class="sr-over sz-ask" id="sz-ask" hidden role="dialog" aria-modal="true" aria-labelledby="sz-asktitle"><div class="sr-box">
+    <h2 id="sz-asktitle">Start a new game?</h2>
+    <p class="sr-sub">This erases the current run and starts over from the beginning.</p>
+    <div class="sz-askrow"><button id="sz-askno">No, keep playing (N)</button><button id="sz-askyes">Yes, new game (Y)</button></div>
+  </div></div>
   <canvas id="sr-confetti" width="1920" height="1080" aria-hidden="true"></canvas>
   <div class="sr-toast" id="sr-toast" hidden></div>
 </div>
@@ -225,20 +282,79 @@ var G4=392,C5=523.25,E5=659.25,G5=783.99,A5=880,B5=987.77,C6=1046.5,E6=1318.5;
 var SND={
   shot:function(){ noise(0,0.55,60,0,900); tone(170,70,0,0.09,'triangle',0.3); },           // thwump of the blaster
   splat:function(){ noise(0,0.45,110,0,600); tone(120,60,0,0.08,'sine',0.25); },             // wet splat
-  hit:function(){ tone(880,1320,0,0.12,'triangle',0.2); },
-  bull:function(){ brass(C5,0,0.09,0.12); brass(E5,0.08,0.09,0.12); brass(G5,0.16,0.3,0.13); tone(C6,C6,0.18,0.3,'triangle',0.1); },
-  empty:function(){ tone(320,280,0,0.05,'square',0.1); tone(320,280,0.08,0.05,'square',0.1); },
-  correct:function(){ tone(C5,C5,0,0.12,'triangle',0.2); tone(E5,E5,0.08,0.12,'triangle',0.2); tone(G5,G5,0.16,0.14,'triangle',0.2); tone(C6,C6,0.24,0.3,'triangle',0.18); noise(0.3,0.2,40,5000); },
-  cash:function(){ tone(2093,2093,0,0.08,'square',0.06); tone(2637,2637,0.07,0.18,'square',0.06); noise(0,0.25,40,4000); },
-  miss:function(){ tone(233,165,0.02,0.38,'triangle',0.22); },
-  tick:function(){ tone(1200,1200,0,0.05,'square',0.08); },
-  wave:function(){ [C5,E5,G5,C6].forEach(function(f,i){ brass(f,i*0.1,0.16,0.12); }); tone(E6,E6,0.4,0.4,'triangle',0.1); },
-  frenzy:function(){ [0,0.18,0.36].forEach(function(t){ brass(G5,t,0.12,0.13); }); brass(C6,0.54,0.5,0.14); },
-  lost:function(){ tone(440,220,0,0.25,'sawtooth',0.07); },
-  win:function(){ var t=0.1; brass(G4,t,0.11); brass(C5,t+0.12,0.11); brass(E5,t+0.24,0.11); brass(C5,t+0.38,0.34,0.11); brass(E5,t+0.38,0.34,0.11); brass(G5,t+0.38,0.34,0.13);
-    brass(E5,t+0.76,0.16,0.11); brass(A5,t+0.76,0.16,0.13); brass(G5,t+0.94,0.16,0.11); brass(B5,t+0.94,0.16,0.13);
-    [C5,E5,G5,C6].forEach(function(f){ brass(f,t+1.14,1.3,0.11); }); tone(E6,E6,t+1.2,0.9,'triangle',0.1); }
+  hit:function(){ tone(784,1175,0,0.12,'triangle',0.18); },
+  bull:function(){ tone(G4,G4,0,0.1,'square',0.05); tone(C5,C5,0.08,0.1,'square',0.05); tone(E5,E5,0.16,0.3,'square',0.05); tone(C6,C6,0.16,0.3,'triangle',0.12); },   // bullseye: an organ stab
+  empty:function(){ tone(320,280,0,0.05,'triangle',0.12); tone(320,280,0.08,0.05,'triangle',0.12); },
+  correct:function(){ tone(G4,G4,0,0.12,'triangle',0.15); tone(D5,D5,0.07,0.12,'triangle',0.14); tone(G5,G5,0.14,0.28,'triangle',0.14); },   // a soft rising chime
+  cash:function(){ tone(1568,1568,0,0.06,'triangle',0.1); tone(2093,2093,0.06,0.14,'triangle',0.09); },
+  miss:function(){ tone(233,165,0.02,0.38,'triangle',0.2); },
+  tick:function(){ tone(1200,1200,0,0.05,'triangle',0.1); },
+  wave:function(){ [G4,B4,D5,G5].forEach(function(f,i){ tone(f,f,i*0.09,0.16,'square',0.05); tone(f,f,i*0.09,0.16,'triangle',0.1); }); },
+  frenzy:function(){ [0,0.18,0.36].forEach(function(t){ brass(G5,t,0.12,0.12); }); brass(C6,0.54,0.5,0.13); },
+  lost:function(){ tone(440,220,0,0.25,'triangle',0.12); },
+  win:function(){ var t=0.1; [G4,B4,D5,G5].forEach(function(f,i){ tone(f,f,t+i*0.1,0.14,'square',0.05); tone(f,f,t+i*0.1,0.14,'triangle',0.1); });
+    [G4,B4,D5,F5].forEach(function(f){ tone(f,f,t+0.5,1.2,'square',0.03); tone(f,f,t+0.5,1.2,'triangle',0.07); }); tone(98,98,t+0.5,1.1,'triangle',0.25); }
 };
+var B4=493.88, D5=587.33, F5=698.46;
+
+/* ================= SONG: "Paint Party" (funky ska groove, 112 bpm, G) =================
+   Kick and a bouncing slap bass underneath; an off-beat organ skank, snare and shaker on top. The top layer drops back while the student reads. */
+var SR_CH=[[98.00,[392.00,493.88,587.33,698.46]],[130.81,[392.00,523.25,659.25,698.46]],[98.00,[392.00,493.88,587.33,698.46]],[146.83,[440.00,587.33,698.46,880.00]]];
+var SR_BASS=[[0,0],[3,12],[6,0],[8,7],[10,10],[11,12],[14,7]];
+var SONG={ level:0.11, echo:0.27,
+  want:function(){ return !!S&&S.started&&!S.over; },
+  busy:function(){ return szActive(2500); },
+  sd:function(){ return 0.134; },
+  voice:function(f,t0,dur){ tone(f,f,t0,dur,'square',0.04); tone(f,f,t0,dur,'triangle',0.11); },
+  step:function(ctx,g,i,t,sd){ var bar=Math.floor(i/16), c=SR_CH[bar%4], k=i%16;
+    if(k===0||k===8||k===11) mKick(ctx,g.out,t,0.7,160,50);
+    SR_BASS.forEach(function(m){ if(m[0]===k) mNote(ctx,g.out,'triangle',c[0]*Math.pow(2,m[1]/12),t,sd*1.2,0.45,900,null); });   // slap bass
+    if(k%4===2) c[1].forEach(function(f){ mNote(ctx,g.act,'square',f,t,sd*0.55,0.02,2200,null); mNote(ctx,g.act,'triangle',f,t,sd*0.55,0.04,3000,null); });   // organ skank on the off-beats
+    if(k===4||k===12) mHit(ctx,g,g.act,t,0.12,0.3,1500);
+    if(k%2===1) mHit(ctx,g,g.act,t,0.04,0.05,6000);                                                                  // shaker
+    if(bar%8>=6&&k===14) mNote(ctx,g.act,'square',c[1][3]*2,t,sd*2,0.03,3000,g.echo);
+  } };
+
+/* ================= SPITZ KIT (shared by every game: music switch, jingle) =================
+   M mutes everything; N turns just the music off (remembered on this Chromebook). */
+var SZ_MUSIC_OFF=false, SZ_IN=-1e9, szOnMusic=function(){};
+try{ SZ_MUSIC_OFF=localStorage.getItem('spitz_music_off')==='1'; }catch(e){}
+['pointerdown','keydown'].forEach(function(n){ addEventListener(n,function(){ SZ_IN=Date.now(); },true); });
+function szActive(ms){ return Date.now()-SZ_IN<(ms||2500); }
+function musicToggle(){ SZ_MUSIC_OFF=!SZ_MUSIC_OFF; try{ localStorage.setItem('spitz_music_off',SZ_MUSIC_OFF?'1':'0'); }catch(e){} musBtn(); toast(SZ_MUSIC_OFF?'Music off':'Music on'); szOnMusic(); }
+function musBtn(){ var b=document.getElementById('sz-mus'); if(b){ b.textContent=SZ_MUSIC_OFF?'♪ Music off':'♪ Music on'; b.classList.toggle('on',!SZ_MUSIC_OFF); } }
+/* the Spitz jingle: the same notes open every game, played on that game's own instrument */
+var JINGLE=[[392.00,0,0.12],[523.25,0.13,0.12],[659.25,0.26,0.12],[783.99,0.40,0.34],[659.25,0.78,0.12],[783.99,0.92,0.7]];
+function jingle(){ JINGLE.forEach(function(n){ SZ_VOICE(n[0],n[1],n[2]); }); }
+
+/* ================= SPITZ MUSIC (shared engine; the game supplies SONG) =================
+   Synthesized, no audio files. It plays only during a run, sits under the sound effects (25 Chromebooks play it at once),
+   and backs off while the student reads a question. */
+var MUS={ on:false, g:null, i:0, t:0 }, SZ_VOICE=function(f,t0,dur){ SONG.voice(f,t0,dur); };
+function musGraph(ctx,dest){ var out=ctx.createGain(), act=ctx.createGain(), d=ctx.createDelay(1), fb=ctx.createGain(), wet=ctx.createGain(); out.gain.value=SONG.level; out.connect(dest); act.connect(out);
+  d.delayTime.value=SONG.echo||0.3; fb.gain.value=0.28; wet.gain.value=0.3; d.connect(fb); fb.connect(d); d.connect(wet); wet.connect(act);
+  var n=Math.floor(ctx.sampleRate*0.3), buf=ctx.createBuffer(1,n,ctx.sampleRate), ch=buf.getChannelData(0); for(var i=0;i<n;i++) ch[i]=Math.random()*2-1;
+  return {out:out,act:act,echo:d,noise:buf}; }
+function mNote(ctx,to,type,fr,t,dur,vol,cut,echo,att){ var o=ctx.createOscillator(), f=ctx.createBiquadFilter(), e=ctx.createGain(); o.type=type; o.frequency.value=fr; f.type='lowpass'; f.frequency.value=cut||2400;
+  e.gain.setValueAtTime(0.0001,t); e.gain.exponentialRampToValueAtTime(vol,t+(att||0.008)); e.gain.setValueAtTime(vol,t+Math.max(att||0.008,dur*0.55)); e.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(f); f.connect(e); e.connect(to); if(echo) e.connect(echo); o.start(t); o.stop(t+dur+0.03); return o; }
+function mHit(ctx,g,to,t,dur,vol,hp,lp){ var s=ctx.createBufferSource(), f=ctx.createBiquadFilter(), e=ctx.createGain(); s.buffer=g.noise; f.type=lp?'lowpass':'highpass'; f.frequency.value=lp||hp;
+  e.gain.setValueAtTime(vol,t); e.gain.exponentialRampToValueAtTime(0.0001,t+dur); s.connect(f); f.connect(e); e.connect(to); s.start(t); s.stop(t+dur+0.03); }
+function mKick(ctx,to,t,vol,hi,lo){ var o=ctx.createOscillator(), e=ctx.createGain(); o.type='sine'; o.frequency.setValueAtTime(hi||200,t); o.frequency.exponentialRampToValueAtTime(lo||48,t+0.12);
+  e.gain.setValueAtTime(0.0001,t); e.gain.exponentialRampToValueAtTime(vol||0.8,t+0.005); e.gain.exponentialRampToValueAtTime(0.0001,t+0.2); o.connect(e); e.connect(to); o.start(t); o.stop(t+0.22); }
+function musicTick(){ var a=AC, want=SONG.want()&&!muted&&!SZ_MUSIC_OFF;
+  if(!want){ if(MUS.on){ MUS.on=false; var g=MUS.g; MUS.g=null; if(g&&a){ g.out.gain.setTargetAtTime(0,a.currentTime,0.2); setTimeout(function(){ try{ g.out.disconnect(); }catch(e){} },1400); } } return; }
+  if(!a||a.state!=='running') return;                                              // browsers hold sound until the first click or key press
+  if(!MUS.on){ MUS.on=true; MUS.g=musGraph(a,a.destination); MUS.g.out.gain.setValueAtTime(0.0001,a.currentTime); MUS.g.out.gain.linearRampToValueAtTime(SONG.level,a.currentTime+1.2); MUS.i=0; MUS.t=a.currentTime+0.1; }
+  MUS.g.act.gain.setTargetAtTime(SONG.busy()?1:0.35,a.currentTime,0.35);            // playing: full band. Reading a question: it backs off so they can think
+  if(MUS.t<a.currentTime) MUS.t=a.currentTime+0.05;                                 // the tab was in the background: pick up from now
+  while(MUS.t<a.currentTime+0.5){ var sd=SONG.sd(); SONG.step(a,MUS.g,MUS.i,MUS.t,sd); MUS.t+=sd; MUS.i++; } }
+setInterval(musicTick,120);
+/* test hook: render the music off line and measure it */
+window.__music=function(sec){ var C=window.OfflineAudioContext||window.webkitOfflineAudioContext, c=new C(1,44100*sec,44100), g=musGraph(c,c.destination), t=0.05, i=0;
+  while(t<sec){ var sd=SONG.sd(); SONG.step(c,g,i,t,sd); t+=sd; i++; }
+  return c.startRendering().then(function(buf){ var d=buf.getChannelData(0), pk=0, sq=0, bad=0, n=d.length; for(var j=0;j<n;j++){ var v=d[j]; if(v!==v) bad++; pk=Math.max(pk,Math.abs(v)); sq+=v*v; }
+    return {peak:pk, rms:Math.sqrt(sq/n), bad:bad, steps:i}; }); };
 
 /* ================= CONFETTI (always on, even with reduced motion) ================= */
 var parts=[], craf=0, CFC=['#FF3DB4','#B6FF3D','#2DE2E6','#FF8A1F','#FFF04D','#C77DFF','#FFFFFF'];
@@ -656,8 +772,11 @@ var armT=0; $('sr-again').addEventListener('click',function(){ var b=this; if(!b
 /* ================= KEYS ================= */
 function fullscreen(){ var d=document, e=d.documentElement; if(d.fullscreenElement||d.webkitFullscreenElement) (d.exitFullscreen||d.webkitExitFullscreen).call(d);
   else { var r=e.requestFullscreen||e.webkitRequestFullscreen; if(r){ var p=r.call(e); if(p&&p.catch) p.catch(function(){}); } } }
-document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altKey) return; if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return; var k=e.key.toLowerCase();
+document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altKey) return; if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+  if(!$('sz-ask').hidden){ e.preventDefault(); if(k0(e)==='y') newRun(); else if(k0(e)==='n'||e.key==='Escape') askNew(false); return; }
+  if(k0(e)==='r'&&e.shiftKey){ e.preventDefault(); if(S.started) askNew(true); return; } var k=e.key.toLowerCase();
   if(k==='f'){ e.preventDefault(); fullscreen(); return; }
+  if(k==='n'){ e.preventDefault(); musicToggle(); return; }
   if(k==='m'){ e.preventDefault(); muted=!muted; save(); toast(muted?'Sound off':'Sound on'); if(!muted) SND.tick(); return; }
   if(e.key==='Escape'){ openShop(false); return; }
   if(k==='s'){ e.preventDefault(); openShop($('sr-shop').hidden); return; }
@@ -665,6 +784,14 @@ document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altK
   if((e.key==='Enter'||e.key===' ')&&S.qDone&&!$('sr-next').disabled){ e.preventDefault(); newQ(); } });
 function fit(){ var s=Math.min(innerWidth/1920,innerHeight/1080), y=$('stage').style; y.transform='scale('+s+')'; y.left=((innerWidth-1920*s)/2)+'px'; y.top=((innerHeight-1080*s)/2)+'px'; }
 addEventListener('resize',fit);
+
+function k0(e){ return (e.key||'').toLowerCase(); }
+function askNew(o){ $('sz-ask').hidden=!o; }
+function newRun(){ var n=S.name; S=fresh(); S.name=n; try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} location.reload(); }   // S is replaced first, so a save that fires before the reload writes the fresh run
+$('sz-askyes').addEventListener('click',newRun); $('sz-askno').addEventListener('click',function(){ askNew(false); });
+document.querySelector('.sr-top .sr-logo').addEventListener('click',function(){ if(S.started) askNew(true); });
+$('sz-mus').addEventListener('click',function(e){ e.stopPropagation(); ac(); musicToggle(); }); musBtn();
+$('sr-go').addEventListener('click',function(){ if(S.started) jingle(); });
 
 /* ================= BOOT ================= */
 S=load()||fresh(); fit(); drawWall();

@@ -4,12 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Jump Man: Multiplication Facts</title>
-<link href="https://fonts.googleapis.com/css2?family=Luckiest+Guy&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@500;700&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
-:root{ --paper:#0E1016; --panel:#191C25; --panel-2:#242936; --text:#F3F5F9; --muted:#9BA5B8; --border:#343B4D; --accent:#FFB020;
-  --pink:#4DB8FF; --lime:#FFB020; --cyan:#2DE2E6; --orange:#FF8A1F;
-  --c-line:#FF4B4B; --c-m:#FFC82E; --c-b:#FF3DB4; --c-pt:#FFF04D; --c-ans:#C77DFF; --c-x:#2DE2C8; --ok:#4ADE80; --no:#FF7A7A;
-  --display:'Luckiest Guy','Inter',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif; }
+:root{ --paper:#0D1A3A; --panel:#15295A; --panel-2:#1F3A78; --text:#FFFFFF; --muted:#A9C2EE; --border:#3E6BC4; --accent:#FFC93C;
+  --pink:#FFFFFF; --lime:#FFC93C; --cyan:#7CE04A; --orange:#FF8A1F;
+  --c-line:#FF4B4B; --c-m:#FFC82E; --c-b:#FF3DB4; --c-pt:#FFF04D; --c-ans:#D9A6FF; --c-x:#2DE2C8; --ok:#4ADE80; --no:#FF7A7A;
+  --display:'Pixelify Sans','Inter',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif;
+  --sz-mark:#FFC93C; --sz-ink:#A9C2EE; --px:#071029; }
 *{ box-sizing:border-box; }
 html,body{ margin:0; height:100%; background:var(--paper); overflow:hidden; }
 body{ color:var(--text); font-family:var(--body); -webkit-user-select:none; user-select:none; touch-action:manipulation; }
@@ -128,12 +129,66 @@ button:disabled{ cursor:default; }
 .jm-ch{ height:84px; }
 .jm-prompt{ height:136px; white-space:nowrap; overflow:hidden; }
 .jm-tag{ min-width:210px; text-align:center; }
+
+/* ================= JUMP MAN THEME: retro 8-bit day sky ================= */
+body{ background:linear-gradient(180deg,#0D1A3A 0%,#16306A 60%,#1E4A8E 100%); }
+#stage{ background:
+  radial-gradient(circle at 12% 30%, #fff 0 1.5px, transparent 2px) 0 0/180px 140px,
+  radial-gradient(circle at 70% 70%, rgba(255,255,255,.7) 0 1px, transparent 1.5px) 0 0/130px 110px; }
+/* chunky pixel boxes: square corners, a hard drop shadow, no blur anywhere */
+.jm-chip,.jm-q,.jm-range,.jm-fb,.jm-ch,.jm-tag,.jm-card,.jm-step,.jm-stat,.jm-input,.sz-mus,.jm-go,.jm-shopbtn,.jm-buy,.jm-x,.jm-again,.jm-next,.jm-buff{ border-radius:0 !important; }
+.jm-chip{ border:4px solid var(--border); box-shadow:6px 6px 0 var(--px); background:var(--panel); }
+.jm-chip .v{ font-size:32px; letter-spacing:.02em; }
+.jm-chip .l{ font-size:20px; }
+.jm-logo{ font-size:42px; font-weight:700; letter-spacing:.02em; text-shadow:4px 4px 0 var(--px); }
+.jm-range{ border:6px solid var(--px); box-shadow:0 0 0 4px var(--accent), 10px 10px 0 4px var(--px); }
+/* the question panel is an arcade screen inside a cabinet bezel */
+.jm-q{ border:6px solid var(--px); box-shadow:0 0 0 4px var(--border), 10px 10px 0 4px var(--px);
+  background:repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 2px, transparent 2px 6px), linear-gradient(180deg,#132656,#0B1838); }
+.jm-q.open{ box-shadow:0 0 0 4px var(--cyan), 10px 10px 0 4px var(--px); }
+.jm-tag{ background:var(--cyan); color:var(--px); border:0; font-family:var(--display); font-weight:700; letter-spacing:.04em; box-shadow:4px 4px 0 var(--px); }
+.jm-reward{ font-family:var(--display); color:var(--accent); }
+.jm-prompt{ color:#FFF7EA; text-shadow:6px 6px 0 var(--px); }
+.jm-ch{ background:var(--panel); border:4px solid var(--border); box-shadow:6px 6px 0 var(--px); }
+.jm-ch .k{ border-radius:0; background:var(--accent); color:var(--px); font-family:var(--display); font-weight:700; }
+.jm-ch:not(:disabled):hover{ border-color:var(--cyan); }
+.jm-fb{ border:4px dashed var(--border); background:#0A1430; }
+.jm-shopbtn{ background:var(--accent); color:var(--px); font-weight:700; box-shadow:6px 6px 0 var(--px); }
+.jm-shop{ background:rgba(8,16,40,.97); }
+.jm-card{ border:4px solid var(--border); box-shadow:6px 6px 0 var(--px); }
+.jm-pips span{ border-radius:0; }
+.jm-buy{ font-weight:700; color:var(--px); }
+/* start and end screens: a sunset over the tower, title in pixels */
+.jm-over{ background:linear-gradient(180deg, rgba(13,26,58,.97) 0%, rgba(30,74,142,.97) 65%, rgba(92,170,255,.97) 100%); }
+.jm-big{ font-size:120px; font-weight:700; letter-spacing:.02em; text-shadow:8px 8px 0 var(--px); }
+.jm-big b{ color:#FFFFFF; } .jm-big i{ color:var(--accent); }
+.jm-step{ border:4px solid var(--border); box-shadow:6px 6px 0 var(--px); background:var(--panel); }
+.jm-step b{ font-weight:700; color:var(--accent); font-size:28px; }
+.jm-go{ font-weight:700; color:var(--px); box-shadow:8px 8px 0 var(--px); }
+.jm-final{ font-weight:700; color:var(--accent); text-shadow:8px 8px 0 var(--px); } .jm-name{ font-weight:700; color:#FFFFFF; }
+.jm-stat{ border:4px solid var(--border); box-shadow:6px 6px 0 var(--px); }
+.jm-stat .v{ font-weight:700; font-size:44px; }
+.jm-again{ font-weight:700; }
+
+/* ================= SPITZ ARCADE BRAND (shared by every game: keep identical) ================= */
+.sz-credit{ display:inline-flex !important; align-items:center; gap:10px; font:800 18px/1 Inter,system-ui,sans-serif !important; letter-spacing:.16em !important; text-transform:uppercase; color:var(--sz-ink) !important; white-space:nowrap; }
+.sz-credit::before{ content:''; flex:none; width:26px; height:5px; border-radius:3px; background:var(--sz-mark); }
+.sz-eyebrow{ display:inline-flex; align-items:center; gap:14px; margin:0 0 18px; font:800 24px/1 Inter,system-ui,sans-serif; letter-spacing:.34em; text-transform:uppercase; color:var(--sz-ink); }
+.sz-eyebrow::before,.sz-eyebrow::after{ content:''; width:40px; height:5px; border-radius:3px; background:var(--sz-mark); }
+.sz-eyebrow b{ color:var(--sz-mark); font-weight:800; }
+.sz-mus{ height:84px; padding:0 26px; border-radius:20px; background:var(--panel); border:3px solid var(--border); font:800 30px/1 Inter,system-ui,sans-serif; color:var(--sz-ink); white-space:nowrap; }
+.sz-mus.on{ border-color:var(--sz-mark); color:var(--text); }
+.sz-ask{ z-index:40; } .sz-ask h2{ margin:0 0 6px; font:400 84px/1.05 var(--display); color:var(--text); }
+.sz-ask .sz-askrow{ display:flex; justify-content:center; gap:20px; }
+.sz-ask button{ height:96px; padding:0 44px; border-radius:22px; font:800 32px/1 Inter,system-ui,sans-serif; background:var(--panel); border:3px solid var(--border); color:var(--text); }
+.sz-ask #sz-askyes{ background:var(--sz-mark); border-color:var(--sz-mark); color:#111; }
+[class$="-logo"]{ cursor:pointer; }
 </style>
 </head>
 <body>
 <div id="stage">
   <div class="jm-top">
-    <div class="jm-brand"><h1 class="jm-logo"><b>JUMP</b> <i>MAN</i></h1><span class="jm-credit">Made by Spitz 🍔</span></div>
+    <div class="jm-brand"><h1 class="jm-logo"><b>JUMP</b> <i>MAN</i></h1><span class="jm-credit sz-credit">Made by Spitz 🍔</span></div>
     <div class="jm-chip jm-timer" id="jm-timerchip"><span class="l">Time</span><span class="v" id="jm-time">5:00</span></div>
     <span class="jm-sp"></span>
     <div class="jm-chip"><span class="l">Score</span><span class="v" id="jm-score">0</span></div>
@@ -164,27 +219,32 @@ button:disabled{ cursor:default; }
   </div>
 
   <div class="jm-over" id="jm-start"><div class="jm-box">
-    <h2 class="jm-big"><b>JUMP</b> <i>MAN</i></h2>
+    <div class="sz-eyebrow">Spitz <b>Arcade</b></div><h2 class="jm-big"><b>JUMP</b> <i>MAN</i></h2>
     <p class="jm-sub">Multiplication facts, 0 to 12. You have 5 minutes: answer to charge up, then climb as high as you can.</p>
     <div class="jm-steps">
       <div class="jm-step"><b>1. Answer</b>Each right answer adds energy and earns cash. A wrong answer costs $3 and breaks your streak, so don’t guess.</div>
       <div class="jm-step"><b>2. Climb</b>Run and jump up the tower. Every jump and step uses energy. Grab gems. Higher is more points.</div>
       <div class="jm-step"><b>3. Upgrade</b>Spend cash in the Shop on jump boots, bigger energy packs, gem bonuses and power-ups.</div>
     </div>
-    <div class="jm-row"><input class="jm-input" id="jm-nameinput" maxlength="24" placeholder="Your first and last name" autocomplete="off" aria-label="Your name"></div>
+    <div class="jm-row"><input class="jm-input" id="jm-nameinput" maxlength="24" placeholder="Your first and last name" autocomplete="off" aria-label="Your name"><button class="sz-mus" id="sz-mus" aria-label="Music on or off, key N">♪ Music on</button></div>
     <button class="jm-go" id="jm-go" disabled>Start</button>
-    <div class="jm-keys">Keys: 1–4 answer · Enter next · ← → run · ↑ or Space jump · M mute · F full screen</div>
-  </div><span class="jm-credit">Made by Spitz 🍔</span></div>
+    <div class="jm-keys">Keys: 1–4 answer · Enter next · ← → run · ↑ or Space jump · N music · M mute · Shift+R new game · F full screen</div>
+  </div><span class="jm-credit sz-credit">Made by Spitz 🍔</span></div>
 
-  <div class="jm-over" id="jm-end" hidden><div class="jm-box">
+  <div class="jm-over" id="jm-end" hidden><div class="jm-box"><div class="sz-eyebrow">Spitz <b>Arcade</b></div>
     <p class="jm-sub" style="margin:0">Time! Show this screen to your teacher.</p>
     <div class="jm-name" id="jm-endname"></div>
     <div class="jm-final" id="jm-endscore">0</div>
     <div class="jm-stats" id="jm-endstats"></div>
     <div class="jm-topics" id="jm-endtopics"></div>
     <button class="jm-again" id="jm-again">Play again</button>
-  </div><span class="jm-credit">Made by Spitz 🍔</span></div>
+  </div><span class="jm-credit sz-credit">Made by Spitz 🍔</span></div>
 
+  <div class="jm-over sz-ask" id="sz-ask" hidden role="dialog" aria-modal="true" aria-labelledby="sz-asktitle"><div class="jm-box">
+    <h2 id="sz-asktitle">Start a new game?</h2>
+    <p class="jm-sub">This erases the current run and starts over from the beginning.</p>
+    <div class="sz-askrow"><button id="sz-askno">No, keep playing (N)</button><button id="sz-askyes">Yes, new game (Y)</button></div>
+  </div></div>
   <canvas id="jm-confetti" width="1920" height="1080" aria-hidden="true"></canvas>
   <div class="jm-toast" id="jm-toast" hidden></div>
 </div>
@@ -214,24 +274,83 @@ function brass(f,t0,dur,vol){ var a=ac(); if(!a||muted) return; var t=a.currentT
   lp.connect(g); g.connect(a.destination); count(); }
 var G4=392,C5=523.25,E5=659.25,G5=783.99,A5=880,B5=987.77,C6=1046.5,E6=1318.5;
 var SND={
-  jump:function(){ tone(300,620,0,0.14,'square',0.08); },
-  land:function(){ noise(0,0.18,50,0,500); },
-  rocket:function(){ noise(0,0.5,700,0,1400); tone(120,900,0,0.7,'sawtooth',0.1); },
-  star:function(){ tone(880,1320,0,0.12,'triangle',0.2); },
-  gold:function(){ brass(C5,0,0.09,0.12); brass(E5,0.08,0.09,0.12); brass(G5,0.16,0.3,0.13); tone(C6,C6,0.18,0.3,'triangle',0.1); },
-  crash:function(){ noise(0,0.6,180,0,500); tone(150,50,0,0.22,'sawtooth',0.2); },
-  empty:function(){ tone(320,280,0,0.05,'square',0.1); tone(320,280,0.08,0.05,'square',0.1); },
-  correct:function(){ tone(C5,C5,0,0.12,'triangle',0.2); tone(E5,E5,0.08,0.12,'triangle',0.2); tone(G5,G5,0.16,0.14,'triangle',0.2); tone(C6,C6,0.24,0.3,'triangle',0.18); tone(180,520,0.3,0.35,'sawtooth',0.07); },
-  cash:function(){ tone(2093,2093,0,0.08,'square',0.06); tone(2637,2637,0.07,0.18,'square',0.06); noise(0,0.25,40,4000); },
-  miss:function(){ tone(233,165,0.02,0.38,'triangle',0.22); },
-  tick:function(){ tone(1200,1200,0,0.05,'square',0.08); },
-  win:function(){ var t=0.1; brass(G4,t,0.11); brass(C5,t+0.12,0.11); brass(E5,t+0.24,0.11); brass(C5,t+0.38,0.34,0.11); brass(E5,t+0.38,0.34,0.11); brass(G5,t+0.38,0.34,0.13);
-    brass(E5,t+0.76,0.16,0.11); brass(A5,t+0.76,0.16,0.13); brass(G5,t+0.94,0.16,0.11); brass(B5,t+0.94,0.16,0.13);
-    [C5,E5,G5,C6].forEach(function(f){ brass(f,t+1.14,1.3,0.11); }); tone(E6,E6,t+1.2,0.9,'triangle',0.1); }
+  jump:function(){ tone(330,660,0,0.1,'square',0.05); },
+  land:function(){ tone(140,90,0,0.05,'triangle',0.12); },
+  rocket:function(){ tone(160,1200,0,0.6,'square',0.05); tone(80,600,0,0.6,'triangle',0.1); },
+  star:function(){ [987.77,1318.5].forEach(function(f,i){ tone(f,f,i*0.06,0.1,'triangle',0.13); }); },          // gem
+  gold:function(){ [523.25,659.25,783.99,1046.5].forEach(function(f,i){ tone(f,f,i*0.06,0.12,'square',0.05); tone(f,f,i*0.06,0.12,'triangle',0.1); }); },   // checkpoint
+  crash:function(){ tone(300,80,0,0.25,'square',0.05); tone(150,60,0,0.25,'triangle',0.12); },
+  empty:function(){ tone(330,330,0,0.06,'triangle',0.12); tone(262,262,0.09,0.08,'triangle',0.12); },
+  correct:function(){ tone(987.77,987.77,0,0.07,'triangle',0.15); tone(1318.5,1318.5,0.065,0.2,'triangle',0.14); },   // a soft coin
+  cash:function(){ tone(1568,1568,0,0.06,'triangle',0.1); tone(2093,2093,0.06,0.14,'triangle',0.09); },
+  miss:function(){ tone(311,233,0.02,0.32,'triangle',0.18); },
+  tick:function(){ tone(1200,1200,0,0.04,'triangle',0.1); },
+  win:function(){ var t=0.1; [392,523.25,659.25,783.99,1046.5].forEach(function(f,i){ tone(f,f,t+i*0.09,0.12,'square',0.05); tone(f,f,t+i*0.09,0.12,'triangle',0.1); });
+    [523.25,659.25,783.99,1046.5].forEach(function(f){ tone(f,f,t+0.6,1.1,'square',0.035); tone(f,f,t+0.6,1.1,'triangle',0.07); }); tone(130.81,130.81,t+0.6,1.1,'triangle',0.2); }
 };
 
+/* ================= SONG: "Sky Climb" (chiptune, 150 bpm, C major) =================
+   A triangle bass and a soft noise beat underneath; a square-wave arpeggio and a bouncy lead on top. The top layer drops back while Jump Man stands still. */
+var JM_CH=[[130.81,[523.25,659.25,783.99]],[110.00,[440.00,523.25,659.25]],[87.31,[349.23,440.00,523.25]],[98.00,[392.00,493.88,587.33]]];
+var JM_ARP=[0,1,2,1, 0,1,2,1, 0,1,2,1, 2,1,0,1];
+var JM_LEAD=[[0,783.99,3],[3,659.25,1],[4,783.99,2],[6,880.00,2],[8,783.99,4],[12,659.25,2],[14,587.33,2]];
+var SONG={ level:0.1, echo:0.2,
+  want:function(){ return !!S&&S.started&&!S.over; },
+  busy:function(){ return keys.l||keys.r||(typeof P!=='undefined'&&!!P&&!P.on); },
+  sd:function(){ return 0.1; },
+  voice:function(f,t0,dur){ tone(f,f,t0,dur,'square',0.05); tone(f,f,t0,dur,'triangle',0.11); },
+  step:function(ctx,g,i,t,sd){ var bar=Math.floor(i/16), c=JM_CH[bar%4], k=i%16;
+    if(k%4===0||k===10) mNote(ctx,g.out,'triangle',c[0]*(k===8?1.5:1),t,sd*1.8,0.45,1200,null);                          // bass
+    if(k%8===0) mKick(ctx,g.out,t,0.4,160,60);
+    if(k%8===4) mHit(ctx,g,g.act,t,0.07,0.16,2500);
+    if(k%2===1) mHit(ctx,g,g.act,t,0.02,0.05,8000);
+    mNote(ctx,g.act,'square',c[1][JM_ARP[k]],t,sd*0.8,0.045,2600,null);                                                   // arpeggio
+    if(bar%8>=4) JM_LEAD.forEach(function(m){ if(m[0]===k) mNote(ctx,g.act,'square',m[1]*(bar%2?1:1),t,m[2]*sd*0.95,0.06,3200,g.echo); });   // the lead, second half
+  } };
+
+/* ================= SPITZ KIT (shared by every game: music switch, jingle) =================
+   M mutes everything; N turns just the music off (remembered on this Chromebook). */
+var SZ_MUSIC_OFF=false, SZ_IN=-1e9, szOnMusic=function(){};
+try{ SZ_MUSIC_OFF=localStorage.getItem('spitz_music_off')==='1'; }catch(e){}
+['pointerdown','keydown'].forEach(function(n){ addEventListener(n,function(){ SZ_IN=Date.now(); },true); });
+function szActive(ms){ return Date.now()-SZ_IN<(ms||2500); }
+function musicToggle(){ SZ_MUSIC_OFF=!SZ_MUSIC_OFF; try{ localStorage.setItem('spitz_music_off',SZ_MUSIC_OFF?'1':'0'); }catch(e){} musBtn(); toast(SZ_MUSIC_OFF?'Music off':'Music on'); szOnMusic(); }
+function musBtn(){ var b=document.getElementById('sz-mus'); if(b){ b.textContent=SZ_MUSIC_OFF?'♪ Music off':'♪ Music on'; b.classList.toggle('on',!SZ_MUSIC_OFF); } }
+/* the Spitz jingle: the same notes open every game, played on that game's own instrument */
+var JINGLE=[[392.00,0,0.12],[523.25,0.13,0.12],[659.25,0.26,0.12],[783.99,0.40,0.34],[659.25,0.78,0.12],[783.99,0.92,0.7]];
+function jingle(){ JINGLE.forEach(function(n){ SZ_VOICE(n[0],n[1],n[2]); }); }
+
+/* ================= SPITZ MUSIC (shared engine; the game supplies SONG) =================
+   Synthesized, no audio files. It plays only during a run, sits under the sound effects (25 Chromebooks play it at once),
+   and backs off while the student reads a question. */
+var MUS={ on:false, g:null, i:0, t:0 }, SZ_VOICE=function(f,t0,dur){ SONG.voice(f,t0,dur); };
+function musGraph(ctx,dest){ var out=ctx.createGain(), act=ctx.createGain(), d=ctx.createDelay(1), fb=ctx.createGain(), wet=ctx.createGain(); out.gain.value=SONG.level; out.connect(dest); act.connect(out);
+  d.delayTime.value=SONG.echo||0.3; fb.gain.value=0.28; wet.gain.value=0.3; d.connect(fb); fb.connect(d); d.connect(wet); wet.connect(act);
+  var n=Math.floor(ctx.sampleRate*0.3), buf=ctx.createBuffer(1,n,ctx.sampleRate), ch=buf.getChannelData(0); for(var i=0;i<n;i++) ch[i]=Math.random()*2-1;
+  return {out:out,act:act,echo:d,noise:buf}; }
+function mNote(ctx,to,type,fr,t,dur,vol,cut,echo,att){ var o=ctx.createOscillator(), f=ctx.createBiquadFilter(), e=ctx.createGain(); o.type=type; o.frequency.value=fr; f.type='lowpass'; f.frequency.value=cut||2400;
+  e.gain.setValueAtTime(0.0001,t); e.gain.exponentialRampToValueAtTime(vol,t+(att||0.008)); e.gain.setValueAtTime(vol,t+Math.max(att||0.008,dur*0.55)); e.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(f); f.connect(e); e.connect(to); if(echo) e.connect(echo); o.start(t); o.stop(t+dur+0.03); return o; }
+function mHit(ctx,g,to,t,dur,vol,hp,lp){ var s=ctx.createBufferSource(), f=ctx.createBiquadFilter(), e=ctx.createGain(); s.buffer=g.noise; f.type=lp?'lowpass':'highpass'; f.frequency.value=lp||hp;
+  e.gain.setValueAtTime(vol,t); e.gain.exponentialRampToValueAtTime(0.0001,t+dur); s.connect(f); f.connect(e); e.connect(to); s.start(t); s.stop(t+dur+0.03); }
+function mKick(ctx,to,t,vol,hi,lo){ var o=ctx.createOscillator(), e=ctx.createGain(); o.type='sine'; o.frequency.setValueAtTime(hi||200,t); o.frequency.exponentialRampToValueAtTime(lo||48,t+0.12);
+  e.gain.setValueAtTime(0.0001,t); e.gain.exponentialRampToValueAtTime(vol||0.8,t+0.005); e.gain.exponentialRampToValueAtTime(0.0001,t+0.2); o.connect(e); e.connect(to); o.start(t); o.stop(t+0.22); }
+function musicTick(){ var a=AC, want=SONG.want()&&!muted&&!SZ_MUSIC_OFF;
+  if(!want){ if(MUS.on){ MUS.on=false; var g=MUS.g; MUS.g=null; if(g&&a){ g.out.gain.setTargetAtTime(0,a.currentTime,0.2); setTimeout(function(){ try{ g.out.disconnect(); }catch(e){} },1400); } } return; }
+  if(!a||a.state!=='running') return;                                              // browsers hold sound until the first click or key press
+  if(!MUS.on){ MUS.on=true; MUS.g=musGraph(a,a.destination); MUS.g.out.gain.setValueAtTime(0.0001,a.currentTime); MUS.g.out.gain.linearRampToValueAtTime(SONG.level,a.currentTime+1.2); MUS.i=0; MUS.t=a.currentTime+0.1; }
+  MUS.g.act.gain.setTargetAtTime(SONG.busy()?1:0.35,a.currentTime,0.35);            // playing: full band. Reading a question: it backs off so they can think
+  if(MUS.t<a.currentTime) MUS.t=a.currentTime+0.05;                                 // the tab was in the background: pick up from now
+  while(MUS.t<a.currentTime+0.5){ var sd=SONG.sd(); SONG.step(a,MUS.g,MUS.i,MUS.t,sd); MUS.t+=sd; MUS.i++; } }
+setInterval(musicTick,120);
+/* test hook: render the music off line and measure it */
+window.__music=function(sec){ var C=window.OfflineAudioContext||window.webkitOfflineAudioContext, c=new C(1,44100*sec,44100), g=musGraph(c,c.destination), t=0.05, i=0;
+  while(t<sec){ var sd=SONG.sd(); SONG.step(c,g,i,t,sd); t+=sd; i++; }
+  return c.startRendering().then(function(buf){ var d=buf.getChannelData(0), pk=0, sq=0, bad=0, n=d.length; for(var j=0;j<n;j++){ var v=d[j]; if(v!==v) bad++; pk=Math.max(pk,Math.abs(v)); sq+=v*v; }
+    return {peak:pk, rms:Math.sqrt(sq/n), bad:bad, steps:i}; }); };
+
 /* ================= CONFETTI (always on, even with reduced motion) ================= */
-var parts=[], craf=0, CFC=['#4DB8FF','#FFB020','#2DE2E6','#FF8A1F','#FFF04D','#C77DFF','#FFFFFF'];
+var parts=[], craf=0, CFC=['#FFC93C','#7CE04A','#5CB8FF','#FFFFFF','#FF6B6B','#FFF04D','#B98BFF'];
 function confetti(x,y,n,spread){ for(var i=0;i<n;i++){ var a=-Math.PI/2+(Math.random()-0.5)*spread, sp=8+Math.random()*15;
     parts.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,w:10+Math.random()*12,h:6+Math.random()*8,r:Math.random()*6.28,vr:(Math.random()-0.5)*0.5,c:CFC[i%CFC.length],life:0,max:85+Math.random()*60}); }
   window.__conf=(window.__conf||0)+n; if(!craf) craf=requestAnimationFrame(cfStep); }
@@ -383,7 +502,8 @@ $('jm-shop').addEventListener('click',function(e){ var b=e.target.closest('.jm-b
   SND.cash(); save(); hud(); drawShop(); });
 
 /* ================= THE TOWER ================= */
-var cv=$('jm-canvas'), cx=cv.getContext('2d'), W=1054, H=936, DF="'Luckiest Guy', Inter, sans-serif";
+var cv=$('jm-canvas'), cx=cv.getContext('2d'), W=1054, H=936, DF="'Pixelify Sans', Inter, sans-serif";
+['fillText','strokeText'].forEach(function(m){ var f=cx[m]; cx[m]=function(t,x,y,mw){ return f.call(cx,t,x,y,mw||700); }; });
 var GRAV=2400, JV=880, RUN=340, PW=44, PH=64, FLOOR_EVERY=6;
 var plats, rs, P, cam, pops, gt=0, keys={l:false,r:false}, ptr={}, jumpQ=false;
 var BTN={ l:{x:92,y:H-86,r:64}, r:{x:244,y:H-86,r:64}, j:{x:W-104,y:H-86,r:72} };
@@ -427,7 +547,7 @@ function update(dt){ var t=now(); if(!S.started||S.over) return; gt+=dt;
   cam+=(P.h-cam)*Math.min(1,dt*6); pops=pops.filter(function(o){ return t-o.t0<1000; }); hudLive(); }
 function sy(h){ return 640-(h-cam); }
 function rr(c,x,y,w,h,r){ c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
-var ZONES=[ {m:0,a:[22,50,79],b:[46,110,142],top:'#4ADE80',body:'#7A4B2A'}, {m:150,a:[26,31,75],b:[70,50,120],top:'#C9D1E0',body:'#566074'},
+var ZONES=[ {m:0,a:[70,150,245],b:[175,222,255],top:'#4ADE80',body:'#7A4B2A'}, {m:150,a:[60,70,170],b:[250,150,110],top:'#C9D1E0',body:'#566074'},
             {m:400,a:[14,16,40],b:[40,30,90],top:'#CFE8FF',body:'#7FA8DC'}, {m:800,a:[6,7,16],b:[20,14,44],top:'#C77DFF',body:'#5B3A8C'} ];
 function zoneAt(m){ var z=ZONES[0]; ZONES.forEach(function(q){ if(m>=q.m) z=q; }); return z; }
 function skyAt(m){ var i=0; while(i<ZONES.length-1&&m>=ZONES[i+1].m) i++; var z=ZONES[i], n=ZONES[Math.min(i+1,ZONES.length-1)], k=n===z?0:Math.min(1,Math.max(0,(m-z.m)/(n.m-z.m)));
@@ -504,8 +624,11 @@ var armT=0; $('jm-again').addEventListener('click',function(){ var b=this; if(!b
 function fullscreen(){ var d=document, e=d.documentElement; if(d.fullscreenElement||d.webkitFullscreenElement) (d.exitFullscreen||d.webkitExitFullscreen).call(d);
   else { var r=e.requestFullscreen||e.webkitRequestFullscreen; if(r){ var p=r.call(e); if(p&&p.catch) p.catch(function(){}); } } }
 function keyDir(e){ var k=e.key.toLowerCase(); return (k==='arrowleft'||k==='a')?'l':(k==='arrowright'||k==='d')?'r':(k==='arrowup'||k==='w'||k===' ')?'j':''; }
-document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altKey) return; if(e.target&&e.target.tagName==='INPUT') return; var k=e.key.toLowerCase(), d=keyDir(e);
+document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altKey) return; if(e.target&&e.target.tagName==='INPUT') return;
+  if(!$('sz-ask').hidden){ e.preventDefault(); if(k0(e)==='y') newRun(); else if(k0(e)==='n'||e.key==='Escape') askNew(false); return; }
+  if(k0(e)==='r'&&e.shiftKey){ e.preventDefault(); if(S.started) askNew(true); return; } var k=e.key.toLowerCase(), d=keyDir(e);
   if(k==='f'){ e.preventDefault(); fullscreen(); return; }
+  if(k==='n'){ e.preventDefault(); musicToggle(); return; }
   if(k==='m'){ e.preventDefault(); muted=!muted; save(); toast(muted?'Sound off':'Sound on'); if(!muted) SND.tick(); return; }
   if(e.key==='Escape'){ openShop(false); return; }
   if(k==='s'){ e.preventDefault(); return; }                                    // S sits in the WASD cluster: it must do nothing, not open the shop
@@ -515,6 +638,14 @@ document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altK
 document.addEventListener('keyup',function(e){ var d=keyDir(e); if(d==='l'||d==='r') keys[d]=false; });
 function fit(){ var s=Math.min(innerWidth/1920,innerHeight/1080), y=$('stage').style; y.transform='scale('+s+')'; y.left=((innerWidth-1920*s)/2)+'px'; y.top=((innerHeight-1080*s)/2)+'px'; }
 addEventListener('resize',fit);
+
+function k0(e){ return (e.key||'').toLowerCase(); }
+function askNew(o){ $('sz-ask').hidden=!o; }
+function newRun(){ var n=S.name; S=fresh(); S.name=n; try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} location.reload(); }   // S is replaced first, so a save that fires before the reload writes the fresh run
+$('sz-askyes').addEventListener('click',newRun); $('sz-askno').addEventListener('click',function(){ askNew(false); });
+document.querySelector('.jm-top .jm-logo').addEventListener('click',function(){ if(S.started) askNew(true); });
+$('sz-mus').addEventListener('click',function(e){ e.stopPropagation(); ac(); musicToggle(); }); musBtn();
+$('jm-go').addEventListener('click',function(){ if(S.started) jingle(); });
 
 /* ================= BOOT ================= */
 S=load()||fresh(); fit(); resetTower();

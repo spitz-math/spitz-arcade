@@ -6,10 +6,13 @@
 <title>Shift Racer</title>
 <link href="https://fonts.googleapis.com/css2?family=Racing+Sans+One&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
-:root{ --paper:#0E1016; --panel:#191C25; --panel-2:#242936; --text:#F3F5F9; --muted:#9BA5B8; --border:#343B4D; --accent:#FFD60A;
-  --pink:#FF3B30; --lime:#FFD60A; --cyan:#2DE2E6; --orange:#FF8A1F;
-  --c-line:#FF4B4B; --c-m:#FFC82E; --c-b:#FF3DB4; --c-pt:#FFF04D; --c-ans:#C77DFF; --c-x:#2DE2C8; --ok:#4ADE80; --no:#FF7A7A;
-  --display:'Racing Sans One','Inter',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif; }
+:root{ --paper:#0B0B0D; --panel:#17171B; --panel-2:#222228; --text:#F6F6F8; --muted:#A3A3AE; --border:#36363F; --accent:#FFD60A;
+  --pink:#E8322E; --lime:#FFD60A; --cyan:#FFD60A; --orange:#FF8A1F;
+  --c-line:#FF4B4B; --c-m:#FFC82E; --c-b:#FF3DB4; --c-pt:#FFF04D; --c-ans:#D9A6FF; --c-x:#2DE2C8; --ok:#4ADE80; --no:#FF7A7A;
+  --display:'Racing Sans One','Inter',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif;
+  --sz-mark:#E8322E; --sz-ink:#A3A3AE; --red:#E8322E;
+  --carbon:repeating-linear-gradient(45deg, rgba(255,255,255,.035) 0 6px, transparent 6px 12px), repeating-linear-gradient(-45deg, rgba(0,0,0,.35) 0 6px, transparent 6px 12px);
+  --checks:repeating-conic-gradient(#F6F6F8 0 25%, #0B0B0D 0 50%) 0 0/24px 24px; }
 *{ box-sizing:border-box; }
 html,body{ margin:0; height:100%; background:var(--paper); overflow:hidden; }
 body{ color:var(--text); font-family:var(--body); -webkit-user-select:none; user-select:none; touch-action:manipulation; }
@@ -123,12 +126,63 @@ button:disabled{ cursor:default; }
 .rc-again.arm{ border-color:var(--no); color:var(--no); }
 .rc-toast{ position:absolute; left:50%; top:110px; transform:translateX(-50%); z-index:30; padding:16px 30px; border-radius:999px; background:#fff; color:#0E1016; font:800 30px/1 var(--body); }
 #rc-confetti{ position:absolute; left:0; top:0; width:1920px; height:1080px; z-index:18; pointer-events:none; }
+
+/* ================= SHIFT RACER THEME: race day ================= */
+body{ background:#0B0B0D; }
+#stage{ background:var(--carbon), linear-gradient(180deg,#141418,#0B0B0D); }
+.rc-logo{ font-size:52px; font-style:italic; } .rc-logo i,.rc-big i{ margin-left:.22em; } .rc-logo b{ color:var(--red); } .rc-logo i{ color:var(--accent); }
+/* the top bar: slanted tach readouts with a red stripe */
+.rc-chip{ transform:skewX(-12deg); border-radius:10px; border:0; border-left:8px solid var(--red); background:var(--carbon), #19191E; }
+.rc-chip > *{ transform:skewX(12deg); }
+.rc-chip .v{ font-size:40px; font-style:italic; }
+#rc-fuelchip.empty{ border-left-color:var(--no); }
+#rc-streakchip{ border-left-color:var(--accent); } #rc-streakchip .v{ color:var(--accent); }
+.rc-shopbtn{ transform:skewX(-12deg); border-radius:10px; background:var(--accent); color:#111; }
+/* the track sits behind a checkered flag stripe */
+.rc-range{ border:0; border-radius:14px; padding-top:0; box-shadow:0 0 0 4px #222228, 0 18px 50px rgba(0,0,0,.6); }
+.rc-range::before{ content:''; position:absolute; left:0; right:0; top:0; height:18px; z-index:2; background:var(--checks); opacity:.9; pointer-events:none; }
+/* the question panel is the car's dashboard */
+.rc-q{ position:relative; border-radius:14px; border:0; background:var(--carbon), linear-gradient(180deg,#1C1C22,#121216); box-shadow:0 0 0 4px #222228, inset 0 2px 0 rgba(255,255,255,.06); padding-top:38px; }
+.rc-q::before{ content:''; position:absolute; left:0; right:0; top:0; height:18px; border-radius:14px 14px 0 0; background:var(--checks); opacity:.9; }
+.rc-q.open{ box-shadow:0 0 0 4px var(--accent); }
+.rc-tag{ transform:skewX(-12deg); border-radius:6px; border:0; background:var(--red); color:#fff; font-family:var(--display); font-weight:400; font-style:italic; letter-spacing:.06em; }
+.rc-reward{ font-family:var(--display); font-style:italic; color:var(--accent); }
+.rc-ch{ border-radius:10px; border:3px solid #34343C; background:linear-gradient(180deg,#24242B,#1A1A1F); }
+.rc-ch .k{ background:var(--red); color:#fff; font-style:italic; border-radius:8px; }
+.rc-ch:not(:disabled):hover{ border-color:var(--accent); }
+.rc-fb{ border-radius:10px; background:#0E0E11; }
+.rc-next{ transform:skewX(-8deg); border-radius:10px; background:var(--accent); color:#111; }
+.rc-shop{ background:rgba(11,11,13,.97); } .rc-shophead h2{ font-style:italic; color:var(--accent); }
+.rc-card{ border-radius:10px; border-left:8px solid var(--red); } .rc-buy{ border-radius:8px; color:#111; }
+/* start and end screens: a checkered flag across the top */
+.rc-over{ background:linear-gradient(180deg, rgba(11,11,13,.0) 0 64px, rgba(11,11,13,.97) 64px), var(--checks); }
+.rc-big{ font-size:132px; font-style:italic; text-shadow:6px 6px 0 rgba(0,0,0,.6); } .rc-big b{ color:var(--red); } .rc-big i{ color:var(--accent); }
+.rc-step{ border-radius:10px; border:0; border-left:8px solid var(--red); background:var(--carbon), #19191E; }
+.rc-step b{ color:var(--accent); font-style:italic; }
+.rc-go{ transform:skewX(-12deg); border-radius:12px; background:var(--accent); color:#111; }
+.rc-final{ color:var(--accent); font-style:italic; } .rc-name{ color:#fff; }
+.rc-stat{ border-radius:10px; border:0; border-left:8px solid var(--red); background:var(--carbon), #19191E; }
+.rc-again{ border-radius:10px; }
+
+/* ================= SPITZ ARCADE BRAND (shared by every game: keep identical) ================= */
+.sz-credit{ display:inline-flex !important; align-items:center; gap:10px; font:800 18px/1 Inter,system-ui,sans-serif !important; letter-spacing:.16em !important; text-transform:uppercase; color:var(--sz-ink) !important; white-space:nowrap; }
+.sz-credit::before{ content:''; flex:none; width:26px; height:5px; border-radius:3px; background:var(--sz-mark); }
+.sz-eyebrow{ display:inline-flex; align-items:center; gap:14px; margin:0 0 18px; font:800 24px/1 Inter,system-ui,sans-serif; letter-spacing:.34em; text-transform:uppercase; color:var(--sz-ink); }
+.sz-eyebrow::before,.sz-eyebrow::after{ content:''; width:40px; height:5px; border-radius:3px; background:var(--sz-mark); }
+.sz-eyebrow b{ color:var(--sz-mark); font-weight:800; }
+.sz-mus{ height:84px; padding:0 26px; border-radius:20px; background:var(--panel); border:3px solid var(--border); font:800 30px/1 Inter,system-ui,sans-serif; color:var(--sz-ink); white-space:nowrap; }
+.sz-mus.on{ border-color:var(--sz-mark); color:var(--text); }
+.sz-ask{ z-index:40; } .sz-ask h2{ margin:0 0 6px; font:400 84px/1.05 var(--display); color:var(--text); }
+.sz-ask .sz-askrow{ display:flex; justify-content:center; gap:20px; }
+.sz-ask button{ height:96px; padding:0 44px; border-radius:22px; font:800 32px/1 Inter,system-ui,sans-serif; background:var(--panel); border:3px solid var(--border); color:var(--text); }
+.sz-ask #sz-askyes{ background:var(--sz-mark); border-color:var(--sz-mark); color:#111; }
+[class$="-logo"]{ cursor:pointer; }
 </style>
 </head>
 <body>
 <div id="stage">
   <div class="rc-top">
-    <div class="rc-brand"><h1 class="rc-logo"><b>SHIFT</b> <i>RACER</i></h1><span class="rc-credit">Made by Spitz 🍔</span></div>
+    <div class="rc-brand"><h1 class="rc-logo"><b>SHIFT</b> <i>RACER</i></h1><span class="rc-credit sz-credit">Made by Spitz 🍔</span></div>
     <div class="rc-chip rc-timer" id="rc-timerchip"><span class="l">Time</span><span class="v" id="rc-time">5:00</span></div>
     <span class="rc-sp"></span>
     <div class="rc-chip"><span class="l">Score</span><span class="v" id="rc-score">0</span></div>
@@ -159,27 +213,32 @@ button:disabled{ cursor:default; }
   </div>
 
   <div class="rc-over" id="rc-start"><div class="rc-box">
-    <h2 class="rc-big"><b>SHIFT</b> <i>RACER</i></h2>
+    <div class="sz-eyebrow">Spitz <b>Arcade</b></div><h2 class="rc-big"><b>SHIFT</b> <i>RACER</i></h2>
     <p class="rc-sub">Translations of linear functions: up, down, left and right. You have 5 minutes: answer to fuel up, then drive as far as you can.</p>
     <div class="rc-steps">
       <div class="rc-step"><b>1. Answer</b>Each right answer adds fuel, earns cash and shifts you up a gear. A wrong answer costs $5 and drops you to 1st gear.</div>
       <div class="rc-step"><b>2. Drive</b>Hold the road to drive and slide to change lanes. Dodge traffic and grab stars. Farther is more points.</div>
       <div class="rc-step"><b>3. Upgrade</b>Spend cash in the Shop on a faster engine, a bigger fuel tank, star bonuses and power-ups.</div>
     </div>
-    <div class="rc-row"><input class="rc-input" id="rc-nameinput" maxlength="24" placeholder="Your first and last name" autocomplete="off" aria-label="Your name"></div>
+    <div class="rc-row"><input class="rc-input" id="rc-nameinput" maxlength="24" placeholder="Your first and last name" autocomplete="off" aria-label="Your name"><button class="sz-mus" id="sz-mus" aria-label="Music on or off, key N">♪ Music on</button></div>
     <button class="rc-go" id="rc-go" disabled>Start</button>
-    <div class="rc-keys">Keys: 1–4 answer · Enter next · ↑ or Space drive · ← → steer · S shop · M mute · F full screen</div>
-  </div><span class="rc-credit">Made by Spitz 🍔</span></div>
+    <div class="rc-keys">Keys: 1–4 answer · Enter next · ↑ or Space drive · ← → steer · S shop · N music · M mute · Shift+R new game · F full screen</div>
+  </div><span class="rc-credit sz-credit">Made by Spitz 🍔</span></div>
 
-  <div class="rc-over" id="rc-end" hidden><div class="rc-box">
+  <div class="rc-over" id="rc-end" hidden><div class="rc-box"><div class="sz-eyebrow">Spitz <b>Arcade</b></div>
     <p class="rc-sub" style="margin:0">Time! Show this screen to your teacher.</p>
     <div class="rc-name" id="rc-endname"></div>
     <div class="rc-final" id="rc-endscore">0</div>
     <div class="rc-stats" id="rc-endstats"></div>
     <div class="rc-topics" id="rc-endtopics"></div>
     <button class="rc-again" id="rc-again">Play again</button>
-  </div><span class="rc-credit">Made by Spitz 🍔</span></div>
+  </div><span class="rc-credit sz-credit">Made by Spitz 🍔</span></div>
 
+  <div class="rc-over sz-ask" id="sz-ask" hidden role="dialog" aria-modal="true" aria-labelledby="sz-asktitle"><div class="rc-box">
+    <h2 id="sz-asktitle">Start a new game?</h2>
+    <p class="rc-sub">This erases the current run and starts over from the beginning.</p>
+    <div class="sz-askrow"><button id="sz-askno">No, keep playing (N)</button><button id="sz-askyes">Yes, new game (Y)</button></div>
+  </div></div>
   <canvas id="rc-confetti" width="1920" height="1080" aria-hidden="true"></canvas>
   <div class="rc-toast" id="rc-toast" hidden></div>
 </div>
@@ -209,17 +268,15 @@ function brass(f,t0,dur,vol){ var a=ac(); if(!a||muted) return; var t=a.currentT
   lp.connect(g); g.connect(a.destination); count(); }
 var G4=392,C5=523.25,E5=659.25,G5=783.99,A5=880,B5=987.77,C6=1046.5,E6=1318.5;
 var SND={
-  star:function(){ tone(880,1320,0,0.12,'triangle',0.2); },
-  gold:function(){ brass(C5,0,0.09,0.12); brass(E5,0.08,0.09,0.12); brass(G5,0.16,0.3,0.13); tone(C6,C6,0.18,0.3,'triangle',0.1); },
-  crash:function(){ noise(0,0.6,180,0,500); tone(150,50,0,0.22,'sawtooth',0.2); },
-  empty:function(){ tone(320,280,0,0.05,'square',0.1); tone(320,280,0.08,0.05,'square',0.1); },
-  correct:function(){ tone(C5,C5,0,0.12,'triangle',0.2); tone(E5,E5,0.08,0.12,'triangle',0.2); tone(G5,G5,0.16,0.14,'triangle',0.2); tone(C6,C6,0.24,0.3,'triangle',0.18); tone(180,520,0.3,0.35,'sawtooth',0.07); },   // chime, then the rev of a gear change
-  cash:function(){ tone(2093,2093,0,0.08,'square',0.06); tone(2637,2637,0.07,0.18,'square',0.06); noise(0,0.25,40,4000); },
-  miss:function(){ tone(233,165,0.02,0.38,'triangle',0.22); },
-  tick:function(){ tone(1200,1200,0,0.05,'square',0.08); },
-  win:function(){ var t=0.1; brass(G4,t,0.11); brass(C5,t+0.12,0.11); brass(E5,t+0.24,0.11); brass(C5,t+0.38,0.34,0.11); brass(E5,t+0.38,0.34,0.11); brass(G5,t+0.38,0.34,0.13);
-    brass(E5,t+0.76,0.16,0.11); brass(A5,t+0.76,0.16,0.13); brass(G5,t+0.94,0.16,0.11); brass(B5,t+0.94,0.16,0.13);
-    [C5,E5,G5,C6].forEach(function(f){ brass(f,t+1.14,1.3,0.11); }); tone(E6,E6,t+1.2,0.9,'triangle',0.1); }
+  star:function(){ tone(1046.5,1046.5,0,0.08,'triangle',0.15); tone(1568,1568,0.06,0.16,'triangle',0.13); },
+  gold:function(){ tone(110,330,0,0.35,'sawtooth',0.05); tone(220,660,0,0.35,'triangle',0.1); tone(C6,C6,0.3,0.25,'triangle',0.12); },   // shift up: a short rev and a ding
+  crash:function(){ noise(0,0.5,200,0,600); tone(140,50,0,0.22,'sawtooth',0.16); },
+  empty:function(){ tone(320,280,0,0.05,'triangle',0.12); tone(320,280,0.08,0.05,'triangle',0.12); },
+  correct:function(){ tone(E5,E5,0,0.12,'triangle',0.15); tone(B5,B5,0.07,0.26,'triangle',0.14); tone(E5/2,E5/2,0.07,0.26,'sine',0.07); },   // a soft two-note chime
+  cash:function(){ tone(1568,1568,0,0.06,'triangle',0.1); tone(2093,2093,0.06,0.14,'triangle',0.09); },
+  miss:function(){ tone(233,165,0.02,0.38,'triangle',0.2); },
+  tick:function(){ tone(1200,1200,0,0.05,'triangle',0.1); },
+  win:function(){ var t=0.1; tone(110,440,t,0.5,'sawtooth',0.05); brass(E5,t+0.45,0.11); brass(G5,t+0.57,0.11); brass(B5,t+0.69,0.11); [E5,G5,B5,E6].forEach(function(f){ brass(f,t+0.85,1.3,0.1); }); }
 };
 /* quiet engine hum that follows the car's speed; silent when stopped or muted */
 var ENG=null;
@@ -227,8 +284,67 @@ function engine(v,on){ var a=AC; if(!a) return; if(!ENG){ var o=a.createOscillat
     o.connect(lp); lp.connect(g); g.connect(a.destination); o.start(); ENG={o:o,g:g}; }
   ENG.o.frequency.setTargetAtTime(52+v*0.1,a.currentTime,0.08); ENG.g.gain.setTargetAtTime(on&&!muted?0.03:0,a.currentTime,0.1); }
 
+/* ================= SONG: "Redline" (driving electro-rock, 140 bpm, E minor) =================
+   Kick and a pulsing octave bass underneath; claps, power-chord stabs and a lead on top. The top layer drops back when the car is parked. */
+var RC_CH=[[82.41,[329.63,493.88]],[65.41,[261.63,392.00]],[98.00,[392.00,587.33]],[73.42,[293.66,440.00]]];
+var RC_LEAD=[[0,659.25,3],[3,587.33,1],[4,493.88,4],[8,587.33,2],[10,659.25,2],[12,739.99,4]];
+var SONG={ level:0.1, echo:0.32,
+  want:function(){ return !!S&&S.started&&!S.over; },
+  busy:function(){ return keyGas||ptrGas; },
+  sd:function(){ return 0.107; },
+  voice:function(f,t0,dur){ brass(f,t0,dur,0.11); tone(f*2,f*2,t0,dur,'triangle',0.04); },
+  step:function(ctx,g,i,t,sd){ var bar=Math.floor(i/16), c=RC_CH[bar%4], k=i%16;
+    if(k%4===0) mKick(ctx,g.out,t,0.75,170,48);
+    if(k%2===0) mNote(ctx,g.out,'sawtooth',c[0]*(k%4===2?2:1),t,sd*1.6,0.22,520,null);                  // octave-pulse bass
+    if(k===4||k===12){ mHit(ctx,g,g.act,t,0.12,0.3,1300); mHit(ctx,g,g.act,t+0.012,0.1,0.18,1800); }   // clap
+    if(k%2===1) mHit(ctx,g,g.act,t,0.025,0.06,8000);
+    if(k===0||k===3||k===6||k===10) c[1].forEach(function(f){ mNote(ctx,g.act,'sawtooth',f/2,t,sd*(k===10?4:1.6),0.05,1500,null); });   // power-chord stabs
+    if(bar%8>=4) RC_LEAD.forEach(function(m){ if(m[0]===k) mNote(ctx,g.act,'square',m[1],t,m[2]*sd*0.95,0.05,2600,g.echo); });
+  } };
+
+/* ================= SPITZ KIT (shared by every game: music switch, jingle) =================
+   M mutes everything; N turns just the music off (remembered on this Chromebook). */
+var SZ_MUSIC_OFF=false, SZ_IN=-1e9, szOnMusic=function(){};
+try{ SZ_MUSIC_OFF=localStorage.getItem('spitz_music_off')==='1'; }catch(e){}
+['pointerdown','keydown'].forEach(function(n){ addEventListener(n,function(){ SZ_IN=Date.now(); },true); });
+function szActive(ms){ return Date.now()-SZ_IN<(ms||2500); }
+function musicToggle(){ SZ_MUSIC_OFF=!SZ_MUSIC_OFF; try{ localStorage.setItem('spitz_music_off',SZ_MUSIC_OFF?'1':'0'); }catch(e){} musBtn(); toast(SZ_MUSIC_OFF?'Music off':'Music on'); szOnMusic(); }
+function musBtn(){ var b=document.getElementById('sz-mus'); if(b){ b.textContent=SZ_MUSIC_OFF?'♪ Music off':'♪ Music on'; b.classList.toggle('on',!SZ_MUSIC_OFF); } }
+/* the Spitz jingle: the same notes open every game, played on that game's own instrument */
+var JINGLE=[[392.00,0,0.12],[523.25,0.13,0.12],[659.25,0.26,0.12],[783.99,0.40,0.34],[659.25,0.78,0.12],[783.99,0.92,0.7]];
+function jingle(){ JINGLE.forEach(function(n){ SZ_VOICE(n[0],n[1],n[2]); }); }
+
+/* ================= SPITZ MUSIC (shared engine; the game supplies SONG) =================
+   Synthesized, no audio files. It plays only during a run, sits under the sound effects (25 Chromebooks play it at once),
+   and backs off while the student reads a question. */
+var MUS={ on:false, g:null, i:0, t:0 }, SZ_VOICE=function(f,t0,dur){ SONG.voice(f,t0,dur); };
+function musGraph(ctx,dest){ var out=ctx.createGain(), act=ctx.createGain(), d=ctx.createDelay(1), fb=ctx.createGain(), wet=ctx.createGain(); out.gain.value=SONG.level; out.connect(dest); act.connect(out);
+  d.delayTime.value=SONG.echo||0.3; fb.gain.value=0.28; wet.gain.value=0.3; d.connect(fb); fb.connect(d); d.connect(wet); wet.connect(act);
+  var n=Math.floor(ctx.sampleRate*0.3), buf=ctx.createBuffer(1,n,ctx.sampleRate), ch=buf.getChannelData(0); for(var i=0;i<n;i++) ch[i]=Math.random()*2-1;
+  return {out:out,act:act,echo:d,noise:buf}; }
+function mNote(ctx,to,type,fr,t,dur,vol,cut,echo,att){ var o=ctx.createOscillator(), f=ctx.createBiquadFilter(), e=ctx.createGain(); o.type=type; o.frequency.value=fr; f.type='lowpass'; f.frequency.value=cut||2400;
+  e.gain.setValueAtTime(0.0001,t); e.gain.exponentialRampToValueAtTime(vol,t+(att||0.008)); e.gain.setValueAtTime(vol,t+Math.max(att||0.008,dur*0.55)); e.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+  o.connect(f); f.connect(e); e.connect(to); if(echo) e.connect(echo); o.start(t); o.stop(t+dur+0.03); return o; }
+function mHit(ctx,g,to,t,dur,vol,hp,lp){ var s=ctx.createBufferSource(), f=ctx.createBiquadFilter(), e=ctx.createGain(); s.buffer=g.noise; f.type=lp?'lowpass':'highpass'; f.frequency.value=lp||hp;
+  e.gain.setValueAtTime(vol,t); e.gain.exponentialRampToValueAtTime(0.0001,t+dur); s.connect(f); f.connect(e); e.connect(to); s.start(t); s.stop(t+dur+0.03); }
+function mKick(ctx,to,t,vol,hi,lo){ var o=ctx.createOscillator(), e=ctx.createGain(); o.type='sine'; o.frequency.setValueAtTime(hi||200,t); o.frequency.exponentialRampToValueAtTime(lo||48,t+0.12);
+  e.gain.setValueAtTime(0.0001,t); e.gain.exponentialRampToValueAtTime(vol||0.8,t+0.005); e.gain.exponentialRampToValueAtTime(0.0001,t+0.2); o.connect(e); e.connect(to); o.start(t); o.stop(t+0.22); }
+function musicTick(){ var a=AC, want=SONG.want()&&!muted&&!SZ_MUSIC_OFF;
+  if(!want){ if(MUS.on){ MUS.on=false; var g=MUS.g; MUS.g=null; if(g&&a){ g.out.gain.setTargetAtTime(0,a.currentTime,0.2); setTimeout(function(){ try{ g.out.disconnect(); }catch(e){} },1400); } } return; }
+  if(!a||a.state!=='running') return;                                              // browsers hold sound until the first click or key press
+  if(!MUS.on){ MUS.on=true; MUS.g=musGraph(a,a.destination); MUS.g.out.gain.setValueAtTime(0.0001,a.currentTime); MUS.g.out.gain.linearRampToValueAtTime(SONG.level,a.currentTime+1.2); MUS.i=0; MUS.t=a.currentTime+0.1; }
+  MUS.g.act.gain.setTargetAtTime(SONG.busy()?1:0.35,a.currentTime,0.35);            // playing: full band. Reading a question: it backs off so they can think
+  if(MUS.t<a.currentTime) MUS.t=a.currentTime+0.05;                                 // the tab was in the background: pick up from now
+  while(MUS.t<a.currentTime+0.5){ var sd=SONG.sd(); SONG.step(a,MUS.g,MUS.i,MUS.t,sd); MUS.t+=sd; MUS.i++; } }
+setInterval(musicTick,120);
+/* test hook: render the music off line and measure it */
+window.__music=function(sec){ var C=window.OfflineAudioContext||window.webkitOfflineAudioContext, c=new C(1,44100*sec,44100), g=musGraph(c,c.destination), t=0.05, i=0;
+  while(t<sec){ var sd=SONG.sd(); SONG.step(c,g,i,t,sd); t+=sd; i++; }
+  return c.startRendering().then(function(buf){ var d=buf.getChannelData(0), pk=0, sq=0, bad=0, n=d.length; for(var j=0;j<n;j++){ var v=d[j]; if(v!==v) bad++; pk=Math.max(pk,Math.abs(v)); sq+=v*v; }
+    return {peak:pk, rms:Math.sqrt(sq/n), bad:bad, steps:i}; }); };
+
 /* ================= CONFETTI (always on, even with reduced motion) ================= */
-var parts=[], craf=0, CFC=['#FF3B30','#FFD60A','#2DE2E6','#FF8A1F','#FFF04D','#C77DFF','#FFFFFF'];
+var parts=[], craf=0, CFC=['#E8322E','#FFD60A','#F6F6F8','#111111','#FF8A1F','#FFF04D','#FFFFFF'];
 function confetti(x,y,n,spread){ for(var i=0;i<n;i++){ var a=-Math.PI/2+(Math.random()-0.5)*spread, sp=8+Math.random()*15;
     parts.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,w:10+Math.random()*12,h:6+Math.random()*8,r:Math.random()*6.28,vr:(Math.random()-0.5)*0.5,c:CFC[i%CFC.length],life:0,max:85+Math.random()*60}); }
   window.__conf=(window.__conf||0)+n; if(!craf) craf=requestAnimationFrame(cfStep); }
@@ -596,8 +712,11 @@ var armT=0; $('rc-again').addEventListener('click',function(){ var b=this; if(!b
 function fullscreen(){ var d=document, e=d.documentElement; if(d.fullscreenElement||d.webkitFullscreenElement) (d.exitFullscreen||d.webkitExitFullscreen).call(d);
   else { var r=e.requestFullscreen||e.webkitRequestFullscreen; if(r){ var p=r.call(e); if(p&&p.catch) p.catch(function(){}); } } }
 function isGas(e){ return e.key==='ArrowUp'||e.key===' '; }
-document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altKey) return; if(e.target&&e.target.tagName==='INPUT') return; var k=e.key.toLowerCase();
+document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altKey) return; if(e.target&&e.target.tagName==='INPUT') return;
+  if(!$('sz-ask').hidden){ e.preventDefault(); if(k0(e)==='y') newRun(); else if(k0(e)==='n'||e.key==='Escape') askNew(false); return; }
+  if(k0(e)==='r'&&e.shiftKey){ e.preventDefault(); if(S.started) askNew(true); return; } var k=e.key.toLowerCase();
   if(k==='f'){ e.preventDefault(); fullscreen(); return; }
+  if(k==='n'){ e.preventDefault(); musicToggle(); return; }
   if(k==='m'){ e.preventDefault(); muted=!muted; save(); toast(muted?'Sound off':'Sound on'); if(!muted) SND.tick(); return; }
   if(e.key==='Escape'){ openShop(false); return; }
   if(k==='s'){ e.preventDefault(); openShop($('rc-shop').hidden); return; }
@@ -608,6 +727,14 @@ document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altK
 document.addEventListener('keyup',function(e){ if(isGas(e)) keyGas=false; });
 function fit(){ var s=Math.min(innerWidth/1920,innerHeight/1080), y=$('stage').style; y.transform='scale('+s+')'; y.left=((innerWidth-1920*s)/2)+'px'; y.top=((innerHeight-1080*s)/2)+'px'; }
 addEventListener('resize',fit);
+
+function k0(e){ return (e.key||'').toLowerCase(); }
+function askNew(o){ $('sz-ask').hidden=!o; }
+function newRun(){ var n=S.name; S=fresh(); S.name=n; try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} location.reload(); }   // S is replaced first, so a save that fires before the reload writes the fresh run
+$('sz-askyes').addEventListener('click',newRun); $('sz-askno').addEventListener('click',function(){ askNew(false); });
+document.querySelector('.rc-top .rc-logo').addEventListener('click',function(){ if(S.started) askNew(true); });
+$('sz-mus').addEventListener('click',function(e){ e.stopPropagation(); ac(); musicToggle(); }); musBtn();
+$('rc-go').addEventListener('click',function(){ if(S.started) jingle(); });
 
 /* ================= BOOT ================= */
 S=load()||fresh(); fit(); resetRoad();

@@ -6,10 +6,13 @@
 <title>Dash: Multiplication Facts</title>
 <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Inter:wght@500;700;800&display=swap" rel="stylesheet">
 <style>
-:root{ --paper:#0B0E1A; --panel:#151A2B; --panel-2:#20273D; --text:#F3F5F9; --muted:#9BA5B8; --border:#323B58; --accent:#2DE2E6;
+:root{ --paper:#060A1C; --panel:#0D1430; --panel-2:#152050; --text:#F3F7FF; --muted:#9DAAD6; --border:#2A3C86; --accent:#2DE2E6;
   --pink:#FFD23F; --lime:#3DF58C; --cyan:#2DE2E6; --orange:#FF8A1F;
-  --c-line:#FF4B4B; --c-m:#FFC82E; --c-b:#FF3DB4; --c-pt:#FFF04D; --c-ans:#C77DFF; --c-x:#2DE2C8; --ok:#4ADE80; --no:#FF7A7A;
-  --display:'Russo One','Inter',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif; }
+  --c-line:#FF4B4B; --c-m:#FFC82E; --c-b:#FF3DB4; --c-pt:#FFF04D; --c-ans:#D9A6FF; --c-x:#2DE2C8; --ok:#4ADE80; --no:#FF7A7A;
+  --display:'Russo One','Inter',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif;
+  --sz-mark:#FFD23F; --sz-ink:#9DAAD6;
+  --cut:polygon(18px 0,100% 0,100% calc(100% - 18px),calc(100% - 18px) 100%,0 100%,0 18px);
+  --edge:linear-gradient(135deg,#2DE2E6,#4D6BFF 60%,#FFD23F); }
 *{ box-sizing:border-box; }
 html,body{ margin:0; height:100%; background:var(--paper); overflow:hidden; }
 body{ color:var(--text); font-family:var(--body); -webkit-user-select:none; user-select:none; touch-action:manipulation; }
@@ -137,12 +140,45 @@ button:disabled{ cursor:default; }
 .ds-hp.y{ background:var(--lime); border-color:var(--lime); }
 .ds-result{ font:400 44px/1.1 var(--display); color:var(--text); margin-top:2px; }
 .ds-final{ font-size:130px; }
+
+/* ================= DASH THEME: neon geometry ================= */
+#stage{ background:linear-gradient(rgba(45,226,230,.05) 2px, transparent 2px) 0 0/64px 64px, linear-gradient(90deg, rgba(45,226,230,.05) 2px, transparent 2px) 0 0/64px 64px, #060A1C; }
+.ds-chip,.ds-q,.ds-range,.ds-ch,.ds-fb,.ds-step,.ds-stat,.ds-go,.ds-next,.ds-input,.sz-mus,.ds-again,.ds-tag{ clip-path:var(--cut); border-radius:0 !important; }
+.ds-chip,.ds-q,.ds-range,.ds-step,.ds-stat{ border:3px solid transparent; background:linear-gradient(var(--panel),var(--panel)) padding-box, var(--edge) border-box; }
+.ds-range{ background:linear-gradient(#0B0E1A,#0B0E1A) padding-box, var(--edge) border-box; }
+.ds-chip .v{ color:var(--cyan); }
+.ds-logo b{ color:var(--cyan); } .ds-logo i{ color:var(--pink); }
+.ds-q.open,.ds-q.nudge{ background:linear-gradient(var(--panel),var(--panel)) padding-box, linear-gradient(135deg,#FFD23F,#FFD23F) border-box; }
+.ds-tag{ background:var(--cyan); color:#060A1C; border:0; font-family:var(--display); font-weight:400; }
+.ds-ch{ background:#111A3E; border:0; border-left:6px solid var(--cyan); }
+.ds-ch .k{ border-radius:0; background:var(--pink); color:#060A1C; font-family:var(--display); transform:rotate(45deg) scale(.82); } .ds-ch .k > *{ transform:rotate(-45deg); }
+.ds-ch:not(:disabled):hover{ border-left-color:var(--pink); }
+.ds-fb{ background:#0A1028; border:2px solid #22327A; }
+.ds-prompt{ text-shadow:0 0 18px rgba(45,226,230,.45); }
+.ds-over{ background:linear-gradient(rgba(45,226,230,.07) 2px, transparent 2px) 0 0/64px 64px, linear-gradient(90deg, rgba(45,226,230,.07) 2px, transparent 2px) 0 0/64px 64px, rgba(6,10,28,.97); }
+.ds-big{ font-size:150px; text-shadow:0 0 30px rgba(45,226,230,.5), 6px 6px 0 #000; } .ds-big b{ color:var(--cyan); } .ds-big i{ color:var(--pink); }
+.ds-go{ background:var(--pink); color:#060A1C; }
+.ds-final{ color:var(--cyan); }
+
+/* ================= SPITZ ARCADE BRAND (shared by every game: keep identical) ================= */
+.sz-credit{ display:inline-flex !important; align-items:center; gap:10px; font:800 18px/1 Inter,system-ui,sans-serif !important; letter-spacing:.16em !important; text-transform:uppercase; color:var(--sz-ink) !important; white-space:nowrap; }
+.sz-credit::before{ content:''; flex:none; width:26px; height:5px; border-radius:3px; background:var(--sz-mark); }
+.sz-eyebrow{ display:inline-flex; align-items:center; gap:14px; margin:0 0 18px; font:800 24px/1 Inter,system-ui,sans-serif; letter-spacing:.34em; text-transform:uppercase; color:var(--sz-ink); }
+.sz-eyebrow::before,.sz-eyebrow::after{ content:''; width:40px; height:5px; border-radius:3px; background:var(--sz-mark); }
+.sz-eyebrow b{ color:var(--sz-mark); font-weight:800; }
+.sz-mus{ height:84px; padding:0 26px; border-radius:20px; background:var(--panel); border:3px solid var(--border); font:800 30px/1 Inter,system-ui,sans-serif; color:var(--sz-ink); white-space:nowrap; }
+.sz-mus.on{ border-color:var(--sz-mark); color:var(--text); }
+.sz-ask{ z-index:40; } .sz-ask h2{ margin:0 0 6px; font:400 84px/1.05 var(--display); color:var(--text); }
+.sz-ask .sz-askrow{ display:flex; justify-content:center; gap:20px; }
+.sz-ask button{ height:96px; padding:0 44px; border-radius:22px; font:800 32px/1 Inter,system-ui,sans-serif; background:var(--panel); border:3px solid var(--border); color:var(--text); }
+.sz-ask #sz-askyes{ background:var(--sz-mark); border-color:var(--sz-mark); color:#111; }
+[class$="-logo"]{ cursor:pointer; }
 </style>
 </head>
 <body>
 <div id="stage">
   <div class="ds-top">
-    <div class="ds-brand"><h1 class="ds-logo"><b>DA</b><i>SH</i></h1><span class="ds-credit">Made by Spitz 🍔</span></div>
+    <div class="ds-brand"><h1 class="ds-logo"><b>DA</b><i>SH</i></h1><span class="ds-credit sz-credit">Made by Spitz 🍔</span></div>
     <div class="ds-chip ds-timer" id="ds-timerchip"><span class="l">Time</span><span class="v" id="ds-time">5:00</span></div>
     <span class="ds-sp"></span>
     <div class="ds-chip" id="ds-scorechip"><span class="l">Score</span><span class="v" id="ds-scorev">0</span></div>
@@ -164,19 +200,19 @@ button:disabled{ cursor:default; }
   </div>
 
   <div class="ds-over" id="ds-start"><div class="ds-box">
-    <h2 class="ds-big"><b>DA</b><i>SH</i></h2>
+    <div class="sz-eyebrow">Spitz <b>Arcade</b></div><h2 class="ds-big"><b>DA</b><i>SH</i></h2>
     <p class="ds-sub">Multiplication facts, 0 to 12. You have 5 minutes. Facts earn attempts and flags. How far can you dash?</p>
     <div class="ds-steps">
       <div class="ds-step"><b>1. Answer</b>3 right facts in a row earn 1 attempt. 6 in a row earns a flag. A miss starts the count over, so don’t guess.</div>
       <div class="ds-step"><b>2. Dash</b>Space to go. That costs 1 attempt. Space to jump spikes and climb blocks. Don’t jump under hanging spikes.</div>
       <div class="ds-step"><b>3. Checkpoint</b>Pass a pole while you hold a flag and it plants itself. Crash, and you restart from your flag.</div>
     </div>
-    <div class="ds-row"><input class="ds-input" id="ds-nameinput" maxlength="24" placeholder="Your first and last name" autocomplete="off" aria-label="Your name"></div>
+    <div class="ds-row"><input class="ds-input" id="ds-nameinput" maxlength="24" placeholder="Your first and last name" autocomplete="off" aria-label="Your name"><button class="sz-mus" id="sz-mus" aria-label="Music on or off, key N">♪ Music on</button></div>
     <button class="ds-go" id="ds-go" disabled>Start</button>
-    <div class="ds-keys">Keys: 1–4 answer · Space or ↑ go and jump (hold to keep jumping) · M mute sound and music · F full screen</div>
-  </div><span class="ds-credit">Made by Spitz 🍔</span></div>
+    <div class="ds-keys">Keys: 1–4 answer · Space or ↑ go and jump (hold to keep jumping) · N music · M mute sound and music · Shift+R new game · F full screen</div>
+  </div><span class="ds-credit sz-credit">Made by Spitz 🍔</span></div>
 
-  <div class="ds-over" id="ds-end" hidden><div class="ds-box">
+  <div class="ds-over" id="ds-end" hidden><div class="ds-box"><div class="sz-eyebrow">Spitz <b>Arcade</b></div>
     <p class="ds-sub" style="margin:0">Time! Show this screen to your teacher.</p>
     <div class="ds-name" id="ds-endname"></div>
     <div class="ds-final" id="ds-endscore">0</div>
@@ -184,8 +220,13 @@ button:disabled{ cursor:default; }
     <div class="ds-stats" id="ds-endstats"></div>
     <div class="ds-topics" id="ds-endtopics"></div>
     <button class="ds-again" id="ds-again">Play again</button>
-  </div><span class="ds-credit">Made by Spitz 🍔</span></div>
+  </div><span class="ds-credit sz-credit">Made by Spitz 🍔</span></div>
 
+  <div class="ds-over sz-ask" id="sz-ask" hidden role="dialog" aria-modal="true" aria-labelledby="sz-asktitle"><div class="ds-box">
+    <h2 id="sz-asktitle">Start a new game?</h2>
+    <p class="ds-sub">This erases the current run and starts over from the beginning.</p>
+    <div class="sz-askrow"><button id="sz-askno">No, keep playing (N)</button><button id="sz-askyes">Yes, new game (Y)</button></div>
+  </div></div>
   <canvas id="ds-confetti" width="1920" height="1080" aria-hidden="true"></canvas>
   <div class="ds-toast" id="ds-toast" hidden></div>
 </div>
@@ -221,7 +262,7 @@ var SND={
   gold:function(){ brass(C5,0,0.09,0.12); brass(E5,0.08,0.09,0.12); brass(G5,0.16,0.3,0.13); tone(C6,C6,0.18,0.3,'triangle',0.1); },
   crash:function(){ noise(0,0.6,180,0,500); tone(150,50,0,0.22,'sawtooth',0.2); },
   empty:function(){ tone(320,280,0,0.05,'square',0.1); tone(320,280,0.08,0.05,'square',0.1); },
-  correct:function(){ tone(C5,C5,0,0.12,'triangle',0.2); tone(E5,E5,0.08,0.12,'triangle',0.2); tone(G5,G5,0.16,0.14,'triangle',0.2); tone(C6,C6,0.24,0.3,'triangle',0.18); tone(180,520,0.3,0.35,'sawtooth',0.07); },
+  correct:function(){ tone(C5,C5,0,0.1,'square',0.035); tone(C5,C5,0,0.1,'triangle',0.12); tone(G5,G5,0.07,0.26,'square',0.03); tone(G5,G5,0.07,0.26,'triangle',0.12); },   // a soft chime
   cash:function(){ tone(2093,2093,0,0.08,'square',0.06); tone(2637,2637,0.07,0.18,'square',0.06); noise(0,0.25,40,4000); },
   miss:function(){ tone(233,165,0.02,0.38,'triangle',0.22); },
   tick:function(){ tone(1200,1200,0,0.05,'square',0.08); },
@@ -229,6 +270,18 @@ var SND={
     brass(E5,t+0.76,0.16,0.11); brass(A5,t+0.76,0.16,0.13); brass(G5,t+0.94,0.16,0.11); brass(B5,t+0.94,0.16,0.13);
     [C5,E5,G5,C6].forEach(function(f){ brass(f,t+1.14,1.3,0.11); }); tone(E6,E6,t+1.2,0.9,'triangle',0.1); }
 };
+
+/* ================= SPITZ KIT (shared by every game: music switch, jingle) =================
+   M mutes everything; N turns just the music off (remembered on this Chromebook). */
+var SZ_MUSIC_OFF=false, SZ_IN=-1e9, szOnMusic=function(){};
+try{ SZ_MUSIC_OFF=localStorage.getItem('spitz_music_off')==='1'; }catch(e){}
+['pointerdown','keydown'].forEach(function(n){ addEventListener(n,function(){ SZ_IN=Date.now(); },true); });
+function szActive(ms){ return Date.now()-SZ_IN<(ms||2500); }
+function musicToggle(){ SZ_MUSIC_OFF=!SZ_MUSIC_OFF; try{ localStorage.setItem('spitz_music_off',SZ_MUSIC_OFF?'1':'0'); }catch(e){} musBtn(); toast(SZ_MUSIC_OFF?'Music off':'Music on'); szOnMusic(); }
+function musBtn(){ var b=document.getElementById('sz-mus'); if(b){ b.textContent=SZ_MUSIC_OFF?'♪ Music off':'♪ Music on'; b.classList.toggle('on',!SZ_MUSIC_OFF); } }
+/* the Spitz jingle: the same notes open every game, played on that game's own instrument */
+var JINGLE=[[392.00,0,0.12],[523.25,0.13,0.12],[659.25,0.26,0.12],[783.99,0.40,0.34],[659.25,0.78,0.12],[783.99,0.92,0.7]];
+function jingle(){ JINGLE.forEach(function(n){ SZ_VOICE(n[0],n[1],n[2]); }); }
 
 /* ================= CONFETTI (always on, even with reduced motion) ================= */
 var parts=[], craf=0, CFC=['#FFD23F','#3DF58C','#2DE2E6','#4DB8FF','#FF8A1F','#C77DFF','#FFFFFF'];
@@ -365,7 +418,7 @@ function musTick(){ if(!MUS.on) return; while(MUS.t<AC.currentTime+0.25){ var s=
     musNote(c[ARP[s%16]],c[ARP[s%16]],t,d*0.9,'square',0.035);                        /* arpeggio */
     if(Math.floor(s/16)%4===3&&s%16>=12) musNote(c[3]*2,c[3]*2,t,d*0.8,'triangle',0.06);
     MUS.t+=d; MUS.step++; } }
-function musStart(){ var a=ac(); if(!a||muted||MUS.on) return; MUS.on=true; MUS.gain=a.createGain(); MUS.gain.gain.value=0.5; MUS.gain.connect(a.destination);
+function musStart(){ var a=ac(); if(!a||muted||SZ_MUSIC_OFF||MUS.on) return; MUS.on=true; MUS.gain=a.createGain(); MUS.gain.gain.value=0.5; MUS.gain.connect(a.destination);
   MUS.dt=15/Math.min(168,132+6*(S.level-1)); MUS.t=a.currentTime+0.05; MUS.step=0; window.__mus=(window.__mus||0)+1; musTick(); MUS.iv=setInterval(musTick,60); }
 function musStop(){ if(!MUS.on) return; MUS.on=false; clearInterval(MUS.iv); var g=MUS.gain, t=AC.currentTime; MUS.gain=null;
   try{ g.gain.setValueAtTime(0.5,t); g.gain.linearRampToValueAtTime(0.0001,t+0.12); }catch(e){} setTimeout(function(){ try{ g.disconnect(); }catch(e){} },500); }
@@ -523,8 +576,11 @@ function fullscreen(){ var d=document, e=d.documentElement; if(d.fullscreenEleme
   else { var r=e.requestFullscreen||e.webkitRequestFullscreen; if(r){ var p=r.call(e); if(p&&p.catch) p.catch(function(){}); } } }
 var resetArm=0;
 function isJump(e){ var k=e.key.toLowerCase(); return k===' '||k==='arrowup'||k==='w'; }
-document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altKey) return; if(e.target&&e.target.tagName==='INPUT') return; var k=e.key.toLowerCase();
+document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altKey) return; if(e.target&&e.target.tagName==='INPUT') return;
+  if(!$('sz-ask').hidden){ e.preventDefault(); if(k0(e)==='y') newRun(); else if(k0(e)==='n'||e.key==='Escape') askNew(false); return; }
+  if(k0(e)==='r'&&e.shiftKey){ e.preventDefault(); if(S.started) askNew(true); return; } var k=e.key.toLowerCase();
   if(k==='f'){ e.preventDefault(); fullscreen(); return; }
+  if(k==='n'){ e.preventDefault(); musicToggle(); return; }
   if(k==='m'){ e.preventDefault(); muted=!muted; save(); toast(muted?'Sound off':'Sound on'); if(muted) musStop(); else { SND.tick(); if(P&&P.live) musStart(); } return; }
   if(e.key==='R'&&e.shiftKey){ e.preventDefault(); if(now()<resetArm){ resetArm=0; resetRun(); toast('New game'); } else { resetArm=now()+3000; toast('Press Shift+R again to start over'); } return; }   /* teacher reset */
   if(isJump(e)){ e.preventDefault(); if(e.repeat) return; hold=true; press(); return; }
@@ -532,6 +588,16 @@ document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altK
 document.addEventListener('keyup',function(e){ if(isJump(e)) hold=false; });
 function fit(){ var s=Math.min(innerWidth/1920,innerHeight/1080), y=$('stage').style; y.transform='scale('+s+')'; y.left=((innerWidth-1920*s)/2)+'px'; y.top=((innerHeight-1080*s)/2)+'px'; }
 addEventListener('resize',fit);
+
+var SZ_VOICE=function(f,t0,dur){ tone(f,f,t0,dur,'square',0.045); tone(f,f,t0,dur,'triangle',0.12); };
+szOnMusic=function(){ if(SZ_MUSIC_OFF) musStop(); else if(P&&P.live) musStart(); };
+function k0(e){ return (e.key||'').toLowerCase(); }
+function askNew(o){ $('sz-ask').hidden=!o; }
+function newRun(){ var n=S.name; S=fresh(); S.name=n; try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){} location.reload(); }   // S is replaced first, so a save that fires before the reload writes the fresh run
+$('sz-askyes').addEventListener('click',newRun); $('sz-askno').addEventListener('click',function(){ askNew(false); });
+document.querySelector('.ds-top .ds-logo').addEventListener('click',function(){ if(S.started) askNew(true); });
+$('sz-mus').addEventListener('click',function(e){ e.stopPropagation(); ac(); musicToggle(); }); musBtn();
+$('ds-go').addEventListener('click',function(){ if(S.started) jingle(); });
 
 /* ================= BOOT ================= */
 S=load()||fresh(); if(S.live){ S.live=false; S.attempts=Math.min(CAP,S.attempts+1); }      /* a reload in the middle of a go gives the attempt back */
