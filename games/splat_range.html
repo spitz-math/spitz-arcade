@@ -255,11 +255,14 @@ body{ background:#14110F; }
   <div class="sr-toast" id="sr-toast" hidden></div>
 </div>
 
+<script src="questions.js"></script>
 <script>
 (function(){
 'use strict';
 var $=function(id){ return document.getElementById(id); };
 var KEY='splat_range_v5';
+/* question set + topics come from the hub link (questions.js); without it the game uses its own questions below */
+var QS=window.SpitzQ?window.SpitzQ.forGame('sr'):null; if(QS) KEY+=QS.suffix;
 
 /* ================= SOUND (synthesized) ================= */
 var AC=null, muted=false;
@@ -519,7 +522,7 @@ function build(type){ for(var tries=0;tries<300;tries++){ var q=GEN[type](); if(
     for(var i=3;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=q.choices[i]; q.choices[i]=q.choices[j]; q.choices[j]=t; }
     q.visual=q.visual||''; delete q.check; return q; } throw new Error('generator failed: '+type); }
 var topicBag=[], lastType='';
-function nextQuestion(){ if(!topicBag.length) topicBag=BAG.slice().sort(function(){ return Math.random()-0.5; });
+function nextQuestion(){ if(QS) return QS.next(); if(!topicBag.length) topicBag=BAG.slice().sort(function(){ return Math.random()-0.5; });
   var tp=topicBag.pop(), list=TOPICS[tp], type; do{ type=pick(list); }while(type===lastType&&list.length>1); lastType=type; return build(type); }
 
 /* test hook: re-derive every answer from the question's data, separately from the generator */
@@ -560,7 +563,7 @@ var POW=[
 ];
 var S;
 function fresh(){ return { name:'', len:5, started:false, over:false, endAt:0, score:0, paint:0, cash:0, streak:0, best:0, answered:0, correct:0, shots:0, hits:0,
-  topics:{'Slope-intercept form':[0,0],'Point-slope form':[0,0],'Graphs':[0,0],'HOY & VUX':[0,0]}, lv:{paint:0,cash:0,splat:0,mult:0}, buff:{slow:0,storm:0,gold:0}, q:null, qDone:false, picked:-1, combo:0, bestCombo:0, waveIdx:0, wavesHit:0, frenzyShown:false, code:'' }; }
+  topics:QS?QS.topicTable():{'Slope-intercept form':[0,0],'Point-slope form':[0,0],'Graphs':[0,0],'HOY & VUX':[0,0]}, lv:{paint:0,cash:0,splat:0,mult:0}, buff:{slow:0,storm:0,gold:0}, q:null, qDone:false, picked:-1, combo:0, bestCombo:0, waveIdx:0, wavesHit:0, frenzyShown:false, code:'' }; }
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); localStorage.setItem(KEY+'_mute',muted?'1':'0'); }catch(e){} }
 function load(){ try{ var v=JSON.parse(localStorage.getItem(KEY)||'null'); muted=localStorage.getItem(KEY+'_mute')==='1'; if(v&&v.topics) return v; }catch(e){} return null; }
 function U(id){ var u=UPG.filter(function(x){ return x.id===id; })[0]; return u.vals[S.lv[id]]; }
@@ -665,7 +668,7 @@ function land(s){ var R=U('splat'), best=null, bd=1e9;
 /* ---------- BONUS WAVES: shoot the target with the right answer ---------- */
 var WAVE_AT=[0.25,0.55,0.8], WAVE_TYPES=['siSlope','siYInt','psSlope','psPoint','slopeHV','hvPick'], wave=null, frenzyAt=0;
 function plain(html){ return html.replace(/<span class="sr-fr"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g,'$1/$2').replace(/<[^>]+>/g,''); }
-function waveQuestion(){ var t=pick(WAVE_TYPES); if(t!=='hvPick') return build(t);
+function waveQuestion(){ if(QS&&QS.custom) return QS.short(12); var t=pick(WAVE_TYPES); if(t!=='hvPick') return build(t);
   var hz=Math.random()<0.5, c=nz(-6,6), a=hz?'y':'x', o=hz?'x':'y', ch=[
     {html:a+' = '+num(c),ok:true},
     {html:o+' = '+num(c),ok:false,why:hz?'x = a number is vertical (VUX).':'y = a number is horizontal (HOY).'},

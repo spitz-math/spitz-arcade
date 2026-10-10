@@ -243,11 +243,14 @@ body{ background:#0B0B0D; }
   <div class="rc-toast" id="rc-toast" hidden></div>
 </div>
 
+<script src="questions.js"></script>
 <script>
 (function(){
 'use strict';
 var $=function(id){ return document.getElementById(id); };
 var KEY='shift_racer_v1';
+/* question set + topics come from the hub link (questions.js); without it the game uses its own questions below */
+var QS=window.SpitzQ?window.SpitzQ.forGame('rc'):null; if(QS) KEY+=QS.suffix;
 
 /* ================= SOUND (synthesized) ================= */
 var AC=null, muted=false;
@@ -508,7 +511,7 @@ function build(type){ for(var tries=0;tries<400;tries++){ var q=GEN[type](); if(
     for(var i=3;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=q.choices[i]; q.choices[i]=q.choices[j]; q.choices[j]=t; }
     q.visual=q.visual||''; delete q.check; return q; } throw new Error('generator failed: '+type); }
 var topicBag=[], lastType='';
-function nextQuestion(){ if(!topicBag.length) topicBag=BAG.slice().sort(function(){ return Math.random()-0.5; });
+function nextQuestion(){ if(QS) return QS.next(); if(!topicBag.length) topicBag=BAG.slice().sort(function(){ return Math.random()-0.5; });
   var tp=topicBag.pop(), list=TOPICS[tp], type; do{ type=pick(list); }while(type===lastType&&list.length>1); lastType=type; return build(type); }
 
 /* test hook: re-derive every answer from the words and pictures the student actually sees, separately from the generator */
@@ -548,7 +551,7 @@ var POW=[
 var GEARF=[1,1.1,1.2,1.3,1.4], GEARN=['1st','2nd','3rd','4th','5th'];
 var S;
 function fresh(){ return { name:'', len:5, started:false, over:false, endAt:0, score:0, fuel:0, dist:0, bonus:0, cash:0, streak:0, best:0, answered:0, correct:0, stars:0, crashes:0,
-  topics:{'Vertical shifts':[0,0],'Horizontal shifts':[0,0],'Graphs':[0,0],'New equations':[0,0]}, lv:{fuel:0,cash:0,engine:0,star:0}, buff:{nitro:0,shield:0,stars:0}, q:null, qDone:false, picked:-1 }; }
+  topics:QS?QS.topicTable():{'Vertical shifts':[0,0],'Horizontal shifts':[0,0],'Graphs':[0,0],'New equations':[0,0]}, lv:{fuel:0,cash:0,engine:0,star:0}, buff:{nitro:0,shield:0,stars:0}, q:null, qDone:false, picked:-1 }; }
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); localStorage.setItem(KEY+'_mute',muted?'1':'0'); }catch(e){} }
 function load(){ try{ var v=JSON.parse(localStorage.getItem(KEY)||'null'); muted=localStorage.getItem(KEY+'_mute')==='1'; if(v&&v.topics&&v.lv&&v.lv.engine!==undefined) return v; }catch(e){} return null; }
 function U(id){ var u=UPG.filter(function(x){ return x.id===id; })[0]; return u.vals[S.lv[id]]; }

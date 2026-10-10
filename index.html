@@ -45,7 +45,7 @@ h2 .n{ font:800 14px/1 var(--body); background:var(--brand); color:var(--paper);
 .chip span{ display:block; padding:8px 12px; border-radius:99px; background:var(--panel2); border:2px solid var(--line); font-size:14px; font-weight:600; cursor:pointer; }
 .chip input:checked + span{ background:var(--brand); color:var(--paper); border-color:var(--brand); }
 .chip input:focus-visible + span{ outline:2px solid var(--ink); outline-offset:2px; }
-.set:not(.on) .chips{ opacity:.45; pointer-events:none; }
+.set:not(.on) .chips{ opacity:.45; }
 input[type=radio]{ accent-color:var(--brand); width:18px; height:18px; }
 .team{ background:var(--panel); border-radius:16px; padding:16px; color:var(--muted); font-size:15px; }
 .team b{ color:var(--ink); }
@@ -89,7 +89,6 @@ a.play[aria-disabled="true"]{ opacity:.4; pointer-events:none; }
 
   <section>
     <h2><span class="n">2</span>Pick your questions</h2>
-    <p class="proto" style="margin:0 0 14px">Right now each game plays all the topics in its own set. Mixing sets and choosing topics is coming next.</p>
     <div class="sets" id="sets"></div>
   </section>
 
@@ -104,42 +103,42 @@ a.play[aria-disabled="true"]{ opacity:.4; pointer-events:none; }
 
 <script>
 var GAMES=[
-  {id:'splat_range',set:'linear',name:'Splat Range',d:'Paint-splat target range',acc:'#B6FF3D',g:'◎'},
-  {id:'star_swarm',set:'linear',name:'Star Swarm',d:'Pixel space shooter',acc:'#3DE0FF',g:'✦'},
-  {id:'shift_racer',set:'shift',name:'Shift Racer',d:'Fuel up and race',acc:'#FFD60A',g:'➤'},
-  {id:'jump_man_multiplication',set:'mult',name:'Jump Man',d:'Tower climber',acc:'#FFB020',g:'▲'},
-  {id:'football_buds',set:'mult',name:'Football Buds',d:'Four quarters vs the Rivals',acc:'#7CE04A',g:'◆'},
-  {id:'hoop_buds',set:'mult',name:'Hoop Buds',d:'First to 21',acc:'#FFD23F',g:'●'},
-  {id:'dash',set:'mult',name:'Dash',d:'Jump the spikes',acc:'#2DE2E6',g:'■'},
-  {id:'skate',set:'mult',name:'Skate',d:'Land the tricks',acc:'#C8FF3D',g:'✚'}
+  {id:'splat_range',name:'Splat Range',d:'Paint-splat target range',acc:'#B6FF3D',g:'◎'},
+  {id:'star_swarm',name:'Star Swarm',d:'Pixel space shooter',acc:'#3DE0FF',g:'✦'},
+  {id:'shift_racer',name:'Shift Racer',d:'Fuel up and race',acc:'#FFD60A',g:'➤'},
+  {id:'jump_man_multiplication',name:'Jump Man',d:'Tower climber',acc:'#FFB020',g:'▲'},
+  {id:'football_buds',name:'Football Buds',d:'Four quarters vs the Rivals',acc:'#7CE04A',g:'◆'},
+  {id:'hoop_buds',name:'Hoop Buds',d:'First to 21',acc:'#FFD23F',g:'●'},
+  {id:'dash',name:'Dash',d:'Jump the spikes',acc:'#2DE2E6',g:'■'},
+  {id:'skate',name:'Skate',d:'Land the tricks',acc:'#C8FF3D',g:'✚'}
 ];
 var SETS=[
-  {id:'mult',name:'Multiplication facts',unit:'Warm-up',topics:[['f03','Facts 0–3'],['f46','Facts 4–6'],['f79','Facts 7–9'],['f1012','Facts 10–12']]},
-  {id:'linear',name:'Linear equations',unit:'Slope & forms',topics:[['si','Slope-intercept form'],['ps','Point-slope form'],['gr','Graphs'],['hv','HOY & VUX']]},
-  {id:'shift',name:'Transformations',unit:'Translating lines',topics:[['vs','Vertical shifts'],['hs','Horizontal shifts'],['gr','Graphs'],['ne','New equations']]}
+  {id:'mult',name:'Multiplication facts',unit:'Times tables 0–12',topics:[['f03','Facts 0–3'],['f46','Facts 4–6'],['f79','Facts 7–9'],['f1012','Facts 10–12']]},
+  {id:'slope',name:'Slope-intercept form',unit:'y = mx + b',topics:[['write','Write the equation'],['slope','Find the slope'],['yint','Find the y-intercept'],['graph','Read a graph']]},
+  {id:'point',name:'Point-slope form',unit:'y − y₁ = m(x − x₁)',topics:[['write','Write the equation'],['point','Find the point'],['slope','Find the slope']]},
+  {id:'hoy',name:'HOY & VUX',unit:'Horizontal and vertical lines',topics:[['describe','Describe the line'],['graph','Match the graph'],['slope','Find the slope']]},
+  {id:'shift',name:'Linear transformations',unit:'Translating lines',topics:[['vs','Vertical shifts'],['hs','Horizontal shifts'],['gr','Graphs'],['ne','New equations']]}
 ];
-var st={game:null,set:'mult',t:{mult:['f03','f46','f79','f1012'],linear:['si','ps','gr','hv'],shift:['vs','hs','gr','ne']}};
-try{ var sv=JSON.parse(localStorage.getItem('spitz_hub')||'null'); if(sv&&sv.t) st=sv; }catch(e){}
+var st={game:null,set:'mult',t:{}};
+SETS.forEach(function(x){ st.t[x.id]=x.topics.map(function(t){ return t[0]; }); });
+try{ var sv=JSON.parse(localStorage.getItem('spitz_hub2')||'null'); if(sv&&sv.t) SETS.forEach(function(x){ if(sv.t[x.id]) st.t[x.id]=sv.t[x.id]; }), st.game=sv.game||null, st.set=sv.set||'mult'; }catch(e){}
 function $(i){ return document.getElementById(i); }
-function save(){ try{ localStorage.setItem('spitz_hub',JSON.stringify(st)); }catch(e){} }
+function save(){ try{ localStorage.setItem('spitz_hub2',JSON.stringify(st)); }catch(e){} }
 
 $('games').innerHTML=GAMES.map(function(g){ return '<button class="game" style="--acc:'+g.acc+'" data-g="'+g.id+'" aria-pressed="false"><div class="art">'+g.g+'</div><b>'+g.name+'</b><small>'+g.d+'</small></button>'; }).join('');
 $('sets').innerHTML=SETS.map(function(s){ return '<div class="set" data-s="'+s.id+'"><label class="head"><input type="radio" name="set" id="set-'+s.id+'" value="'+s.id+'"><span>'+s.name+'<br><span class="unit">'+s.unit+'</span></span></label><div class="chips">'+
   s.topics.map(function(t){ return '<label class="chip"><input type="checkbox" id="t-'+s.id+'-'+t[0]+'" data-s="'+s.id+'" value="'+t[0]+'"><span>'+t[1]+'</span></label>'; }).join('')+'</div></div>'; }).join('');
 
-/* For now each game runs its own question set; the other sets unlock once the shared question banks land. */
 function gameOf(){ return GAMES.filter(function(x){ return x.id===st.game; })[0]; }
 function render(){
-  var g=gameOf(); if(g) st.set=g.set;
+  var g=gameOf();
   document.querySelectorAll('.game').forEach(function(b){ b.setAttribute('aria-pressed',b.dataset.g===st.game?'true':'false'); });
-  document.querySelectorAll('.set').forEach(function(el){ var on=el.dataset.s===st.set, off=g&&!on, r=el.querySelector('input[type=radio]');
-    el.classList.toggle('on',on); el.classList.toggle('off',!!off); r.checked=on; r.disabled=!!off;
-    var tag=el.querySelector('.soon'); if(off&&!tag){ el.querySelector('.unit').insertAdjacentHTML('afterend','<br><span class="soon">Coming soon for this game</span>'); } else if(!off&&tag){ tag.previousSibling.remove(); tag.remove(); } });
-  document.querySelectorAll('.chip input').forEach(function(c){ c.checked=true; c.disabled=true; });
+  document.querySelectorAll('.set').forEach(function(el){ var on=el.dataset.s===st.set; el.classList.toggle('on',on); el.querySelector('input[type=radio]').checked=on; });
+  document.querySelectorAll('.chip input').forEach(function(c){ c.checked=st.t[c.dataset.s].indexOf(c.value)>=0; });
   var s=SETS.filter(function(x){ return x.id===st.set; })[0], ts=st.t[st.set], ok=g&&ts.length, p=$('play');
   p.setAttribute('aria-disabled',ok?'false':'true');
   p.href=ok?'games/'+g.id+'.html?set='+st.set+'&topics='+ts.join(','):'#';
-  $('sumtxt').textContent=!g?'Pick a game':!ts.length?'Pick at least one topic':g.name+' with '+s.name;
+  $('sumtxt').textContent=!g?'Pick a game':!ts.length?'Pick at least one topic':g.name+' · '+s.name+(ts.length<s.topics.length?' ('+ts.length+' of '+s.topics.length+' topics)':'');
 }
 $('games').addEventListener('click',function(e){ var b=e.target.closest('.game'); if(!b) return; st.game=b.dataset.g; save(); render(); });
 $('sets').addEventListener('change',function(e){ var el=e.target;

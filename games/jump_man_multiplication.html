@@ -249,11 +249,14 @@ body{ background:linear-gradient(180deg,#0D1A3A 0%,#16306A 60%,#1E4A8E 100%); }
   <div class="jm-toast" id="jm-toast" hidden></div>
 </div>
 
+<script src="questions.js"></script>
 <script>
 (function(){
 'use strict';
 var $=function(id){ return document.getElementById(id); };
 var KEY='jump_man_facts_v1';
+/* question set + topics come from the hub link (questions.js); without it the game uses its own questions below */
+var QS=window.SpitzQ?window.SpitzQ.forGame('jm'):null; if(QS) KEY+=QS.suffix;
 
 /* ================= SOUND (synthesized) ================= */
 var AC=null, muted=false;
@@ -415,7 +418,7 @@ function build(type){ for(var tries=0;tries<400;tries++){ var q=GEN[type](); if(
     q.type=type; q.choices.forEach(function(c,i){ c.ok=i===0; }); q.choices.sort(function(x,y){ return x.val-y.val; });   // smallest to largest, quick to scan
     q.visual=''; delete q.check; return q; } throw new Error('generator failed: '+type); }
 var topicBag=[], lastFact='';
-function nextQuestion(){ for(var n=0;n<20;n++){ if(!topicBag.length) topicBag=BAG.slice().sort(function(){ return Math.random()-0.5; });
+function nextQuestion(){ if(QS) return QS.next(); for(var n=0;n<20;n++){ if(!topicBag.length) topicBag=BAG.slice().sort(function(){ return Math.random()-0.5; });
     var q=build(topicBag.pop()), k=Math.min(q.data.a,q.data.b)+'x'+Math.max(q.data.a,q.data.b); if(k!==lastFact){ lastFact=k; return q; } } return q; }
 
 /* test hook: re-read the fact from the words on screen and recompute it */
@@ -444,7 +447,7 @@ var POW=[
 var S;
 function fresh(){ return { name:'', len:5, started:false, over:false, endAt:0, score:0, energy:0, top:0, bonus:0, cash:0, streak:0, best:0, answered:0, correct:0, gems:0, jumps:0,
   seed:(Math.random()*2147483647)|0, pi:0, got:{}, cp:0,
-  topics:{'Facts 0–3':[0,0],'Facts 4–6':[0,0],'Facts 7–9':[0,0],'Facts 10–12':[0,0]}, lv:{energy:0,cash:0,jump:0,gem:0}, buff:{double:0,free:0,rocket:0}, q:null, qDone:false, picked:-1 }; }
+  topics:QS?QS.topicTable():{'Facts 0–3':[0,0],'Facts 4–6':[0,0],'Facts 7–9':[0,0],'Facts 10–12':[0,0]}, lv:{energy:0,cash:0,jump:0,gem:0}, buff:{double:0,free:0,rocket:0}, q:null, qDone:false, picked:-1 }; }
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); localStorage.setItem(KEY+'_mute',muted?'1':'0'); }catch(e){} }
 function load(){ try{ var v=JSON.parse(localStorage.getItem(KEY)||'null'); muted=localStorage.getItem(KEY+'_mute')==='1'; if(v&&v.topics&&v.lv&&v.lv.jump!==undefined&&v.got) return v; }catch(e){} return null; }
 function U(id){ var u=UPG.filter(function(x){ return x.id===id; })[0]; return u.vals[S.lv[id]]; }

@@ -256,11 +256,14 @@ body{ background:radial-gradient(120% 70% at 50% -10%, #17402A 0%, #06120B 60%);
   <div class="fb-toast" id="fb-toast" hidden></div>
 </div>
 
+<script src="questions.js"></script>
 <script>
 (function(){
 'use strict';
 var $=function(id){ return document.getElementById(id); };
 var KEY='football_buds_game_v2';
+/* question set + topics come from the hub link (questions.js); without it the game uses its own questions below */
+var QS=window.SpitzQ?window.SpitzQ.forGame('fb'):null; if(QS) KEY+=QS.suffix;
 
 /* ================= SOUND (synthesized) ================= */
 var AC=null, muted=false;
@@ -428,7 +431,7 @@ function build(type){ for(var tries=0;tries<400;tries++){ var q=GEN[type](); if(
     q.type=type; q.choices.forEach(function(c,i){ c.ok=i===0; }); q.choices.sort(function(x,y){ return x.val-y.val; });   // smallest to largest, quick to scan
     q.visual=''; delete q.check; return q; } throw new Error('generator failed: '+type); }
 var topicBag=[], lastFact='';
-function nextQuestion(){ for(var n=0;n<20;n++){ if(!topicBag.length) topicBag=BAG.slice().sort(function(){ return Math.random()-0.5; });
+function nextQuestion(){ if(QS) return QS.next(); for(var n=0;n<20;n++){ if(!topicBag.length) topicBag=BAG.slice().sort(function(){ return Math.random()-0.5; });
     var q=build(topicBag.pop()), k=Math.min(q.data.a,q.data.b)+'x'+Math.max(q.data.a,q.data.b); if(k!==lastFact){ lastFact=k; return q; } } return q; }
 
 /* test hook: re-read the fact from the words on screen and recompute it */
@@ -447,7 +450,7 @@ var QTR=75, RATE=2, RUNOFF=8, NEED=3;       /* four 1:15 quarters; the clock run
 var S, PL=null;
 function fresh(){ return { name:'', started:false, over:false, qtr:1, clock:QTR, buds:0, rivals:0, poss:1, los:25, down:1, mark:35,
   streak:0, best:0, answered:0, correct:0, huddles:0, perfect:0, tds:0, tackles:0, ints:0, yards:0, snapsO:0, snapsD:0, hud:[], ready:false,
-  topics:{'Facts 0–3':[0,0],'Facts 4–6':[0,0],'Facts 7–9':[0,0],'Facts 10–12':[0,0]}, q:null, qDone:false, picked:-1 }; }
+  topics:QS?QS.topicTable():{'Facts 0–3':[0,0],'Facts 4–6':[0,0],'Facts 7–9':[0,0],'Facts 10–12':[0,0]}, q:null, qDone:false, picked:-1 }; }
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); localStorage.setItem(KEY+'_mute',muted?'1':'0'); }catch(e){} }
 function load(){ try{ var v=JSON.parse(localStorage.getItem(KEY)||'null'); muted=localStorage.getItem(KEY+'_mute')==='1'; if(v&&v.topics&&v.hud&&v.qtr&&v.los>0) return v; }catch(e){} return null; }
 function now(){ return Date.now(); }
