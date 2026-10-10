@@ -83,5 +83,16 @@ window.SpitzGames=[
    '<ellipse cx="164" cy="72" rx="7" ry="4.5" fill="#07120E"/><path d="M164 72V40" stroke="#F2FBF6" stroke-width="2.5"/><path d="M164 40l18 6-18 6z" fill="#FF8466"/>'+
    '<path d="M50 70Q100 30 156 70" stroke="#F2FBF6" stroke-width="2" stroke-dasharray="3 6" fill="none" opacity=".6"/>'+
    '<circle cx="46" cy="72" r="6" fill="#F2FBF6"/><circle cx="44" cy="70" r="1.2" fill="#C9D9D0"/><circle cx="48" cy="73" r="1.2" fill="#C9D9D0"/>'+
-   '<rect x="20" y="98" width="70" height="6" rx="3" fill="#173027"/><rect x="20" y="98" width="58" height="6" rx="3" fill="#5CF2B0"/>'}
+   '<rect x="20" y="98" width="70" height="6" rx="3" fill="#173027"/><rect x="20" y="98" width="58" height="6" rx="3" fill="#5CF2B0"/>'},
+  {id:'burger_shop',name:'Burger Shop',d:'Stack the orders',font:"'Titan One'",paper:'#120B09',panel:'#1E1411',acc:'#9BE15D',
+   art:'<rect width="200" height="110" fill="#1E1411"/><rect x="0" y="88" width="200" height="22" fill="#6B4A35"/><rect x="0" y="86" width="200" height="4" fill="#8A6247"/>'+
+   '<ellipse cx="90" cy="88" rx="46" ry="6" fill="#F6E3C2" opacity=".9"/>'+
+   '<g transform="translate(90 0)"><rect x="-34" y="74" width="68" height="10" rx="5" fill="#E8A24A"/>'+
+   '<rect x="-36" y="64" width="72" height="11" rx="5.5" fill="#7A3E22"/><path d="M-30 69h8M-16 69h8M-2 69h8M12 69h8" stroke="#5A2C17" stroke-width="2" stroke-linecap="round"/>'+
+   '<path d="M-38 64l6-5 6 6 6-6 6 6 6-6 6 6 6-6 6 6 6-6 6 6 6-6 6 5z" fill="#FFC83D"/>'+
+   '<rect x="-30" y="55" width="26" height="5" rx="2.5" fill="#FF5D4B"/><rect x="2" y="55" width="26" height="5" rx="2.5" fill="#FF5D4B"/>'+
+   '<path d="M-38 54q6-6 12 0t12 0 12 0 12 0 12 0 12 0" stroke="#9BE15D" stroke-width="5" fill="none" stroke-linecap="round"/>'+
+   '<path d="M-36 51q0-26 36-26t36 26z" fill="#E8A24A"/><g fill="#F6E3C2"><ellipse cx="-14" cy="38" rx="2" ry="1.2"/><ellipse cx="0" cy="33" rx="2" ry="1.2"/><ellipse cx="14" cy="38" rx="2" ry="1.2"/><ellipse cx="-4" cy="43" rx="2" ry="1.2"/><ellipse cx="8" cy="44" rx="2" ry="1.2"/></g></g>'+
+   '<g transform="translate(150 16)"><rect width="36" height="44" rx="3" fill="#F6E3C2"/><path d="M6 12h24M6 20h18M6 28h22M6 36h14" stroke="#C4AA98" stroke-width="3" stroke-linecap="round"/><circle cx="18" cy="0" r="3" fill="#43302A"/></g>'+
+   '<g transform="translate(22 40)"><rect x="0" y="10" width="16" height="38" rx="5" fill="#FF3B2E"/><rect x="4" y="2" width="8" height="10" rx="2" fill="#FF3B2E"/><rect x="5" y="-4" width="6" height="7" rx="1.5" fill="#F6E3C2"/><rect x="3" y="22" width="10" height="12" rx="2" fill="#F6E3C2" opacity=".85"/></g>'}
 ];
