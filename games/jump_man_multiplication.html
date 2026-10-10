@@ -280,6 +280,7 @@ if(/[?&]set=(?!mult\b)[a-z]/.test(location.search)) document.documentElement.cla
   <div class="jm-toast" id="jm-toast" hidden></div>
 </div>
 
+<script src="scorecode.js"></script>
 <script src="questions.js"></script>
 <script>
 (function(){
@@ -643,7 +644,7 @@ $('jm-nameinput').addEventListener('keydown',function(e){ if(e.key==='Enter'&&th
 $('jm-go').addEventListener('click',function(){ var n=$('jm-nameinput').value.trim(); if(!n) return; ac(); S.name=n; S.started=true; S.endAt=now()+S.len*60000; $('jm-start').hidden=true;
   $('jm-nameinput').blur(); S.seed=(Math.random()*2147483647)|0; S.pi=0; resetTower(); newQ(); save(); hud(); });
 function endRun(){ S.over=true; hudLive(); clearTimeout(nextT); openShop(false); $('jm-shop').hidden=true; save(); showEnd(true); }
-function showEnd(celebrate){ $('jm-endname').textContent=S.name; $('jm-endscore').textContent=S.score.toLocaleString();
+function showEnd(celebrate){ if(window.SpitzCode) setTimeout(function(){ window.SpitzCode.show('jm','jump_man_multiplication',S); },0); $('jm-endname').textContent=S.name; $('jm-endscore').textContent=S.score.toLocaleString();
   var acc=S.answered?Math.round(100*S.correct/S.answered):0;
   $('jm-endstats').innerHTML=[['Correct',S.correct+' of '+S.answered],['Accuracy',acc+'%'],['Best streak',S.best],['Height',Math.floor(S.top/20).toLocaleString()+' m']].map(function(a){ return '<div class="jm-stat"><div class="l">'+a[0]+'</div><div class="v">'+a[1]+'</div></div>'; }).join('');
   $('jm-endtopics').innerHTML=Object.keys(S.topics).map(function(k){ var t=S.topics[k]; return '<div class="jm-stat"><div class="l">'+k+'</div><div class="v">'+t[0]+' / '+t[1]+'</div></div>'; }).join('');

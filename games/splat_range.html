@@ -283,6 +283,7 @@ if(/[?&]set=(?!mult\b)[a-z]/.test(location.search)) document.documentElement.cla
   <div class="sr-toast" id="sr-toast" hidden></div>
 </div>
 
+<script src="scorecode.js"></script>
 <script src="questions.js"></script>
 <script>
 (function(){
@@ -788,7 +789,7 @@ $('sr-nameinput').addEventListener('keydown',function(e){ if(e.key==='Enter'&&th
 $('sr-go').addEventListener('click',function(){ var n=$('sr-nameinput').value.trim(); if(!n) return; ac(); S.name=n; S.started=true; S.endAt=now()+S.len*60000; $('sr-start').hidden=true;
   $('sr-nameinput').blur(); drawWall(); newQ(); save(); hud(); });
 function endRun(){ S.over=true; if(wave) endWave(); $('sr-range').classList.remove('frenzy'); if(!S.code) S.code=makeCode(S.score,S.correct,S.answered); clearTimeout(nextT); openShop(false); $('sr-shop').hidden=true; save(); showEnd(true); }
-function showEnd(celebrate){ $('sr-endname').textContent=S.name; $('sr-endscore').textContent=S.score.toLocaleString();
+function showEnd(celebrate){ if(window.SpitzCode) setTimeout(function(){ window.SpitzCode.show('sr','splat_range',S); },0); $('sr-endname').textContent=S.name; $('sr-endscore').textContent=S.score.toLocaleString();
   var acc=S.answered?Math.round(100*S.correct/S.answered):0;
   $('sr-endstats').innerHTML=[['Correct',S.correct+' / '+S.answered],['Accuracy',acc+'%'],['Best streak',S.best],['Best combo',S.bestCombo],['Bonus waves',S.wavesHit+' of '+WAVE_AT.length]].map(function(a){ return '<div class="sr-stat"><div class="l">'+a[0]+'</div><div class="v">'+a[1]+'</div></div>'; }).join('');
   $('sr-endtopics').innerHTML=Object.keys(S.topics).map(function(k){ var t=S.topics[k]; return '<div class="sr-stat"><div class="l">'+k+'</div><div class="v">'+t[0]+' / '+t[1]+'</div></div>'; }).join('');

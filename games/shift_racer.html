@@ -272,6 +272,7 @@ if(/[?&]set=(?!mult\b)[a-z]/.test(location.search)) document.documentElement.cla
   <div class="rc-toast" id="rc-toast" hidden></div>
 </div>
 
+<script src="scorecode.js"></script>
 <script src="questions.js"></script>
 <script>
 (function(){
@@ -729,7 +730,7 @@ $('rc-nameinput').addEventListener('keydown',function(e){ if(e.key==='Enter'&&th
 $('rc-go').addEventListener('click',function(){ var n=$('rc-nameinput').value.trim(); if(!n) return; ac(); S.name=n; S.started=true; S.endAt=now()+S.len*60000; $('rc-start').hidden=true;
   $('rc-nameinput').blur(); resetRoad(); newQ(); save(); hud(); });
 function endRun(){ S.over=true; engine(0,false); hudLive(); clearTimeout(nextT); openShop(false); $('rc-shop').hidden=true; save(); showEnd(true); }
-function showEnd(celebrate){ $('rc-endname').textContent=S.name; $('rc-endscore').textContent=S.score.toLocaleString();
+function showEnd(celebrate){ if(window.SpitzCode) setTimeout(function(){ window.SpitzCode.show('rc','shift_racer',S); },0); $('rc-endname').textContent=S.name; $('rc-endscore').textContent=S.score.toLocaleString();
   var acc=S.answered?Math.round(100*S.correct/S.answered):0;
   $('rc-endstats').innerHTML=[['Correct',S.correct+' of '+S.answered],['Accuracy',acc+'%'],['Best streak',S.best],['Distance',Math.floor(S.dist).toLocaleString()+' m']].map(function(a){ return '<div class="rc-stat"><div class="l">'+a[0]+'</div><div class="v">'+a[1]+'</div></div>'; }).join('');
   $('rc-endtopics').innerHTML=Object.keys(S.topics).map(function(k){ var t=S.topics[k]; return '<div class="rc-stat"><div class="l">'+k+'</div><div class="v">'+t[0]+' / '+t[1]+'</div></div>'; }).join('');

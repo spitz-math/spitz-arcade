@@ -274,6 +274,7 @@ if(/[?&]set=(?!mult\b)[a-z]/.test(location.search)) document.documentElement.cla
   <div class="ds-toast" id="ds-toast" hidden></div>
 </div>
 
+<script src="scorecode.js"></script>
 <script src="questions.js"></script>
 <script>
 (function(){
@@ -605,7 +606,7 @@ $('ds-nameinput').addEventListener('keydown',function(e){ if(e.key==='Enter'&&th
 $('ds-go').addEventListener('click',function(){ var n=$('ds-nameinput').value.trim(); if(!n) return; ac(); S.name=n; S.started=true; $('ds-start').hidden=true;
   $('ds-nameinput').blur(); setCourse(); newQ(); save(); hud(); });
 function endRun(){ S.over=true; S.live=false; if(P) P.live=false; musStop(); clearTimeout(nextT); clearTimeout(lockT); save(); hud(); showEnd(true); }
-function showEnd(celebrate){ $('ds-endname').textContent=S.name; $('ds-endscore').textContent=S.score;
+function showEnd(celebrate){ if(window.SpitzCode) setTimeout(function(){ window.SpitzCode.show('ds','dash',S); },0); $('ds-endname').textContent=S.name; $('ds-endscore').textContent=S.score;
   $('ds-endres').textContent='Reached level '+S.level+' · '+S.flagsPlanted+(S.flagsPlanted===1?' flag':' flags')+' planted';
   var acc=S.answered?Math.round(100*S.correct/S.answered):0;
   $('ds-endstats').innerHTML=[['Correct',S.correct+' of '+S.answered],['Accuracy',acc+'%'],['Best streak',S.best],['Levels cleared',S.cleared]].map(function(a){ return '<div class="ds-stat"><div class="l">'+a[0]+'</div><div class="v">'+a[1]+'</div></div>'; }).join('');

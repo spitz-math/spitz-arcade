@@ -323,6 +323,7 @@ if(/[?&]set=(?!mult\b)[a-z]/.test(location.search)) document.documentElement.cla
   <div class="fb-toast" id="fb-toast" hidden></div>
 </div>
 
+<script src="scorecode.js"></script>
 <script src="questions.js"></script>
 <script>
 (function(){
@@ -737,7 +738,7 @@ $('fb-nameinput').addEventListener('keydown',function(e){ if(e.key==='Enter'&&th
 $('fb-go').addEventListener('click',function(){ var n=$('fb-nameinput').value.trim(); if(!n) return; ac(); S.name=n; S.started=true; $('fb-start').hidden=true;
   $('fb-nameinput').blur(); setPlay(); cam=PL.qb.x; startHuddle(); save(); hud(); });
 function endRun(){ S.over=true; clearTimeout(nextT); clearTimeout(lockT); save(); hud(); showEnd(true); }
-function showEnd(celebrate){ $('fb-endname').textContent=S.name; $('fb-endscore').textContent=S.buds+' – '+S.rivals;
+function showEnd(celebrate){ if(window.SpitzCode) setTimeout(function(){ window.SpitzCode.show('fb','football_buds',S); },0); $('fb-endname').textContent=S.name; $('fb-endscore').textContent=S.buds+' – '+S.rivals;
   $('fb-endres').textContent=S.buds>S.rivals?'Buds win!':S.buds<S.rivals?'Rivals win':'Tie game';
   var acc=S.answered?Math.round(100*S.correct/S.answered):0;
   $('fb-endstats').innerHTML=[['Correct',S.correct+' of '+S.answered],['Accuracy',acc+'%'],['Best streak',S.best],['Perfect huddles',S.perfect+' of '+S.huddles]].map(function(a){ return '<div class="fb-stat"><div class="l">'+a[0]+'</div><div class="v">'+a[1]+'</div></div>'; }).join('');

@@ -285,6 +285,7 @@ if(/[?&]set=(?!mult\b)[a-z]/.test(location.search)) document.documentElement.cla
   <div class="sw-toast" id="sw-toast" hidden></div>
 </div>
 
+<script src="scorecode.js"></script>
 <script src="questions.js"></script>
 <script>
 (function(){
@@ -888,7 +889,7 @@ $('sw-nameinput').addEventListener('keydown',function(e){ if(e.key==='Enter'&&th
 $('sw-go').addEventListener('click',function(){ var n=$('sw-nameinput').value.trim(); if(!n) return; ac(); S.name=n; S.started=true; S.endAt=now()+S.len*60000; $('sw-start').hidden=true;
   $('sw-nameinput').blur(); resetSwarm(true); newQ(); save(); hud(); });
 function endRun(){ S.over=true; if(wave) endWave(); $('sw-space').classList.remove('frenzy'); if(!S.code) S.code=makeCode(S.score,S.correct,S.answered); clearTimeout(nextT); openShop(false); $('sw-shop').hidden=true; save(); showEnd(true); }
-function showEnd(celebrate){ $('sw-endname').textContent=S.name; $('sw-endscore').textContent=S.score.toLocaleString();
+function showEnd(celebrate){ if(window.SpitzCode) setTimeout(function(){ window.SpitzCode.show('sw','star_swarm',S); },0); $('sw-endname').textContent=S.name; $('sw-endscore').textContent=S.score.toLocaleString();
   var acc=S.answered?Math.round(100*S.correct/S.answered):0;
   $('sw-endstats').innerHTML=[['Correct',S.correct+' / '+S.answered],['Accuracy',acc+'%'],['Best streak',S.best],['Stage',S.stage],['Challenges',S.wavesHit+' of '+WAVE_AT.length]].map(function(a){ return '<div class="sw-stat"><div class="l">'+a[0]+'</div><div class="v">'+a[1]+'</div></div>'; }).join('');
   $('sw-endtopics').innerHTML=Object.keys(S.topics).map(function(k){ var t=S.topics[k]; return '<div class="sw-stat"><div class="l">'+k+'</div><div class="v">'+t[0]+' / '+t[1]+'</div></div>'; }).join('');

@@ -269,6 +269,7 @@ if(/[?&]set=(?!mult\b)[a-z]/.test(location.search)) document.documentElement.cla
   <div class="sk-toast" id="sk-toast" hidden></div>
 </div>
 
+<script src="scorecode.js"></script>
 <script src="questions.js"></script>
 <script>
 (function(){
@@ -741,7 +742,7 @@ $('sk-nameinput').addEventListener('keydown',function(e){ if(e.key==='Enter'&&th
 $('sk-go').addEventListener('click',function(){ var n=$('sk-nameinput').value.trim(); if(!n) return; ac(); S.name=n; S.started=true; lastTick=now(); $('sk-start').hidden=true;
   $('sk-nameinput').blur(); setPlay(); startSetup(); save(); hud(); });
 function endRun(){ muStop(false); S.over=true; S.left=0; clearTimeout(nextT); clearTimeout(lockT); save(); hud(); showEnd(true); }
-function showEnd(celebrate){ $('sk-endname').textContent=S.name; $('sk-endscore').textContent=fmt(S.score);
+function showEnd(celebrate){ if(window.SpitzCode) setTimeout(function(){ window.SpitzCode.show('sk','skate',S); },0); $('sk-endname').textContent=S.name; $('sk-endscore').textContent=fmt(S.score);
   $('sk-endres').textContent=S.lines+(S.lines===1?' line':' lines')+'  ·  best line '+fmt(S.bestLine);
   var acc=S.answered?Math.round(100*S.correct/S.answered):0;
   $('sk-endstats').innerHTML=[['Correct',S.correct+' of '+S.answered],['Accuracy',acc+'%'],['Best streak',S.best],['Tricks landed',S.tricks]].map(function(a){ return '<div class="sk-stat"><div class="l">'+a[0]+'</div><div class="v">'+a[1]+'</div></div>'; }).join('');
