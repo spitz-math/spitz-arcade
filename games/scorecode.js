@@ -21,7 +21,7 @@ var GAMES={                     /* id: [number in the code, display name, how it
   hoop_buds:[6,'Hoop Buds','versus'],
   dash:[7,'Dash','points'],
   skate:[8,'Skate','points'],
-  mini_golf:[9,'Mini Golf','strokes'],
+  mini_golf:[9,'Mini Golf','points'],
   fishing:[10,'Fishing','points'],
   brick_breaker:[11,'Brick Breaker','points']
 };
