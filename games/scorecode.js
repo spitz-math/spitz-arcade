@@ -23,8 +23,9 @@ var GAMES={                     /* id: [number in the code, display name, how it
   dash:[7,'Dash','points'],
   skate:[8,'Skate','points'],
   mini_golf:[9,'Mini Golf','points'],
-  fishing:[10,'Fishing','points'],
-  brick_breaker:[11,'Brick Breaker','points']
+  fishing:[10,'Go Fish','points'],
+  brick_breaker:[11,'Brick Breaker','points'],
+  burger_shop:[12,'Burger Shop','points']
 };
 /* question sets in the order questions.js lists them; 0 means the game's own questions */
 var SETS=[null,'mult','slope','point','hoy','shift'];

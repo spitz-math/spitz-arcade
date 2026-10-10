@@ -52,5 +52,16 @@ window.SpitzGames=[
    art:'<defs><linearGradient id="sksky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3A1F5C"/><stop offset=".7" stop-color="#FF4FA3"/><stop offset="1" stop-color="#FF8A1F"/></linearGradient></defs>'+
    '<rect width="200" height="110" fill="url(#sksky)"/><circle cx="150" cy="64" r="22" fill="#FFD23F"/><g fill="#1B1A1F"><rect x="0" y="54" width="22" height="30"/><rect x="26" y="44" width="16" height="40"/><rect x="170" y="50" width="30" height="34"/></g>'+
    '<rect x="0" y="82" width="200" height="28" fill="#26242C"/>'+
-   '<g transform="translate(92 52) rotate(-14)"><rect x="-38" y="-5" width="76" height="9" rx="4.5" fill="#C8FF3D" stroke="#100E18" stroke-width="2"/><path d="M-30 4v4M30 4v4" stroke="#B0ACC0" stroke-width="3"/><circle cx="-26" cy="12" r="6" fill="#F7F7F2" stroke="#100E18" stroke-width="2"/><circle cx="26" cy="12" r="6" fill="#F7F7F2" stroke="#100E18" stroke-width="2"/></g>'}
+   '<g transform="translate(92 52) rotate(-14)"><rect x="-38" y="-5" width="76" height="9" rx="4.5" fill="#C8FF3D" stroke="#100E18" stroke-width="2"/><path d="M-30 4v4M30 4v4" stroke="#B0ACC0" stroke-width="3"/><circle cx="-26" cy="12" r="6" fill="#F7F7F2" stroke="#100E18" stroke-width="2"/><circle cx="26" cy="12" r="6" fill="#F7F7F2" stroke="#100E18" stroke-width="2"/></g>'},
+  {id:'fishing',name:'Go Fish',d:'Cast for rare fish',font:"'Fredoka'",paper:'#08121A',panel:'#0F1F2A',acc:'#5EEAD4',
+   art:'<rect width="200" height="110" fill="#0B1A26"/><circle cx="160" cy="22" r="13" fill="#E8F1F8"/><circle cx="156" cy="19" r="3" fill="#C9D6E0"/><circle cx="164" cy="27" r="2" fill="#C9D6E0"/>'+
+   '<g fill="#EEF6FA"><rect x="20" y="14" width="2" height="2"/><rect x="74" y="8" width="2" height="2"/><rect x="118" y="20" width="2" height="2"/><rect x="186" y="44" width="2" height="2"/></g>'+
+   '<path d="M0 50l8-12 8 12 8-16 8 16 8-10 8 10 8-14 8 14 8-9 8 9 8-13 8 13 8-10 8 10 8-15 8 15 8-11 8 11 8-14 8 14 8-9 8 9 8-12 8 12v4H0z" fill="#0F2A2A"/>'+
+   '<rect x="0" y="52" width="200" height="58" fill="#0B2A3A"/><path d="M60 62h22M120 70h30M86 84h18" stroke="#16303F" stroke-width="2" stroke-linecap="round"/>'+
+   '<rect x="0" y="44" width="56" height="8" fill="#8B5A35"/><rect x="8" y="52" width="5" height="40" fill="#5A3A22"/><rect x="40" y="52" width="5" height="40" fill="#5A3A22"/>'+
+   '<g transform="translate(28 18)"><circle cx="6" cy="6" r="6" fill="#F2C29B"/><path d="M-1 3q7-8 14 0z" fill="#FF8F6B"/><rect x="12" y="2" width="5" height="3" rx="1" fill="#FF8F6B"/><rect x="0" y="12" width="12" height="14" rx="4" fill="#2BB3A3"/></g>'+
+   '<path d="M40 34L84 12" stroke="#C8A06A" stroke-width="2.5" stroke-linecap="round"/><path d="M84 12q14 10 30 41" stroke="#EEF6FA" stroke-width="1" fill="none" opacity=".7"/>'+
+   '<circle cx="114" cy="53" r="4" fill="#FF4B4B"/><path d="M110 53h8" stroke="#EEF6FA" stroke-width="2"/><ellipse cx="114" cy="56" rx="12" ry="2.5" fill="none" stroke="#5EEAD4" stroke-width="1.5" opacity=".7"/>'+
+   '<g transform="translate(140 88)"><ellipse rx="20" ry="9" fill="#FFD166"/><path d="M18 0l12-9v18z" fill="#FFD166"/><circle cx="-11" cy="-2" r="2" fill="#0B1A26"/><path d="M-4 -8q4 8 0 16M4 -8q4 8 0 16" stroke="#FF8F6B" stroke-width="2.5" fill="none"/></g>'+
+   '<g fill="#FFD166"><path d="M174 70l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/><path d="M120 92l1.5 3.5 3.5 1.5-3.5 1.5-1.5 3.5-1.5-3.5-3.5-1.5 3.5-1.5z"/></g>'}
 ];
