@@ -62,6 +62,8 @@ h1 span{ color:var(--brand); }
 .how{ color:var(--muted); font-size:14px; text-align:center; }
 @media (prefers-reduced-motion:no-preference){ .lb{ animation:rise .4s both; } @keyframes rise{ from{ opacity:0; transform:translateY(10px); } } }
 @media (prefers-reduced-motion:reduce){ .game{ transition:none; } }
+.game{ position:relative; }
+.game .new{ position:absolute; top:4px; right:4px; font:400 11px/1 var(--display); letter-spacing:.06em; color:var(--paper); background:var(--acc); padding:6px 9px; border-radius:99px; box-shadow:0 2px 8px rgba(0,0,0,.45); }
 </style>
 </head>
 <body>
@@ -99,7 +101,7 @@ function fmtDay(s){ if(!s) return ''; var p=s.split('-'); return new Date(Date.U
 function render(){
   var games=list();
   $('games').innerHTML=games.map(function(g){ var b=data.games[g.id], t=b&&b.top&&b.top[0];
-    return '<button class="game" style="'+vars(g)+'" data-g="'+esc(g.id)+'" aria-pressed="'+(g.id===sel)+'">'+artOf(g)+'<b>'+esc(g.name)+'</b><small>'+(t?'#1 <i>'+esc(t.name)+'</i> · '+esc(t.score):'No scores yet')+'</small></button>'; }).join('');
+    return '<button class="game" style="'+vars(g)+'" data-g="'+esc(g.id)+'" aria-pressed="'+(g.id===sel)+'">'+(g.isNew?'<span class="new">NEW</span>':'')+artOf(g)+'<b>'+esc(g.name)+'</b><small>'+(t?'#1 <i>'+esc(t.name)+'</i> · '+esc(t.score):'No scores yet')+'</small></button>'; }).join('');
   var g=games.filter(function(x){ return x.id===sel; })[0];
   if(!g){ $('panel').hidden=true; return; }
   var b=data.games[g.id], top=(b&&b.top)||[];

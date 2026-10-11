@@ -82,6 +82,8 @@ a.play[aria-disabled="true"]{ opacity:.4; pointer-events:none; }
 .ideas .btns{ display:flex; flex-wrap:wrap; gap:10px; }
 .ideas a{ font:800 16px/1 var(--body); color:var(--ink); background:var(--panel2); border:2px solid var(--line); border-radius:12px; padding:13px 16px; text-decoration:none; }
 .ideas a:hover,.ideas a:focus-visible{ border-color:var(--brand); outline:none; }
+.game{ position:relative; }
+.game .new{ position:absolute; top:4px; right:4px; font:400 12px/1 var(--display); letter-spacing:.06em; color:var(--paper); background:var(--acc); padding:6px 9px; border-radius:99px; box-shadow:0 2px 8px rgba(0,0,0,.45); }
 </style>
 </head>
 <body>
@@ -144,7 +146,7 @@ try{ var sv=JSON.parse(localStorage.getItem('spitz_hub2')||'null'); if(sv&&sv.t)
 function $(i){ return document.getElementById(i); }
 function save(){ try{ localStorage.setItem('spitz_hub2',JSON.stringify(st)); }catch(e){} }
 
-$('games').innerHTML=GAMES.map(function(g){ return '<button class="game" style="--acc:'+g.acc+';--gp:'+g.paper+';--gpanel:'+g.panel+';--gf:'+g.font+', var(--display)" data-g="'+g.id+'" aria-pressed="false"><svg class="art" viewBox="0 0 200 110" aria-hidden="true">'+g.art+'</svg><b>'+g.name+'</b><small>'+g.d+'</small></button>'; }).join('');
+$('games').innerHTML=GAMES.map(function(g){ return '<button class="game" style="--acc:'+g.acc+';--gp:'+g.paper+';--gpanel:'+g.panel+';--gf:'+g.font+', var(--display)" data-g="'+g.id+'" aria-pressed="false">'+(g.isNew?'<span class="new">NEW</span>':'')+'<svg class="art" viewBox="0 0 200 110" aria-hidden="true">'+g.art+'</svg><b>'+g.name+'</b><small>'+g.d+'</small></button>'; }).join('');
 $('sets').innerHTML=SETS.map(function(s){ return '<div class="set" data-s="'+s.id+'"><label class="head"><input type="radio" name="set" id="set-'+s.id+'" value="'+s.id+'"><span>'+s.name+'<br><span class="unit">'+s.unit+'</span></span></label><div class="chips">'+
   s.topics.map(function(t){ return '<label class="chip"><input type="checkbox" id="t-'+s.id+'-'+t[0]+'" data-s="'+s.id+'" value="'+t[0]+'"><span>'+t[1]+'</span></label>'; }).join('')+'</div></div>'; }).join('');
 
