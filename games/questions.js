@@ -805,6 +805,96 @@ function makeFam(PFX){
       delete q.keepOrder; q.visual=q.visual||''; delete q.check; return q; } throw new Error('generator failed: '+type); }
   return { build:build }; }
 
+function makeFindSlope(PFX){
+  /* ================= QUESTION GENERATOR: finding slope =================
+     From two points, a graph, a table, or an equation (slope-intercept or point-slope form).
+     Every answer is a rational number; the check works the slope out a second, separate way. */
+  var MINUS='−';
+  function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ var t=a%b; a=b; b=t; } return a; }
+  function R(n,d){ if(d<0){ n=-n; d=-d; } var g=gcd(n,d)||1; return {n:n/g,d:d/g}; }
+  function ri(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
+  function nz(a,b){ var v; do{ v=ri(a,b); }while(v===0); return v; }
+  function pick(a){ return a[Math.floor(Math.random()*a.length)]; }
+  function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  function num(n){ return n<0? MINUS+(-n) : ''+n; }
+  function frac(n,d){ return '<span class="'+PFX+'-fr"><span>'+n+'</span><span>'+d+'</span></span>'; }
+  function fmtR(r){ if(r.d===1) return num(r.n); return (r.n<0?MINUS:'')+frac(Math.abs(r.n),r.d); }
+  function coef(r,v){ if(r.d===1&&r.n===1) return v; if(r.d===1&&r.n===-1) return MINUS+v; return fmtR(r)+v; }
+  function sgn(v){ return v>0? ' + '+v : v<0? ' '+MINUS+' '+(-v) : ''; }
+  function pt(x,y){ return '('+num(x)+', '+num(y)+')'; }
+  function rEq(a,b){ return a.n*b.d===b.n*a.d; }
+  function C(html,val,why){ return {html:html,val:val,why:why||'',key:html}; }
+  function eq(h){ return '<span class="'+PFX+'-eq">'+h+'</span>'; }
+  function M(r){ return '<span class="c-m">'+fmtR(r)+'</span>'; }
+  function P(x,y){ return '<span class="c-pt">'+pt(x,y)+'</span>'; }
+  function par(n){ return n<0? '('+num(n)+')' : num(n); }
+  var FONT=' font-family="Inter,sans-serif" font-weight="800"';
+  var SLOPES=[1,-1,2,-2,3,-3,4,-4,5,-5].map(function(n){ return R(n,1); }).concat(
+    [[1,2],[-1,2],[1,3],[-1,3],[2,3],[-2,3],[3,2],[-3,2],[3,4],[-3,4],[1,4],[-1,4],[2,5],[-2,5]].map(function(a){ return R(a[0],a[1]); }));
+  /* the usual slips, with the slope itself first */
+  function slips(m,extra){ var c=[[m,''],[R(-m.n,m.d),'Check the sign: '+(m.n>0?'y goes up as x goes right, so the slope is positive.':'y goes down as x goes right, so the slope is negative.')]];
+    if(Math.abs(m.n)!==m.d) c.push([R(m.d,m.n),'That is run over rise. Slope = change in y ÷ change in x.']);
+    c=c.concat(extra||[]); if(Math.abs(m.n)!==m.d) c.push([R(-m.d,m.n),'Flipped and the wrong sign. Slope = change in y ÷ change in x.']); var out=[], seen={};
+    c.forEach(function(x){ var k=x[0].n+'/'+x[0].d; if(out.length<4&&!seen[k]&&x[0].d!==0){ seen[k]=1; out.push(C(fmtR(x[0]),x[0],x[1])); } }); return out; }
+
+  function gridSVG(m,b,dots){ var S=380, u=S/12, X=function(x){ return ((x+6)*u).toFixed(1); }, Y=function(y){ return ((6-y)*u).toFixed(1); }, h='', k=m.n/m.d;
+    for(var i=-6;i<=6;i++){ h+='<line x1="'+X(i)+'" y1="0" x2="'+X(i)+'" y2="'+S+'" stroke="#2A3142" stroke-width="2"/><line x1="0" y1="'+Y(i)+'" x2="'+S+'" y2="'+Y(i)+'" stroke="#2A3142" stroke-width="2"/>'; }
+    h+='<line x1="0" y1="'+Y(0)+'" x2="'+S+'" y2="'+Y(0)+'" stroke="#C9D1E0" stroke-width="3"/><line x1="'+X(0)+'" y1="0" x2="'+X(0)+'" y2="'+S+'" stroke="#C9D1E0" stroke-width="3"/>';
+    [-4,-2,2,4].forEach(function(n){ h+='<text x="'+X(n)+'" y="'+(+Y(0)+24)+'" text-anchor="middle" font-size="20" fill="#9BA5B8"'+FONT+'>'+num(n)+'</text>'+
+      '<text x="'+(+X(0)-8)+'" y="'+(+Y(n)+7)+'" text-anchor="end" font-size="20" fill="#9BA5B8"'+FONT+'>'+num(n)+'</text>'; });
+    h+='<line x1="'+X(-7)+'" y1="'+Y(-7*k+b)+'" x2="'+X(7)+'" y2="'+Y(7*k+b)+'" stroke="#FF4B4B" stroke-width="6" stroke-linecap="round"/>';
+    dots.forEach(function(p){ h+='<circle cx="'+X(p[0])+'" cy="'+Y(p[1])+'" r="9" fill="#FFF04D" stroke="#0E1016" stroke-width="3"/>'; });
+    return '<svg class="'+PFX+'-graph" width="'+S+'" height="'+S+'" viewBox="0 0 '+S+' '+S+'" role="img" aria-label="Graph of a line">'+h+'</svg>'; }
+  function tableSVG(rows){ var n=rows.length, h=380/(n+1), s='<rect x="0" y="0" width="380" height="'+h+'" fill="#232838"/>';
+    s+='<text x="95" y="'+(h/2+12)+'" text-anchor="middle" font-size="34" fill="#C9D1E0"'+FONT+'>x</text><text x="285" y="'+(h/2+12)+'" text-anchor="middle" font-size="34" fill="#C9D1E0"'+FONT+'>y</text>';
+    rows.forEach(function(p,i){ var yy=(i+1)*h+h/2+11;
+      s+='<text x="95" y="'+yy+'" text-anchor="middle" font-size="32" fill="#F2F4F8"'+FONT+'>'+num(p[0])+'</text><text x="285" y="'+yy+'" text-anchor="middle" font-size="32" fill="#F2F4F8"'+FONT+'>'+num(p[1])+'</text>'; });
+    for(var i=1;i<=n;i++) s+='<line x1="0" y1="'+(i*h)+'" x2="380" y2="'+(i*h)+'" stroke="#343B4D" stroke-width="2"/>';
+    s+='<line x1="190" y1="0" x2="190" y2="380" stroke="#343B4D" stroke-width="3"/>';
+    return '<svg class="'+PFX+'-graph" width="380" height="380" viewBox="0 0 380 380" role="img" aria-label="Table of x and y values">'+s+'</svg>'; }
+
+  var GEN={
+  fsPoints:function(){ var x1=ri(-9,9), y1=ri(-9,9), x2=ri(-9,9), y2=ri(-9,9); if(x1===x2||y1===y2) return null;
+    var m=R(y2-y1,x2-x1); if(m.d>6||Math.abs(m.n)>9) return null;
+    var extra=[]; if(x1+x2!==0) extra.push([R(y1+y2,x1+x2),'Subtract the coordinates, don’t add them.']); extra.push([R(y2-y1,x1-x2),'Subtract in the same order on top and bottom.']);
+    return { topic:'From two points', prompt:'What is the <span class="c-m">slope</span> of the line through '+P(x1,y1)+' and '+P(x2,y2)+'?', data:{m:m},
+      check:function(v){ return rEq(v,R(y1-y2,x1-x2)); },                                            /* the other order gives the same slope */
+      choices:slips(m,extra),
+      explain:'Change in y ÷ change in x: '+eq('('+num(y2)+' − '+par(y1)+') ÷ ('+num(x2)+' − '+par(x1)+')')+' = '+num(y2-y1)+' ÷ '+num(x2-x1)+' = '+M(m)+'.' }; },
+  fsGraph:function(){ var m=pick(SLOPES), x1=ri(-4,2), y1=ri(-4,4), x2=x1+m.d*(m.d===1?pick([1,2]):1), y2=y1+(x2-x1)*m.n/m.d; if(Math.abs(x2)>5||Math.abs(y2)>5) return null;
+    var b=y1-m.n*x1/m.d;
+    return { topic:'From a graph', prompt:'What is the <span class="c-m">slope</span> of the line?', visual:gridSVG(m,b,[[x1,y1],[x2,y2]]), data:{m:m},
+      check:function(v){ return rEq(v,R(y2-y1,x2-x1)); },                                            /* rise and run between the two dots */
+      choices:slips(m,[[R(y2-y1,1),'Divide the rise by the run.']]),
+      explain:'From dot to dot: rise '+num(y2-y1)+', run '+(x2-x1)+'. Slope = '+M(m)+'.' }; },
+  fsTable:function(){ var m=pick(SLOPES), dx=m.d*pick(m.d===1?[1,2,3]:[1,2]), b=ri(-6,6), x0=m.d===1?ri(-4,2):m.d*ri(-2,1), rows=[];
+    for(var i=0;i<4;i++){ var x=x0+i*dx; rows.push([x,b+m.n*x/m.d]); } if(rows.some(function(r){ return r[1]!==Math.round(r[1])||Math.abs(r[1])>30||Math.abs(r[0])>20; })) return null;   /* whole numbers only */
+    var dy=rows[1][1]-rows[0][1], extra=[]; if(dx!==1) extra.push([R(dy,1),'That is the change in y. Divide by the change in x, '+dx+'.']);
+    return { topic:'From a table', prompt:'What is the <span class="c-m">slope</span> of the line in the table?', visual:tableSVG(rows), data:{m:m},
+      check:function(v){ return rEq(v,R(rows[3][1]-rows[0][1],rows[3][0]-rows[0][0])); },              /* first row to last row */
+      choices:slips(m,extra),
+      explain:'Each row: y changes by '+num(dy)+' when x changes by '+dx+'. Slope = '+num(dy)+' ÷ '+dx+' = '+M(m)+'.' }; },
+  fsEq:function(){ var m=pick(SLOPES); if(m.n===1&&m.d===1||m.n===-1&&m.d===1) return null;
+    if(Math.random()<0.5){ var b=nz(-9,9); if(m.d===1&&Math.abs(m.n)===Math.abs(b)) return null;
+      return { topic:'From an equation', prompt:'What is the <span class="c-m">slope</span> of '+eq('y = '+coef(m,'x')+sgn(b))+'?', data:{m:m},
+        check:function(v){ return rEq(v,R((b*m.d+m.n)-b*m.d,m.d)); },                                /* y at x = 1 minus y at x = 0 */
+        choices:slips(m,[[R(b,1),'That is b, the y-intercept. The slope is the number with x.']]),
+        explain:'In y = mx + b, the slope is the number with x: '+M(m)+'.' }; }
+    var h=nz(-9,9), k=nz(-9,9); if(Math.abs(h)===Math.abs(k)) return null;
+    var c=(m.d===1&&m.n===1)?'':(m.d===1&&m.n===-1)?MINUS:fmtR(m);
+    return { topic:'From an equation', prompt:'What is the <span class="c-m">slope</span> of '+eq('y'+sgn(-k)+' = '+c+'(x'+sgn(-h)+')')+'?', data:{m:m},
+      check:function(v){ return rEq(v,R((k+m.n)-k,(h+m.d)-h)); },                                    /* from the point (h, k) to the next one */
+      choices:slips(m,[[R(k,1),'That is y₁, part of the point. The slope is the number in front of the parentheses.'],[R(-h,1),'That number is inside the parentheses, with the point.']]),
+      explain:'In y − y₁ = m(x − x₁), the slope is the number in front of the parentheses: '+M(m)+'.' }; }
+  };
+  function build(type){ for(var tries=0;tries<400;tries++){ var q=GEN[type](); if(!q||q.choices.length!==4) continue;
+      if(new Set(q.choices.map(function(c){ return c.key; })).size!==4) continue;
+      if(!q.check(q.choices[0].val)) continue;                                                  // the answer must pass the independent check
+      if(q.choices.slice(1).some(function(c){ return q.check(c.val); })) continue;              // and no distractor may pass it
+      q.type=type; q.choices.forEach(function(c,i){ c.ok=i===0; });
+      shuffle(q.choices); q.visual=q.visual||''; delete q.check; return q; } throw new Error('generator failed: '+type); }
+  return { build:build }; }
+
 var SETS={
   mult:{ name:'Multiplication facts', make:makeMult, big:true, topics:[['f03','Facts 0–3',['Facts 0–3'],1],['f46','Facts 4–6',['Facts 4–6'],2],['f79','Facts 7–9',['Facts 7–9'],3],['f1012','Facts 10–12',['Facts 10–12'],2]] },
   slope:{ name:'Slope-intercept form', make:makeLinear, topics:[['write','Write the equation',['siBuild']],['slope','Find the slope',['siSlope']],['yint','Find the y-intercept',['siYInt']],['graph','Read a graph',['graphSlope','graphYInt','graphXInt']]] },
@@ -816,7 +906,8 @@ var SETS={
   sq:{ name:'Squares & roots', make:makeSq, big:true, topics:[['square','Squaring',['sqSquare']],['root','Square roots',['sqRoot']],['neg','Negatives',['sqNeg']],['est','Estimating roots',['sqEst']]] },
   plot0:{ name:'Graphing y = mx', make:makePlot0, topics:[['match','Pick the line',['plotMatch']],['eq','Write the equation',['plotEq']]] },
   plot:{ name:'Graphing y = mx + b', make:makePlotB, topics:[['match','Pick the line',['plotMatch']],['eq','Write the equation',['plotEq']]] },
-  fam:{ name:'Function families', make:makeFam, topics:[['eq','From the equation',['famEq']],['graph','From the graph',['famGraph']]] }
+  fam:{ name:'Function families', make:makeFam, topics:[['eq','From the equation',['famEq']],['graph','From the graph',['famGraph']]] },
+  fslope:{ name:'Finding slope', make:makeFindSlope, topics:[['pts','From two points',['fsPoints']],['graph','From a graph',['fsGraph']],['table','From a table',['fsTable']],['eq','From an equation',['fsEq']]] }
 };
 
 function plain(h){ return String(h).replace(/<span class="[a-z]+-fr"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g,'$1/$2').replace(/<[^>]+>/g,''); }

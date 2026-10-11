@@ -138,7 +138,8 @@ var SETS=[
   {id:'sq',name:'Squares & roots',unit:'n² and √n',topics:[['square','Squaring'],['root','Square roots'],['neg','Negatives'],['est','Estimating roots']]},
   {id:'plot0',name:'Graphing y = mx',unit:'Lines through the origin',topics:[['match','Pick the line'],['eq','Write the equation']]},
   {id:'plot',name:'Graphing y = mx + b',unit:'Slope and y-intercept',topics:[['match','Pick the line'],['eq','Write the equation']]},
-  {id:'fam',name:'Function families',unit:'Linear, quadratic or exponential',topics:[['eq','From the equation'],['graph','From the graph']]}
+  {id:'fam',name:'Function families',unit:'Linear, quadratic or exponential',topics:[['eq','From the equation'],['graph','From the graph']]},
+  {id:'fslope',name:'Finding slope',unit:'Rise over run',topics:[['pts','From two points'],['graph','From a graph'],['table','From a table'],['eq','From an equation']]}
 ];
 var st={game:null,set:'mult',t:{}};
 SETS.forEach(function(x){ st.t[x.id]=x.topics.map(function(t){ return t[0]; }); });
