@@ -28,7 +28,8 @@ var GAMES={                     /* id: [number in the code, display name, how it
   brick_breaker:[11,'Brick Breaker','points'],
   burger_shop:[12,'Burger Shop','points'],
   burger_blaster:[13,'Burger Blaster','points'],
-  rocket_buds:[14,'Rocket Buds','versus']
+  rocket_buds:[14,'Rocket Buds','versus'],
+  paint_royale:[15,'Paint Royale','points']
 };
 /* question sets in the order questions.js lists them; 0 means the game's own questions. Add new sets at the end.
    New codes have 4 bits for the set, so up to 15 sets fit. */
