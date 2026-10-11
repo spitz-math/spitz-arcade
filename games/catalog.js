@@ -95,6 +95,15 @@ window.SpitzGames=[
    '<path d="M-36 51q0-26 36-26t36 26z" fill="#E8A24A"/><g fill="#F6E3C2"><ellipse cx="-14" cy="38" rx="2" ry="1.2"/><ellipse cx="0" cy="33" rx="2" ry="1.2"/><ellipse cx="14" cy="38" rx="2" ry="1.2"/><ellipse cx="-4" cy="43" rx="2" ry="1.2"/><ellipse cx="8" cy="44" rx="2" ry="1.2"/></g></g>'+
    '<g transform="translate(150 16)"><rect width="36" height="44" rx="3" fill="#F6E3C2"/><path d="M6 12h24M6 20h18M6 28h22M6 36h14" stroke="#C4AA98" stroke-width="3" stroke-linecap="round"/><circle cx="18" cy="0" r="3" fill="#43302A"/></g>'+
    '<g transform="translate(22 40)"><rect x="0" y="10" width="16" height="38" rx="5" fill="#FF3B2E"/><rect x="4" y="2" width="8" height="10" rx="2" fill="#FF3B2E"/><rect x="5" y="-4" width="6" height="7" rx="1.5" fill="#F6E3C2"/><rect x="3" y="22" width="10" height="12" rx="2" fill="#F6E3C2" opacity=".85"/></g>'},
+  {id:'rocket_buds',name:'Rocket Buds',d:'Car soccer vs the Rivals',font:"'Exo 2'",paper:'#0B1124',panel:'#121A33',acc:'#2FD5FF',
+   art:'<rect width="200" height="110" fill="#121A33"/>'+
+   '<g opacity=".75">'+(function(){var o='',c=['#2FD5FF','#1E8FB8','#3A4A7A','#FF8A1E','#FFC93C','#B35E1A'];for(var y=12;y<54;y+=7)for(var x=26;x<176;x+=7){var k=(x*7+y*13)%6;if(x<100&&k>2)k-=3;if(x>=100&&k<3)k+=3;o+='<circle cx="'+x+'" cy="'+y+'" r="2.2" fill="'+c[k]+'"/>';}return o;})()+'</g>'+
+   '<rect x="0" y="58" width="200" height="1.5" fill="#FFC93C"/><rect x="0" y="96" width="200" height="14" fill="#1C2547"/><rect x="0" y="95" width="200" height="1.5" fill="#C9D6F2"/>'+
+   '<path d="M0 70h14v26H0" fill="none" stroke="#2FD5FF" stroke-width="2.5"/><path d="M200 70h-14v26h14" fill="none" stroke="#FF8A1E" stroke-width="2.5"/>'+
+   '<g transform="translate(100 44)"><circle r="10" fill="#F3F6FF" stroke="#121A33" stroke-width="1"/><path d="M0-3.5l3.3 2.4-1.3 3.9h-4l-1.3-3.9z" fill="#121A33"/></g>'+
+   '<path d="M14 78h-10M16 86h-12" stroke="#FFC93C" stroke-width="2.5" stroke-linecap="round"/>'+
+   '<g transform="translate(16 68) scale(1.35)"><path d="M4 14V8l10-1 8-7h16l7 7h8a3 3 0 013 3v4z" fill="#2FD5FF"/><path d="M24 2h13l5 5H19z" fill="#121A33" opacity=".55"/><rect x="0" y="4" width="9" height="2.5" fill="#1E8FB8"/><circle cx="15" cy="15" r="5" fill="#121A33" stroke="#C9D6F2" stroke-width="1.5"/><circle cx="47" cy="15" r="5" fill="#121A33" stroke="#C9D6F2" stroke-width="1.5"/></g>'+
+   '<g transform="translate(184 68) scale(-1.35 1.35)"><path d="M4 14V8l10-1 8-7h16l7 7h8a3 3 0 013 3v4z" fill="#FF8A1E"/><path d="M24 2h13l5 5H19z" fill="#121A33" opacity=".55"/><rect x="0" y="4" width="9" height="2.5" fill="#B35E1A"/><circle cx="15" cy="15" r="5" fill="#121A33" stroke="#C9D6F2" stroke-width="1.5"/><circle cx="47" cy="15" r="5" fill="#121A33" stroke="#C9D6F2" stroke-width="1.5"/></g>'},
   {id:'burger_blaster',name:'Burger Blaster',d:'Feed the Munchers',font:"'Bangers'",paper:'#0D0A1A',panel:'#1A1430',acc:'#FF4B3E',
    art:'<rect width="200" height="110" fill="#1A1430"/><circle cx="128" cy="22" r="11" fill="#FBE7A6"/><circle cx="125" cy="19" r="2.2" fill="#E9CF86"/><circle cx="131" cy="25" r="1.6" fill="#E9CF86"/>'+
    '<g fill="#F3EEFF"><rect x="20" y="12" width="2" height="2"/><rect x="62" y="24" width="2" height="2"/><rect x="118" y="10" width="2" height="2"/><rect x="140" y="34" width="2" height="2"/></g>'+
@@ -114,8 +123,8 @@ window.SpitzGames=[
    so it has a spot once its NEW badge runs out. */
 (function(){
   var NEW_DAYS=7;
-  var ADDED={ fishing:'2026-10-10T20:12', brick_breaker:'2026-10-10T20:16', mini_golf:'2026-10-10T20:30', burger_shop:'2026-10-10T20:35', burger_blaster:'2026-10-11T04:15' };
-  var BEST=['hoop_buds','football_buds','burger_blaster','burger_shop','mini_golf','skate','dash','fishing','brick_breaker','star_swarm','splat_range','shift_racer','jump_man_multiplication'];
+  var ADDED={ fishing:'2026-10-10T20:12', brick_breaker:'2026-10-10T20:16', mini_golf:'2026-10-10T20:30', burger_shop:'2026-10-10T20:35', burger_blaster:'2026-10-11T04:15', rocket_buds:'2026-10-11T04:25' };
+  var BEST=['hoop_buds','football_buds','rocket_buds','burger_blaster','burger_shop','mini_golf','skate','dash','fishing','brick_breaker','star_swarm','splat_range','shift_racer','jump_man_multiplication'];
   var now=Date.now(), G=window.SpitzGames;
   G.forEach(function(g,i){ var t=ADDED[g.id]?Date.parse(ADDED[g.id]+'Z'):0; g.added=t; g.isNew=!!t&&now-t<NEW_DAYS*864e5; g.rank=BEST.indexOf(g.id)<0?BEST.length+i:BEST.indexOf(g.id); });
   G.sort(function(a,b){ if(a.isNew!==b.isNew) return a.isNew?-1:1; if(a.isNew) return b.added-a.added; return a.rank-b.rank; });
