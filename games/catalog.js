@@ -101,7 +101,7 @@ window.SpitzGames=[
    then the rest in BEST order (our favorites first). When a game goes live, add it to ADDED with the time and put it somewhere in BEST
    so it has a spot once its NEW badge runs out. */
 (function(){
-  var NEW_DAYS=21;
+  var NEW_DAYS=7;
   var ADDED={ fishing:'2026-10-10T20:12', brick_breaker:'2026-10-10T20:16', mini_golf:'2026-10-10T20:30', burger_shop:'2026-10-10T20:35' };
   var BEST=['hoop_buds','football_buds','burger_shop','mini_golf','skate','dash','fishing','brick_breaker','star_swarm','splat_range','shift_racer','jump_man_multiplication'];
   var now=Date.now(), G=window.SpitzGames;
