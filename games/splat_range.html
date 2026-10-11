@@ -211,6 +211,15 @@ html:not(.sz-alg) .sr-q:not(.vis) .sr-ch{ font-size:42px; min-height:108px; }
 #sr-start .sr-steps{ gap:34px; margin:10px 0 40px; }
 .sr-step{ border:0; border-radius:6px; box-shadow:0 14px 24px rgba(0,0,0,.4); position:relative; }
 #sr-start .sr-step:nth-child(1){ transform:rotate(-3deg); border-top:12px solid var(--pink); } #sr-start .sr-step:nth-child(2){ transform:rotate(1.5deg); border-top:12px solid var(--lime); } #sr-start .sr-step:nth-child(3){ transform:rotate(-1deg); border-top:12px solid var(--cyan); }
+
+/* ================= PERF: compositor-only pulses (games/tools/perf_pass.py) ================= */
+#sr-paintchip.empty{ animation:none; isolation:isolate; position:relative; }
+#sr-paintchip.empty::after{ content:''; position:absolute; inset:0; border-radius:inherit; background:var(--no); opacity:0; z-index:-1; pointer-events:none; animation:szPulseO 1s infinite; }
+@keyframes szPulseO{ 50%{ opacity:.25; } }
+.sr-range.frenzy{ animation:none; border-color:var(--pink); }
+.sr-range.frenzy::after{ content:''; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 0 40px 6px var(--pink); opacity:0; z-index:40; pointer-events:none; animation:szGlowO 0.6s infinite alternate; }
+@keyframes szGlowO{ to{ opacity:1; } }
+/* ================= /PERF ================= */
 </style>
 <script>/* a hub link with an algebra set (anything but mult and int): answers can be long, so layouts that tile short answers fall back to a list */
 if(/[?&]set=(?!(?:mult|int)\b)[a-z]/.test(location.search)) document.documentElement.classList.add('sz-alg');
@@ -280,7 +289,7 @@ var szm=/[?&]set=([a-z]+)/.exec(location.search); if(szm) document.documentEleme
     <p class="sr-sub">This erases the current run and starts over from the beginning.</p>
     <div class="sz-askrow"><button id="sz-askno">No, keep playing (N)</button><button id="sz-askyes">Yes, new game (Y)</button></div>
   </div></div>
-  <canvas id="sr-confetti" width="1920" height="1080" aria-hidden="true"></canvas>
+  <canvas id="sr-confetti" width="960" height="540" aria-hidden="true"></canvas>
   <div class="sr-toast" id="sr-toast" hidden></div>
 </div>
 
@@ -390,13 +399,15 @@ window.__music=function(sec){ var C=window.OfflineAudioContext||window.webkitOff
     return {peak:pk, rms:Math.sqrt(sq/n), bad:bad, steps:i}; }); };
 
 /* ================= CONFETTI (always on, even with reduced motion) ================= */
-var parts=[], craf=0, CFC=['#FF3DB4','#B6FF3D','#2DE2E6','#FF8A1F','#FFF04D','#C77DFF','#FFFFFF'];
+var parts=[], craf=0, cfLast=0, cfSeen=0, CFC=['#FF3DB4','#B6FF3D','#2DE2E6','#FF8A1F','#FFF04D','#C77DFF','#FFFFFF'];
 function confetti(x,y,n,spread){ for(var i=0;i<n;i++){ var a=-Math.PI/2+(Math.random()-0.5)*spread, sp=8+Math.random()*15;
     parts.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,w:10+Math.random()*12,h:6+Math.random()*8,r:Math.random()*6.28,vr:(Math.random()-0.5)*0.5,c:CFC[i%CFC.length],life:0,max:85+Math.random()*60}); }
-  window.__conf=(window.__conf||0)+n; if(!craf) craf=requestAnimationFrame(cfStep); }
-function cfStep(){ var c=$('sr-confetti').getContext('2d'); c.clearRect(0,0,1920,1080);
+  if(parts.length>700) parts=parts.slice(-700);
+  window.__conf=(window.__conf||0)+n; if(!craf||Date.now()-cfSeen>400){ if(craf) cancelAnimationFrame(craf); cfLast=0; craf=requestAnimationFrame(cfStep); } }
+function cfStep(ts){ craf=0; cfSeen=Date.now(); var f=cfLast?Math.min(6,(ts-cfLast)/16.67):1; cfLast=ts; var cfv=$('sr-confetti'), c=cfv.getContext('2d'), cfk=cfv.width/1920; c.setTransform(cfk,0,0,cfk,0,0); c.clearRect(0,0,1920,1080);
   parts=parts.filter(function(p){ return p.life<p.max&&p.y<1120; });
-  parts.forEach(function(p){ p.life++; p.vy+=0.42; p.vx*=0.985; p.vy*=0.992; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr; var k=Math.cos(p.life*0.2);
+  var d1=Math.pow(0.985,f), d2=Math.pow(0.992,f);
+  parts.forEach(function(p){ p.life+=f; p.vy+=0.42*f; p.vx*=d1; p.vy*=d2; p.x+=p.vx*f; p.y+=p.vy*f; p.r+=p.vr*f; var k=Math.cos(p.life*0.2);
     c.save(); c.translate(p.x,p.y); c.rotate(p.r); c.globalAlpha=Math.min(1,(p.max-p.life)/25); c.fillStyle=p.c; c.fillRect(-p.w/2,-p.h/2*k,p.w,p.h*k); c.restore(); });
   craf=parts.length? requestAnimationFrame(cfStep) : (c.clearRect(0,0,1920,1080),0); }
 var toastT=0; function toast(msg){ var t=$('sr-toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(function(){ t.hidden=true; },1500); }
@@ -841,7 +852,7 @@ window.__G={ state:function(){ return S; }, targets:function(){ return targets; 
 (function(){ var m=/[?&]set=([a-z]+)/.exec(location.search); if(m&&window.SpitzQ&&SpitzQ.sets&&SpitzQ.sets[m[1]]) document.querySelectorAll('.sz-setname').forEach(function(e){ e.textContent=SpitzQ.sets[m[1]].name+'.'; }); })();</script>
 <!-- ================= FULL SCREEN REMINDER: shows until the game is full screen; click it or press F ================= -->
 <style>
-.sz-fs{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); transform-origin:50% 100%; z-index:9999; display:flex; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:999px;
+.sz-fs{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); transform-origin:50% 100%; z-index:9999; display:flex; white-space:nowrap; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:999px;
   border:2px solid rgba(255,255,255,.4); background:rgba(0,0,0,.78); color:#fff; font:700 18px/1 Inter,system-ui,sans-serif; cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,.4); transition:opacity .4s; }
 .sz-fs kbd{ display:inline-grid; place-items:center; min-width:34px; height:34px; border-radius:8px; background:#fff; color:#111; font:800 20px/1 Inter,system-ui,sans-serif; }
 .sz-fs.quiet{ opacity:.4; } .sz-fs:hover{ opacity:1; }
@@ -853,9 +864,14 @@ window.__G={ state:function(){ return S; }, targets:function(){ return targets; 
   function fs(){ return !!(document.fullscreenElement||document.webkitFullscreenElement); }
   function upd(){ b.hidden=fs(); var st=document.querySelector('[id$="-start"]'), onStart=!!(st&&!st.hidden&&st.offsetParent);
     b.classList.toggle('quiet', !onStart && Date.now()-t0>8000);
-    /* sit at the same spot of the game screen at any window size: scale with the stage and follow its letterbox */
-    var sg=document.getElementById('stage'); if(sg){ var r=sg.getBoundingClientRect(), k=r.width/1920; if(k>0){ b.style.left=(r.left+r.width/2)+'px'; b.style.bottom=(window.innerHeight-r.bottom+16*k)+'px'; b.style.transform='translateX(-50%) scale('+k+')'; } } }
+    /* sit at the same spot of the game screen at any window size: scale with the stage and follow its letterbox (a game can move it sideways with --sz-fs-x).
+       On the start and end screens it waits in the top right corner, so it never covers the keys line or the buttons (a game can opt out with --sz-fs-corner:0) */
+    var sg=document.getElementById('stage'); if(sg){ var r=sg.getBoundingClientRect(), k=r.width/1920; if(k>0){ var cs=getComputedStyle(document.documentElement),
+        x=parseFloat(cs.getPropertyValue('--sz-fs-x'))||0.5, en=document.querySelector('[id$="-end"]'), over=onStart||!!(en&&!en.hidden&&en.offsetParent);
+      if(over&&cs.getPropertyValue('--sz-fs-corner').trim()!=='0'){ b.style.top=(r.top+24*k)+'px'; b.style.bottom='auto'; b.style.left=(r.right-24*k)+'px'; b.style.transformOrigin='100% 0'; b.style.transform='translateX(-100%) scale('+k+')'; }
+      else{ b.style.top=''; b.style.transformOrigin=''; b.style.left=(r.left+r.width*x)+'px'; b.style.bottom=(window.innerHeight-r.bottom+16*k)+'px'; b.style.transform='translateX(-50%) scale('+k+')'; } } } }
   b.addEventListener('click',function(){ document.dispatchEvent(new KeyboardEvent('keydown',{key:'f',bubbles:true})); setTimeout(upd,300); });
+  ['click','keydown'].forEach(function(n){ document.addEventListener(n,function(){ setTimeout(upd,60); },true); });   // follow Start / Play again right away
   window.addEventListener('resize',function(){ setTimeout(upd,50); }); document.addEventListener('fullscreenchange',upd); document.addEventListener('webkitfullscreenchange',upd); setInterval(upd,1000); upd(); })();
 </script>
 </body>

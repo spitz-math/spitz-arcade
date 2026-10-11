@@ -155,6 +155,14 @@ button:disabled{ cursor:default; }
 .sz-mus.on{ border-color:var(--sz-mark); color:var(--text); }
 .sz-ask{ z-index:40; } .sz-ask h2{ margin:0 0 6px; font:400 84px/1.05 var(--display); color:var(--text); }
 [class$="-logo"]{ cursor:pointer; }
+/* ================= PERF: compositor-only pulses (games/tools/perf_pass.py) ================= */
+#bb-bouncechip.empty{ animation:none; isolation:isolate; position:relative; }
+#bb-bouncechip.empty::after{ content:''; position:absolute; inset:0; border-radius:inherit; background:var(--no); opacity:0; z-index:-1; pointer-events:none; animation:szPulseO 1s infinite; }
+@keyframes szPulseO{ 50%{ opacity:.25; } }
+.bb-field.frenzy{ animation:none; border-color:var(--tang); }
+.bb-field.frenzy::after{ content:''; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 0 40px 6px rgba(255,122,61,.8); opacity:0; z-index:40; pointer-events:none; animation:szGlowO 0.6s infinite alternate; }
+@keyframes szGlowO{ to{ opacity:1; } }
+/* ================= /PERF ================= */
 </style>
 </head>
 <body>
@@ -221,7 +229,7 @@ button:disabled{ cursor:default; }
     <p class="bb-sub">This erases the current run: score, bounces, cash and upgrades.</p>
     <div class="bb-row"><button class="bb-again" id="bb-askno">No, keep playing (N)</button><button class="bb-go" id="bb-askyes">Yes, new game (Y)</button></div>
   </div></div>
-  <canvas id="bb-confetti" width="1920" height="1080" aria-hidden="true"></canvas>
+  <canvas id="bb-confetti" width="960" height="540" aria-hidden="true"></canvas>
   <div class="bb-toast" id="bb-toast" hidden></div>
 </div>
 
@@ -279,6 +287,13 @@ var SND={
     brass(E5,t+0.76,0.16,0.11); brass(A5,t+0.76,0.16,0.13); brass(G5,t+0.94,0.16,0.11); brass(987.77,t+0.94,0.16,0.13);
     [C5,E5,G5,C6].forEach(function(f){ brass(f,t+1.14,1.3,0.11); }); tone(E6,E6,t+1.2,0.9,'triangle',0.1); }
 };
+/* ================= SOUND PASS: volume trims (games/tools/sound_pass.py) */
+(function(T){ Object.keys(T).forEach(function(n){ var f=SND[n]; if(!f) return;
+  SND[n]=function(){ var a=ac(); if(!a) return f.apply(this,arguments);
+    var bus=a.createGain(); bus.gain.value=T[n]; bus.connect(a.destination);                  // this sound's own volume knob
+    Object.defineProperty(a,'destination',{configurable:true,get:function(){ return bus; }});
+    try{ return f.apply(this,arguments); } finally{ delete a.destination; } }; }); })({win:0.7});
+/* ================= /SOUND PASS */
 
 /* ================= MUSIC (synthesized, no audio files) =================
    "Wall Ball": a bouncy funk loop in D minor, 116 beats a minute. Octave-jumping bass, kick and clap, a marimba riff,
@@ -336,13 +351,15 @@ var SZ_VOICE=function(f,t0){ mallet(f,t0,0.16); mallet(f*2,t0,0.05); };
 function jingle(){ JINGLE.forEach(function(n){ SZ_VOICE(n[0],n[1],n[2]); }); }
 
 /* ================= CONFETTI (always on, even with reduced motion) ================= */
-var parts=[], craf=0, CFC=['#FF5D73','#FF7A3D','#FFC83D','#5CF2C2','#4DC3FF','#9B7BFF','#FFFFFF'];
+var parts=[], craf=0, cfLast=0, cfSeen=0, CFC=['#FF5D73','#FF7A3D','#FFC83D','#5CF2C2','#4DC3FF','#9B7BFF','#FFFFFF'];
 function confetti(x,y,n,spread){ for(var i=0;i<n;i++){ var a=-Math.PI/2+(Math.random()-0.5)*spread, sp=8+Math.random()*15;
     parts.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,w:10+Math.random()*12,h:6+Math.random()*8,r:Math.random()*6.28,vr:(Math.random()-0.5)*0.5,c:CFC[i%CFC.length],life:0,max:85+Math.random()*60}); }
-  window.__conf=(window.__conf||0)+n; if(!craf) craf=requestAnimationFrame(cfStep); }
-function cfStep(){ var c=$('bb-confetti').getContext('2d'); c.clearRect(0,0,1920,1080);
+  if(parts.length>700) parts=parts.slice(-700);
+  window.__conf=(window.__conf||0)+n; if(!craf||Date.now()-cfSeen>400){ if(craf) cancelAnimationFrame(craf); cfLast=0; craf=requestAnimationFrame(cfStep); } }
+function cfStep(ts){ craf=0; cfSeen=Date.now(); var f=cfLast?Math.min(6,(ts-cfLast)/16.67):1; cfLast=ts; var cfv=$('bb-confetti'), c=cfv.getContext('2d'), cfk=cfv.width/1920; c.setTransform(cfk,0,0,cfk,0,0); c.clearRect(0,0,1920,1080);
   parts=parts.filter(function(p){ return p.life<p.max&&p.y<1120; });
-  parts.forEach(function(p){ p.life++; p.vy+=0.42; p.vx*=0.985; p.vy*=0.992; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr; var k=Math.cos(p.life*0.2);
+  var d1=Math.pow(0.985,f), d2=Math.pow(0.992,f);
+  parts.forEach(function(p){ p.life+=f; p.vy+=0.42*f; p.vx*=d1; p.vy*=d2; p.x+=p.vx*f; p.y+=p.vy*f; p.r+=p.vr*f; var k=Math.cos(p.life*0.2);
     c.save(); c.translate(p.x,p.y); c.rotate(p.r); c.globalAlpha=Math.min(1,(p.max-p.life)/25); c.fillStyle=p.c; c.fillRect(-p.w/2,-p.h/2*k,p.w,p.h*k); c.restore(); });
   craf=parts.length? requestAnimationFrame(cfStep) : (c.clearRect(0,0,1920,1080),0); }
 var toastT=0; function toast(msg){ var t=$('bb-toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(function(){ t.hidden=true; },1500); }
@@ -630,7 +647,7 @@ window.__G={ state:function(){ return S; }, balls:function(){ return balls; }, p
 (function(){ var m=/[?&]set=([a-z]+)/.exec(location.search); if(m&&window.SpitzQ&&SpitzQ.sets&&SpitzQ.sets[m[1]]) document.querySelectorAll('.sz-setname').forEach(function(e){ e.textContent=SpitzQ.sets[m[1]].name+'.'; }); })();</script>
 <!-- ================= FULL SCREEN REMINDER: shows until the game is full screen; click it or press F ================= -->
 <style>
-.sz-fs{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:9999; display:flex; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:999px;
+.sz-fs{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); z-index:9999; display:flex; white-space:nowrap; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:999px;
   border:2px solid rgba(255,255,255,.4); background:rgba(0,0,0,.78); color:#fff; font:700 18px/1 Inter,system-ui,sans-serif; cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,.4); transition:opacity .4s; }
 .sz-fs kbd{ display:inline-grid; place-items:center; min-width:34px; height:34px; border-radius:8px; background:#fff; color:#111; font:800 20px/1 Inter,system-ui,sans-serif; }
 .sz-fs.quiet{ opacity:.4; } .sz-fs:hover{ opacity:1; }
@@ -647,7 +664,10 @@ window.__G={ state:function(){ return S; }, balls:function(){ return balls; }, p
 </script>
 <script>/* Brick Breaker: the hint sits at the bottom of the wall, under the paddle and scaled with the stage, so it never covers the question card */
 (function(){ var b=document.getElementById('sz-fs'), f=document.getElementById('bb-field');
-  function place(){ var r=f.getBoundingClientRect(), k=r.width/780; b.style.left=(r.left+r.width/2)+'px'; b.style.bottom=(innerHeight-r.bottom+6*k)+'px'; b.style.transformOrigin='50% 100%'; b.style.transform='translateX(-50%) scale('+k+')'; }
+  function place(){ var st=document.getElementById('bb-start'), en=document.getElementById('bb-end'), sg=document.getElementById('stage').getBoundingClientRect(), ks=sg.width/1920;
+    if((st&&!st.hidden)||(en&&!en.hidden)){ b.style.top=(sg.top+24*ks)+'px'; b.style.bottom='auto'; b.style.left=(sg.right-24*ks)+'px'; b.style.transformOrigin='100% 0'; b.style.transform='translateX(-100%) scale('+ks+')'; return; }   // start and end screens: top right corner, off the keys line
+    b.style.top=''; var r=f.getBoundingClientRect(), k=r.width/780; b.style.left=(r.left+r.width/2)+'px'; b.style.bottom=(innerHeight-r.bottom+6*k)+'px'; b.style.transformOrigin='50% 100%'; b.style.transform='translateX(-50%) scale('+k+')'; }
+  ['click','keydown'].forEach(function(n){ document.addEventListener(n,function(){ setTimeout(place,60); },true); });
   addEventListener('resize',place); setInterval(place,1000); place(); })();
 </script>
 </body>

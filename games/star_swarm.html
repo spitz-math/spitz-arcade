@@ -190,6 +190,8 @@ button:disabled{ cursor:default; }
 
 /* ================= v3 LAYOUT + COLORS ================= */
 
+/* picture questions: a slightly smaller graph and answer text so word answers (Exponential, Quadratic) fit beside it */
+.sw-q.vis .sw-graph{ width:300px; height:300px; } .sw-q.vis .sw-ch{ font-size:30px; gap:14px; }
 #stage{ grid-template-rows:minmax(0,1fr); }
 .sw-top{ position:absolute; left:48px; top:38px; width:1140px; z-index:4; gap:10px; pointer-events:none; }
 .sw-top button{ pointer-events:auto; }
@@ -210,6 +212,16 @@ button:disabled{ cursor:default; }
 /* challenge waves: the banner starts under the HUD bar and stays compact so 2-3 line prompts clear the answer pods */
 .sw-wave{ top:92px; padding:10px 18px; }
 .sw-wave .wk{ font-size:22px; } .sw-wave .wp{ font-size:30px; line-height:1.2; margin-top:6px; } .sw-wave .wm{ font-size:24px; min-height:30px; margin-top:4px; }
+:root{ --sz-fs-x:0.81; }
+
+/* ================= PERF: compositor-only pulses (games/tools/perf_pass.py) ================= */
+#sw-laserchip.empty{ animation:none; isolation:isolate; position:relative; }
+#sw-laserchip.empty::after{ content:''; position:absolute; inset:0; border-radius:inherit; background:var(--no); opacity:0; z-index:-1; pointer-events:none; animation:szPulseO 1s infinite; }
+@keyframes szPulseO{ 50%{ opacity:.25; } }
+.sw-space.frenzy{ animation:none; border-color:var(--hot); }
+.sw-space.frenzy::after{ content:''; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 0 40px 6px var(--hot); opacity:0; z-index:40; pointer-events:none; animation:szGlowO 0.6s infinite alternate; }
+@keyframes szGlowO{ to{ opacity:1; } }
+/* ================= /PERF ================= */
 </style>
 <script>/* a hub link with an algebra set (anything but mult and int): answers can be long, so layouts that tile short answers fall back to a list */
 if(/[?&]set=(?!(?:mult|int)\b)[a-z]/.test(location.search)) document.documentElement.classList.add('sz-alg');
@@ -285,7 +297,7 @@ var szm=/[?&]set=([a-z]+)/.exec(location.search); if(szm) document.documentEleme
     <p class="sw-sub">This erases the current run: score, lasers, cash and upgrades.</p>
     <div class="sw-row"><button class="sw-again" id="sw-askno">No, keep playing (N)</button><button class="sw-go" id="sw-askyes">Yes, new game (Y)</button></div>
   </div></div>
-  <canvas id="sw-confetti" width="1920" height="1080" aria-hidden="true"></canvas>
+  <canvas id="sw-confetti" width="960" height="540" aria-hidden="true"></canvas>
   <div class="sw-toast" id="sw-toast" hidden></div>
 </div>
 
@@ -336,6 +348,13 @@ var SND={
     brass(E5,t+0.76,0.16,0.11); brass(A5,t+0.76,0.16,0.13); brass(G5,t+0.94,0.16,0.11); brass(B5,t+0.94,0.16,0.13);
     [C5,E5,G5,C6].forEach(function(f){ brass(f,t+1.14,1.3,0.11); }); tone(E6,E6,t+1.2,0.9,'triangle',0.1); }
 };
+/* ================= SOUND PASS: volume trims (games/tools/sound_pass.py) */
+(function(T){ Object.keys(T).forEach(function(n){ var f=SND[n]; if(!f) return;
+  SND[n]=function(){ var a=ac(); if(!a) return f.apply(this,arguments);
+    var bus=a.createGain(); bus.gain.value=T[n]; bus.connect(a.destination);                  // this sound's own volume knob
+    Object.defineProperty(a,'destination',{configurable:true,get:function(){ return bus; }});
+    try{ return f.apply(this,arguments); } finally{ delete a.destination; } }; }); })({win:0.7});
+/* ================= /SOUND PASS */
 
 /* ================= MUSIC (synthesized, no audio files) =================
    "The aliens are attacking": a fast arcade battle loop in A minor (138 beats a minute). A galloping bass, kick and snare, a racing 16th-note arpeggio,
@@ -395,13 +414,15 @@ var JINGLE=[[392.00,0,0.12],[523.25,0.13,0.12],[659.25,0.26,0.12],[783.99,0.40,0
 function jingle(){ JINGLE.forEach(function(n){ SZ_VOICE(n[0],n[1],n[2]); }); }
 
 /* ================= CONFETTI (always on, even with reduced motion) ================= */
-var parts=[], craf=0, CFC=['#FF4F6D','#A6FF4D','#3DE0FF','#FF9A2E','#FFF04D','#C77DFF','#FFFFFF'];
+var parts=[], craf=0, cfLast=0, cfSeen=0, CFC=['#FF4F6D','#A6FF4D','#3DE0FF','#FF9A2E','#FFF04D','#C77DFF','#FFFFFF'];
 function confetti(x,y,n,spread){ for(var i=0;i<n;i++){ var a=-Math.PI/2+(Math.random()-0.5)*spread, sp=8+Math.random()*15;
     parts.push({x:x,y:y,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,w:10+Math.random()*12,h:6+Math.random()*8,r:Math.random()*6.28,vr:(Math.random()-0.5)*0.5,c:CFC[i%CFC.length],life:0,max:85+Math.random()*60}); }
-  window.__conf=(window.__conf||0)+n; if(!craf) craf=requestAnimationFrame(cfStep); }
-function cfStep(){ var c=$('sw-confetti').getContext('2d'); c.clearRect(0,0,1920,1080);
+  if(parts.length>700) parts=parts.slice(-700);
+  window.__conf=(window.__conf||0)+n; if(!craf||Date.now()-cfSeen>400){ if(craf) cancelAnimationFrame(craf); cfLast=0; craf=requestAnimationFrame(cfStep); } }
+function cfStep(ts){ craf=0; cfSeen=Date.now(); var f=cfLast?Math.min(6,(ts-cfLast)/16.67):1; cfLast=ts; var cfv=$('sw-confetti'), c=cfv.getContext('2d'), cfk=cfv.width/1920; c.setTransform(cfk,0,0,cfk,0,0); c.clearRect(0,0,1920,1080);
   parts=parts.filter(function(p){ return p.life<p.max&&p.y<1120; });
-  parts.forEach(function(p){ p.life++; p.vy+=0.42; p.vx*=0.985; p.vy*=0.992; p.x+=p.vx; p.y+=p.vy; p.r+=p.vr; var k=Math.cos(p.life*0.2);
+  var d1=Math.pow(0.985,f), d2=Math.pow(0.992,f);
+  parts.forEach(function(p){ p.life+=f; p.vy+=0.42*f; p.vx*=d1; p.vy*=d2; p.x+=p.vx*f; p.y+=p.vy*f; p.r+=p.vr*f; var k=Math.cos(p.life*0.2);
     c.save(); c.translate(p.x,p.y); c.rotate(p.r); c.globalAlpha=Math.min(1,(p.max-p.life)/25); c.fillStyle=p.c; c.fillRect(-p.w/2,-p.h/2*k,p.w,p.h*k); c.restore(); });
   craf=parts.length? requestAnimationFrame(cfStep) : (c.clearRect(0,0,1920,1080),0); }
 var toastT=0; function toast(msg){ var t=$('sw-toast'); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(function(){ t.hidden=true; },1500); }
@@ -956,7 +977,7 @@ window.__G={ state:function(){ return S; }, aliens:function(){ return aliens; },
 (function(){ var m=/[?&]set=([a-z]+)/.exec(location.search); if(m&&window.SpitzQ&&SpitzQ.sets&&SpitzQ.sets[m[1]]) document.querySelectorAll('.sz-setname').forEach(function(e){ e.textContent=SpitzQ.sets[m[1]].name+'.'; }); })();</script>
 <!-- ================= FULL SCREEN REMINDER: shows until the game is full screen; click it or press F ================= -->
 <style>
-.sz-fs{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); transform-origin:50% 100%; z-index:9999; display:flex; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:999px;
+.sz-fs{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); transform-origin:50% 100%; z-index:9999; display:flex; white-space:nowrap; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:999px;
   border:2px solid rgba(255,255,255,.4); background:rgba(0,0,0,.78); color:#fff; font:700 18px/1 Inter,system-ui,sans-serif; cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,.4); transition:opacity .4s; }
 .sz-fs kbd{ display:inline-grid; place-items:center; min-width:34px; height:34px; border-radius:8px; background:#fff; color:#111; font:800 20px/1 Inter,system-ui,sans-serif; }
 .sz-fs.quiet{ opacity:.4; } .sz-fs:hover{ opacity:1; }
@@ -968,9 +989,14 @@ window.__G={ state:function(){ return S; }, aliens:function(){ return aliens; },
   function fs(){ return !!(document.fullscreenElement||document.webkitFullscreenElement); }
   function upd(){ b.hidden=fs(); var st=document.querySelector('[id$="-start"]'), onStart=!!(st&&!st.hidden&&st.offsetParent);
     b.classList.toggle('quiet', !onStart && Date.now()-t0>8000);
-    /* sit at the same spot of the game screen at any window size: scale with the stage and follow its letterbox */
-    var sg=document.getElementById('stage'); if(sg){ var r=sg.getBoundingClientRect(), k=r.width/1920; if(k>0){ b.style.left=(r.left+r.width/2)+'px'; b.style.bottom=(window.innerHeight-r.bottom+16*k)+'px'; b.style.transform='translateX(-50%) scale('+k+')'; } } }
+    /* sit at the same spot of the game screen at any window size: scale with the stage and follow its letterbox (a game can move it sideways with --sz-fs-x).
+       On the start and end screens it waits in the top right corner, so it never covers the keys line or the buttons (a game can opt out with --sz-fs-corner:0) */
+    var sg=document.getElementById('stage'); if(sg){ var r=sg.getBoundingClientRect(), k=r.width/1920; if(k>0){ var cs=getComputedStyle(document.documentElement),
+        x=parseFloat(cs.getPropertyValue('--sz-fs-x'))||0.5, en=document.querySelector('[id$="-end"]'), over=onStart||!!(en&&!en.hidden&&en.offsetParent);
+      if(over&&cs.getPropertyValue('--sz-fs-corner').trim()!=='0'){ b.style.top=(r.top+24*k)+'px'; b.style.bottom='auto'; b.style.left=(r.right-24*k)+'px'; b.style.transformOrigin='100% 0'; b.style.transform='translateX(-100%) scale('+k+')'; }
+      else{ b.style.top=''; b.style.transformOrigin=''; b.style.left=(r.left+r.width*x)+'px'; b.style.bottom=(window.innerHeight-r.bottom+16*k)+'px'; b.style.transform='translateX(-50%) scale('+k+')'; } } } }
   b.addEventListener('click',function(){ document.dispatchEvent(new KeyboardEvent('keydown',{key:'f',bubbles:true})); setTimeout(upd,300); });
+  ['click','keydown'].forEach(function(n){ document.addEventListener(n,function(){ setTimeout(upd,60); },true); });   // follow Start / Play again right away
   window.addEventListener('resize',function(){ setTimeout(upd,50); }); document.addEventListener('fullscreenchange',upd); document.addEventListener('webkitfullscreenchange',upd); setInterval(upd,1000); upd(); })();
 </script>
 </body>
