@@ -94,7 +94,19 @@ window.SpitzGames=[
    '<path d="M-38 54q6-6 12 0t12 0 12 0 12 0 12 0 12 0" stroke="#9BE15D" stroke-width="5" fill="none" stroke-linecap="round"/>'+
    '<path d="M-36 51q0-26 36-26t36 26z" fill="#E8A24A"/><g fill="#F6E3C2"><ellipse cx="-14" cy="38" rx="2" ry="1.2"/><ellipse cx="0" cy="33" rx="2" ry="1.2"/><ellipse cx="14" cy="38" rx="2" ry="1.2"/><ellipse cx="-4" cy="43" rx="2" ry="1.2"/><ellipse cx="8" cy="44" rx="2" ry="1.2"/></g></g>'+
    '<g transform="translate(150 16)"><rect width="36" height="44" rx="3" fill="#F6E3C2"/><path d="M6 12h24M6 20h18M6 28h22M6 36h14" stroke="#C4AA98" stroke-width="3" stroke-linecap="round"/><circle cx="18" cy="0" r="3" fill="#43302A"/></g>'+
-   '<g transform="translate(22 40)"><rect x="0" y="10" width="16" height="38" rx="5" fill="#FF3B2E"/><rect x="4" y="2" width="8" height="10" rx="2" fill="#FF3B2E"/><rect x="5" y="-4" width="6" height="7" rx="1.5" fill="#F6E3C2"/><rect x="3" y="22" width="10" height="12" rx="2" fill="#F6E3C2" opacity=".85"/></g>'}
+   '<g transform="translate(22 40)"><rect x="0" y="10" width="16" height="38" rx="5" fill="#FF3B2E"/><rect x="4" y="2" width="8" height="10" rx="2" fill="#FF3B2E"/><rect x="5" y="-4" width="6" height="7" rx="1.5" fill="#F6E3C2"/><rect x="3" y="22" width="10" height="12" rx="2" fill="#F6E3C2" opacity=".85"/></g>'},
+  {id:'burger_blaster',name:'Burger Blaster',d:'Feed the Munchers',font:"'Bangers'",paper:'#0D0A1A',panel:'#1A1430',acc:'#FF4B3E',
+   art:'<rect width="200" height="110" fill="#1A1430"/><circle cx="128" cy="22" r="11" fill="#FBE7A6"/><circle cx="125" cy="19" r="2.2" fill="#E9CF86"/><circle cx="131" cy="25" r="1.6" fill="#E9CF86"/>'+
+   '<g fill="#F3EEFF"><rect x="20" y="12" width="2" height="2"/><rect x="62" y="24" width="2" height="2"/><rect x="118" y="10" width="2" height="2"/><rect x="140" y="34" width="2" height="2"/></g>'+
+   '<g fill="#241C44"><rect x="0" y="58" width="22" height="40"/><rect x="26" y="48" width="18" height="50"/><rect x="92" y="54" width="20" height="44"/><rect x="176" y="50" width="24" height="48"/></g>'+
+   '<g fill="#FFC53D" opacity=".55"><rect x="4" y="64" width="3" height="3"/><rect x="12" y="74" width="3" height="3"/><rect x="31" y="56" width="3" height="3"/><rect x="37" y="70" width="3" height="3"/><rect x="97" y="62" width="3" height="3"/><rect x="104" y="76" width="3" height="3"/><rect x="182" y="58" width="3" height="3"/><rect x="190" y="72" width="3" height="3"/></g>'+
+   '<rect x="0" y="96" width="200" height="14" fill="#2B2350"/>'+
+   '<path d="M46 96V74M46 74l-7-14M46 74l7-14" stroke="#D9D3EE" stroke-width="5" stroke-linecap="round" fill="none"/><path d="M39 60q7 6 14 0" stroke="#FF4B3E" stroke-width="2.5" fill="none"/>'+
+   '<path d="M72 46h-14M76 54h-16M74 38h-10" stroke="#FFC53D" stroke-width="3" stroke-linecap="round" opacity=".7"/>'+
+   '<g transform="translate(88 44) rotate(-12)"><path d="M-12 -1q0-10 12-10t12 10z" fill="#E8A24A"/><rect x="-13" y="-1" width="26" height="3" rx="1.5" fill="#7DD957"/><rect x="-12" y="2" width="24" height="5" rx="2.5" fill="#7A3E22"/><rect x="-12" y="7" width="24" height="4" rx="2" fill="#E8A24A"/></g>'+
+   '<rect x="130" y="62" width="50" height="7" rx="1.5" fill="#C98A4B"/><rect x="134" y="69" width="7" height="27" fill="#B3773C"/><rect x="169" y="69" width="7" height="27" fill="#B3773C"/>'+
+   '<g transform="translate(155 52)"><path d="M-9 -4l-3-9 7 4zM9 -4l3-9-7 4z" fill="#A47BFF"/><circle r="10" fill="#A47BFF"/><circle cx="-3.5" cy="-2" r="3.2" fill="#fff"/><circle cx="3.5" cy="-2" r="3.2" fill="#fff"/><circle cx="-3" cy="-1.6" r="1.4" fill="#1A1430"/><circle cx="4" cy="-1.6" r="1.4" fill="#1A1430"/><ellipse cx="0" cy="5" rx="3.5" ry="2.6" fill="#1A1430"/></g>'+
+   '<g transform="translate(155 86)"><path d="M-8 -3l-2-7 6 3zM8 -3l2-7-6 3z" fill="#A47BFF"/><circle r="8" fill="#A47BFF"/><circle cx="-3" cy="-1.5" r="2.6" fill="#fff"/><circle cx="3" cy="-1.5" r="2.6" fill="#fff"/><circle cx="-2.6" cy="-1.2" r="1.1" fill="#1A1430"/><circle cx="3.4" cy="-1.2" r="1.1" fill="#1A1430"/><ellipse cx="0" cy="4" rx="2.8" ry="2" fill="#1A1430"/></g>'}
 ];
 
 /* Order on the hub and leaderboard (Kody, Oct 2026): games added in the last NEW_DAYS days come first, newest first, with a NEW badge;
@@ -102,8 +114,8 @@ window.SpitzGames=[
    so it has a spot once its NEW badge runs out. */
 (function(){
   var NEW_DAYS=7;
-  var ADDED={ fishing:'2026-10-10T20:12', brick_breaker:'2026-10-10T20:16', mini_golf:'2026-10-10T20:30', burger_shop:'2026-10-10T20:35' };
-  var BEST=['hoop_buds','football_buds','burger_shop','mini_golf','skate','dash','fishing','brick_breaker','star_swarm','splat_range','shift_racer','jump_man_multiplication'];
+  var ADDED={ fishing:'2026-10-10T20:12', brick_breaker:'2026-10-10T20:16', mini_golf:'2026-10-10T20:30', burger_shop:'2026-10-10T20:35', burger_blaster:'2026-10-11T04:15' };
+  var BEST=['hoop_buds','football_buds','burger_blaster','burger_shop','mini_golf','skate','dash','fishing','brick_breaker','star_swarm','splat_range','shift_racer','jump_man_multiplication'];
   var now=Date.now(), G=window.SpitzGames;
   G.forEach(function(g,i){ var t=ADDED[g.id]?Date.parse(ADDED[g.id]+'Z'):0; g.added=t; g.isNew=!!t&&now-t<NEW_DAYS*864e5; g.rank=BEST.indexOf(g.id)<0?BEST.length+i:BEST.indexOf(g.id); });
   G.sort(function(a,b){ if(a.isNew!==b.isNew) return a.isNew?-1:1; if(a.isNew) return b.added-a.added; return a.rank-b.rank; });

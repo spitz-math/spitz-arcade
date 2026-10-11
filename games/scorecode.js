@@ -26,7 +26,8 @@ var GAMES={                     /* id: [number in the code, display name, how it
   mini_golf:[9,'Mini Golf','points'],
   fishing:[10,'Go Fish','points'],
   brick_breaker:[11,'Brick Breaker','points'],
-  burger_shop:[12,'Burger Shop','points']
+  burger_shop:[12,'Burger Shop','points'],
+  burger_blaster:[13,'Burger Blaster','points']
 };
 /* question sets in the order questions.js lists them; 0 means the game's own questions. Add new sets at the end.
    New codes have 4 bits for the set, so up to 15 sets fit. */
