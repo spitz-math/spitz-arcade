@@ -148,7 +148,14 @@ window.SpitzGames=[
   var NEW_DAYS=7;
   var ADDED={ fishing:'2026-10-10T20:12', brick_breaker:'2026-10-10T20:16', mini_golf:'2026-10-10T20:30', burger_shop:'2026-10-10T20:35', burger_blaster:'2026-10-11T04:15', rocket_buds:'2026-10-11T04:25', paint_royale:'2026-10-11T04:30', snake_arena:'2026-10-11T19:20', brawl_buds:'2026-10-11T19:25', pinball:'2026-10-11T20:00' };
   var BEST=['hoop_buds','football_buds','rocket_buds','paint_royale','snake_arena','brawl_buds','pinball','burger_blaster','burger_shop','mini_golf','skate','dash','fishing','brick_breaker','star_swarm','splat_range','shift_racer','jump_man_multiplication'];
+  /* Drip release (Kody, 2026-10-11): students start with 10 games and more unlock each week. A game listed in UNLOCK is hidden from the hub
+     and leaderboard until its date (UTC); null = locked until Kody says so. To unlock, set the date: the game appears then with a NEW badge.
+     Games not listed here are always shown. Hidden games' files stay on the site. */
+  var UNLOCK={ mini_golf:null, brick_breaker:null, burger_blaster:null, rocket_buds:null, paint_royale:null, snake_arena:null, brawl_buds:null, pinball:null };
   var now=Date.now(), G=window.SpitzGames;
+  window.SpitzLocked=Object.keys(UNLOCK).filter(function(id){ return !UNLOCK[id]||Date.parse(UNLOCK[id]+'Z')>now; });
+  Object.keys(UNLOCK).forEach(function(id){ if(UNLOCK[id]) ADDED[id]=UNLOCK[id]; });
+  for(var k=G.length-1;k>=0;k--) if(window.SpitzLocked.indexOf(G[k].id)>=0) G.splice(k,1);
   G.forEach(function(g,i){ var t=ADDED[g.id]?Date.parse(ADDED[g.id]+'Z'):0; g.added=t; g.isNew=!!t&&now-t<NEW_DAYS*864e5; g.rank=BEST.indexOf(g.id)<0?BEST.length+i:BEST.indexOf(g.id); });
   G.sort(function(a,b){ if(a.isNew!==b.isNew) return a.isNew?-1:1; if(a.isNew) return b.added-a.added; return a.rank-b.rank; });
 })();

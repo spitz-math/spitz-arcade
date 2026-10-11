@@ -93,7 +93,7 @@ h1 span{ color:var(--brand); }
 var $=function(i){ return document.getElementById(i); }, CAT=window.SpitzGames||[], data={ games:{} }, sel=null;
 function esc(t){ return String(t==null?'':t).replace(/[&<>"]/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
 function list(){ var ids=CAT.map(function(g){ return g.id; }), out=CAT.slice();
-  Object.keys(data.games||{}).forEach(function(id){ if(ids.indexOf(id)<0) out.push({ id:id, name:data.games[id].name||id, acc:'#FFB020' }); });
+  Object.keys(data.games||{}).forEach(function(id){ if(ids.indexOf(id)<0&&(window.SpitzLocked||[]).indexOf(id)<0) out.push({ id:id, name:data.games[id].name||id, acc:'#FFB020' }); });
   return out; }
 function artOf(g){ return g.art?'<svg class="art" viewBox="0 0 200 110" aria-hidden="true">'+g.art+'</svg>':'<div class="art noart" aria-hidden="true">🏆</div>'; }
 function vars(g){ return '--acc:'+g.acc+(g.paper?';--gp:'+g.paper:'')+(g.panel?';--gpanel:'+g.panel:''); }
