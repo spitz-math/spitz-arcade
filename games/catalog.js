@@ -157,7 +157,11 @@ window.SpitzGames=[
   /* Drip release (Kody, 2026-10-11): students start with 10 games and more unlock each week. A game listed in UNLOCK is hidden from the hub
      and leaderboard until its date (UTC); null = locked until Kody says so. To unlock, set the date: the game appears then with a NEW badge.
      Games not listed here are always shown. Hidden games' files stay on the site. */
-  var UNLOCK={ mini_golf:null, brick_breaker:null, burger_blaster:null, rocket_buds:null, paint_royale:null, snake_arena:null, brawl_buds:null, pinball:null, hill_climb:null };
+  /* Kody approved this schedule 2026-10-12 (Mondays 12:00 UTC) */
+  var UNLOCK={ mini_golf:'2026-10-19T12:00', brick_breaker:'2026-10-19T12:00', snake_arena:'2026-10-19T12:00',
+    burger_blaster:'2026-10-26T12:00', pinball:'2026-10-26T12:00',
+    rocket_buds:'2026-11-02T12:00', brawl_buds:'2026-11-02T12:00',
+    paint_royale:'2026-11-09T12:00', hill_climb:'2026-11-09T12:00' };
   var now=Date.now(), G=window.SpitzGames;
   window.SpitzLocked=Object.keys(UNLOCK).filter(function(id){ return !UNLOCK[id]||Date.parse(UNLOCK[id]+'Z')>now; });
   Object.keys(UNLOCK).forEach(function(id){ if(UNLOCK[id]) ADDED[id]=UNLOCK[id]; });
