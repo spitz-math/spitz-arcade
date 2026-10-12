@@ -134,9 +134,6 @@ function button(link,code){ return '<a href="'+link+'" target="_blank" rel="noop
     Storage.prototype.setItem=function(k,v){ set.call(this,k,v); if(this===ls&&run(k)) try{ set.call(this,k+'_t',String(Date.now())); }catch(e){} };
   }catch(e){}
 })();
-/* Kody runs this, not "your teacher": end screens say Mr. Spitz (Kody, 2026-10-12) */
-(function(){ function fix(){ var n=document.querySelectorAll('p,span,div'); for(var i=0;i<n.length;i++){ var e=n[i]; if(e.children.length===0&&/your teacher/.test(e.textContent)) e.textContent=e.textContent.replace(/your teacher/g,'Mr. Spitz'); } }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',fix); else fix(); })();
 /* tab icon: each game has its own emoji icon (Kody, 2026-10-11), picked from the file name; unknown pages get the Spitz burger */
 (function(){ if(document.querySelector('link[rel~="icon"]')) return;
   var E={ splat_range:'🎯', star_swarm:'👾', shift_racer:'🏎️', jump_man_multiplication:'👟', football_buds:'🏈', hoop_buds:'🏀', dash:'⚡', skate:'🛹', mini_golf:'⛳',
