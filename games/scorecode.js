@@ -117,7 +117,7 @@ function formLink(name,code){ if(!FORM.url) return ''; if(!prefilled()) return F
   return FORM.url+(FORM.url.indexOf('?')<0?'?':'&')+'usp=pp_url&'+FORM.name+'='+encodeURIComponent(name)+'&'+FORM.code+'='+encodeURIComponent(code); }
 function button(link,code){ return '<a href="'+link+'" target="_blank" rel="noopener" data-spz-code="'+code+'">'+(prefilled()?'Send my score':'Copy code &amp; open form')+'</a>'; }
 /* Fresh start when coming back later (Kody, 2026-10-12): each game saves its run under KEY so a reload keeps it. We stamp every save
-   with the time; on load, a finished run older than 10 minutes, or an unfinished one older than an hour, is cleared so the game opens
+   with the time; on load, any run (finished or not) older than 20 minutes is cleared so the game opens
    at its start screen. Saves from before this change have no stamp and are cleared too. Add each new game's KEY here (the part before any set/topics suffix). */
 (function(){
   var K={ splat_range:'splat_range_v5', star_swarm:'star_swarm_v1', shift_racer:'shift_racer_v1', jump_man_multiplication:'jump_man_facts_v1',
@@ -128,7 +128,7 @@ function button(link,code){ return '<a href="'+link+'" target="_blank" rel="noop
   var run=function(k){ return k.indexOf(key)===0&&!/_(mute|t)$/.test(k); };   /* KEY may carry the set and topics after it */
   try{ var ls=window.localStorage;
     Object.keys(ls).filter(run).forEach(function(k){ var st={}; try{ st=JSON.parse(ls.getItem(k))||{}; }catch(e){}
-      var t=+ls.getItem(k+'_t')||0, limit=st.over?10*60e3:60*60e3;
+      var t=+ls.getItem(k+'_t')||0, limit=20*60e3;
       if(!t||Date.now()-t>limit){ ls.removeItem(k); ls.removeItem(k+'_t'); } });
     var set=Storage.prototype.setItem;
     Storage.prototype.setItem=function(k,v){ set.call(this,k,v); if(this===ls&&run(k)) try{ set.call(this,k+'_t',String(Date.now())); }catch(e){} };
