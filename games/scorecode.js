@@ -118,7 +118,7 @@ function formLink(name,code){ if(!FORM.url) return ''; if(!prefilled()) return F
 function button(link,code){ return '<a href="'+link+'" target="_blank" rel="noopener" data-spz-code="'+code+'">'+(prefilled()?'Send my score':'Copy code &amp; open form')+'</a>'; }
 /* tab icon: each game has its own emoji icon (Kody, 2026-10-11), picked from the file name; unknown pages get the Spitz burger */
 (function(){ if(document.querySelector('link[rel~="icon"]')) return;
-  var E={ splat_range:'🎯', star_swarm:'👾', shift_racer:'🏎️', jump_man_multiplication:'🦘', football_buds:'🏈', hoop_buds:'🏀', dash:'⚡', skate:'🛹', mini_golf:'⛳',
+  var E={ splat_range:'🎯', star_swarm:'👾', shift_racer:'🏎️', jump_man_multiplication:'👟', football_buds:'🏈', hoop_buds:'🏀', dash:'⚡', skate:'🛹', mini_golf:'⛳',
     fishing:'🎣', brick_breaker:'🧱', burger_shop:'🍟', burger_blaster:'💥', rocket_buds:'🚗', paint_royale:'🎨', snake_arena:'🐍', brawl_buds:'🥊', pinball:'🎱', hill_climb:'🚚' };
   var f=(location.pathname.split('/').pop()||'').replace(/\.html?$/,'').replace(/_(mult|v\d|test)$/,''), e=E[f], l=document.createElement('link'); l.rel='icon'; l.type='image/svg+xml';
   l.href=e?'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#17121F"/><text x="32" y="46" font-size="40" text-anchor="middle">'+e+'</text></svg>')
