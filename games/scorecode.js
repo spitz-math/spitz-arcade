@@ -32,7 +32,8 @@ var GAMES={                     /* id: [number in the code, display name, how it
   paint_royale:[15,'Paint Royale','points'],
   snake_arena:[16,'Snake Arena','points'],
   brawl_buds:[17,'Brawl Buds','versus'],
-  pinball:[18,'Pinball','points']
+  pinball:[18,'Pinball','points'],
+  hill_climb:[19,'Hill Climb','points']
 };
 /* question sets in the order questions.js lists them; 0 means the game's own questions. Add new sets at the end.
    New codes have 4 bits for the set, so up to 15 sets fit. */
@@ -118,7 +119,7 @@ function button(link,code){ return '<a href="'+link+'" target="_blank" rel="noop
 /* tab icon: each game has its own emoji icon (Kody, 2026-10-11), picked from the file name; unknown pages get the Spitz burger */
 (function(){ if(document.querySelector('link[rel~="icon"]')) return;
   var E={ splat_range:'🎯', star_swarm:'👾', shift_racer:'🏎️', jump_man_multiplication:'🧗', football_buds:'🏈', hoop_buds:'🏀', dash:'⚡', skate:'🛹', mini_golf:'⛳',
-    fishing:'🎣', brick_breaker:'🧱', burger_shop:'🍟', burger_blaster:'💥', rocket_buds:'🚗', paint_royale:'🎨', snake_arena:'🐍', brawl_buds:'🥊', pinball:'🎱' };
+    fishing:'🎣', brick_breaker:'🧱', burger_shop:'🍟', burger_blaster:'💥', rocket_buds:'🚗', paint_royale:'🎨', snake_arena:'🐍', brawl_buds:'🥊', pinball:'🎱', hill_climb:'🚚' };
   var f=(location.pathname.split('/').pop()||'').replace(/\.html?$/,'').replace(/_(mult|v\d|test)$/,''), e=E[f], l=document.createElement('link'); l.rel='icon'; l.type='image/svg+xml';
   l.href=e?'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="#17121F"/><text x="32" y="46" font-size="40" text-anchor="middle">'+e+'</text></svg>')
     :"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2317121F'/%3E%3Cpath d='M10 29q0-17 22-17t22 17z' fill='%23F2A541'/%3E%3Cg fill='%23FFF3D6'%3E%3Cellipse cx='22' cy='21' rx='2.4' ry='1.4'/%3E%3Cellipse cx='32' cy='17' rx='2.4' ry='1.4'/%3E%3Cellipse cx='42' cy='21' rx='2.4' ry='1.4'/%3E%3Cellipse cx='28' cy='25' rx='2.4' ry='1.4'/%3E%3Cellipse cx='37' cy='25' rx='2.4' ry='1.4'/%3E%3C/g%3E%3Cpath d='M8 31h48l-4 5-5-3-5 3-5-3-5 3-5-3-5 3-5-3-5 3z' fill='%236FD34A'/%3E%3Crect x='9' y='35' width='46' height='8' rx='4' fill='%237A3B1E'/%3E%3Cpath d='M8 43h48l-3 3H11z' fill='%23FFC72C'/%3E%3Cpath d='M10 46h44q0 7-7 7H17q-7 0-7-7z' fill='%23F2A541'/%3E%3C/svg%3E";
