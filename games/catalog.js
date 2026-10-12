@@ -152,7 +152,7 @@ window.SpitzGames=[
    so it has a spot once its NEW badge runs out. */
 (function(){
   var NEW_DAYS=7;
-  var ADDED={ fishing:'2026-10-10T20:12', brick_breaker:'2026-10-10T20:16', mini_golf:'2026-10-10T20:30', burger_shop:'2026-10-10T20:35', burger_blaster:'2026-10-11T04:15', rocket_buds:'2026-10-11T04:25', paint_royale:'2026-10-11T04:30', snake_arena:'2026-10-11T19:20', brawl_buds:'2026-10-11T19:25', pinball:'2026-10-11T20:00' };
+  var ADDED={ brick_breaker:'2026-10-10T20:16', mini_golf:'2026-10-10T20:30', burger_blaster:'2026-10-11T04:15', rocket_buds:'2026-10-11T04:25', paint_royale:'2026-10-11T04:30', snake_arena:'2026-10-11T19:20', brawl_buds:'2026-10-11T19:25', pinball:'2026-10-11T20:00' };
   var BEST=['hoop_buds','football_buds','rocket_buds','paint_royale','snake_arena','brawl_buds','pinball','hill_climb','burger_blaster','burger_shop','mini_golf','skate','dash','fishing','brick_breaker','star_swarm','splat_range','shift_racer','jump_man_multiplication'];
   /* Drip release (Kody, 2026-10-11): students start with 10 games and more unlock each week. A game listed in UNLOCK is hidden from the hub
      and leaderboard until its date (UTC); null = locked until Kody says so. To unlock, set the date: the game appears then with a NEW badge.
