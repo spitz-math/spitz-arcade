@@ -116,6 +116,24 @@ function prefilled(){ return !!(FORM.url&&FORM.name&&FORM.code); }
 function formLink(name,code){ if(!FORM.url) return ''; if(!prefilled()) return FORM.url;
   return FORM.url+(FORM.url.indexOf('?')<0?'?':'&')+'usp=pp_url&'+FORM.name+'='+encodeURIComponent(name)+'&'+FORM.code+'='+encodeURIComponent(code); }
 function button(link,code){ return '<a href="'+link+'" target="_blank" rel="noopener" data-spz-code="'+code+'">'+(prefilled()?'Send my score':'Copy code &amp; open form')+'</a>'; }
+/* Fresh start when coming back later (Kody, 2026-10-12): each game saves its run under KEY so a reload keeps it. We stamp every save
+   with the time; on load, a finished run older than 10 minutes, or an unfinished one older than an hour, is cleared so the game opens
+   at its start screen. Saves from before this change have no stamp and are cleared too. Add each new game's KEY here (the part before any set/topics suffix). */
+(function(){
+  var K={ splat_range:'splat_range_v5', star_swarm:'star_swarm_v1', shift_racer:'shift_racer_v1', jump_man_multiplication:'jump_man_facts_v1',
+    football_buds:'football_buds_game_v2', hoop_buds:'hoop_buds_game_v1', dash:'dash_facts_game_v3', skate:'skate_game_v1', mini_golf:'mini_golf_v1',
+    fishing:'go_fish_v1', brick_breaker:'brick_breaker_v1', burger_shop:'burger_shop_v1', burger_blaster:'burger_blaster_v1', rocket_buds:'rocket_buds_v1',
+    paint_royale:'paint_royale_v1', snake_arena:'snake_arena_v1', brawl_buds:'brawl_buds_v1', pinball:'pinball_v1', hill_climb:'hill_climb_v1' };
+  var f=(location.pathname.split('/').pop()||'').replace(/\.html?$/,'').replace(/_(mult|v\d|test)$/,''), key=K[f]; if(!key) return;
+  var run=function(k){ return k.indexOf(key)===0&&!/_(mute|t)$/.test(k); };   /* KEY may carry the set and topics after it */
+  try{ var ls=window.localStorage;
+    Object.keys(ls).filter(run).forEach(function(k){ var st={}; try{ st=JSON.parse(ls.getItem(k))||{}; }catch(e){}
+      var t=+ls.getItem(k+'_t')||0, limit=st.over?10*60e3:60*60e3;
+      if(!t||Date.now()-t>limit){ ls.removeItem(k); ls.removeItem(k+'_t'); } });
+    var set=Storage.prototype.setItem;
+    Storage.prototype.setItem=function(k,v){ set.call(this,k,v); if(this===ls&&run(k)) try{ set.call(this,k+'_t',String(Date.now())); }catch(e){} };
+  }catch(e){}
+})();
 /* tab icon: each game has its own emoji icon (Kody, 2026-10-11), picked from the file name; unknown pages get the Spitz burger */
 (function(){ if(document.querySelector('link[rel~="icon"]')) return;
   var E={ splat_range:'🎯', star_swarm:'👾', shift_racer:'🏎️', jump_man_multiplication:'👟', football_buds:'🏈', hoop_buds:'🏀', dash:'⚡', skate:'🛹', mini_golf:'⛳',
