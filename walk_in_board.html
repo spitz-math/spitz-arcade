@@ -26,37 +26,39 @@
 *{ box-sizing:border-box; }
 html,body{ height:100%; margin:0; }
 body{ background:var(--board); color:var(--chalk); font-family:var(--font-body); overflow:hidden; }
+/* The board is drawn on a fixed 1920×1080 stage and scaled as one piece, so it looks the same on any screen or in fullscreen. */
+#stage{ position:absolute; left:0; top:0; width:1920px; height:1080px; transform-origin:0 0; z-index:1; overflow:hidden; }
 
 /* graph-paper chalkboard with faint chalk math, like the banner */
 .bg{ position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
 .bg text{ font-family:var(--font-chalk); fill:#fff; }
 .vignette{ position:fixed; inset:0; z-index:0; pointer-events:none; background:radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(0,0,0,.45)); }
 
-.main{ position:relative; z-index:1; height:100%; display:flex; flex-direction:column; gap:clamp(10px,1.4vh,22px); transition:margin-right .25s;
-  padding:clamp(12px,1.8vh,30px) clamp(16px,2.2vw,44px) 60px; }
+.main{ position:relative; z-index:1; height:1080px; display:flex; flex-direction:column; gap:15px; transition:margin-right .25s;
+  padding:19px 42px 60px; }
 
 /* title bar */
-header{ display:flex; align-items:center; gap:clamp(12px,1.6vw,32px); }
-.brand{ display:flex; align-items:center; gap:clamp(8px,1vw,20px); min-width:0; }
-.burger{ width:clamp(60px,6vw,120px); height:auto; flex:none; filter:drop-shadow(.06em .1em 0 rgba(0,0,0,.6)); }
+header{ display:flex; align-items:center; gap:31px; }
+.brand{ display:flex; align-items:center; gap:19px; min-width:0; }
+.burger{ width:115px; height:auto; flex:none; filter:drop-shadow(.06em .1em 0 rgba(0,0,0,.6)); }
 .title{ margin:0; font-family:var(--font-title); font-weight:400; line-height:.95; color:var(--sauce);
-  font-size:clamp(38px,5vw,104px); letter-spacing:.03em; white-space:nowrap;
+  font-size:96px; letter-spacing:.03em; white-space:nowrap;
   -webkit-text-stroke:.09em var(--black); paint-order:stroke fill; text-shadow:.05em .07em 0 var(--black); }
 .title span{ display:inline-block; margin-left:.35em; font-size:.72em; color:var(--cheese); }
 .when{ margin-left:auto; text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:.15em; }
-.date{ white-space:nowrap; font-family:var(--font-display); font-weight:800; font-size:clamp(20px,2.2vw,46px); line-height:1; }
-.clock{ font-family:var(--font-display); font-weight:700; font-size:clamp(18px,1.9vw,40px); color:var(--cheese); font-variant-numeric:tabular-nums; }
+.date{ white-space:nowrap; font-family:var(--font-display); font-weight:800; font-size:42px; line-height:1; }
+.clock{ font-family:var(--font-display); font-weight:700; font-size:36px; color:var(--cheese); font-variant-numeric:tabular-nums; }
 
 /* the three things to do, in order */
-.todo{ list-style:none; margin:0; padding:0; display:flex; gap:clamp(10px,1.6vw,34px); flex-wrap:wrap; counter-reset:t; }
-.todo li{ counter-increment:t; display:flex; align-items:center; gap:.55em; font-size:clamp(16px,1.5vw,32px); font-weight:700; white-space:nowrap; }
+.todo{ list-style:none; margin:0; padding:0; display:flex; gap:31px; flex-wrap:wrap; counter-reset:t; }
+.todo li{ counter-increment:t; display:flex; align-items:center; gap:.55em; font-size:29px; font-weight:700; white-space:nowrap; }
 .todo li::before{ content:counter(t); display:grid; place-items:center; width:1.6em; height:1.6em; border-radius:50%;
   background:var(--sauce); color:var(--black); border:.12em solid var(--black); font-family:var(--font-display); font-weight:800; }
 
-.split{ flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); gap:clamp(12px,1.6vw,32px); }
+.split{ flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); gap:31px; }
 .panel{ min-height:0; background:var(--panel-glass); border:2px solid var(--panel-edge); border-radius:16px; display:flex; flex-direction:column; overflow:hidden;
   box-shadow:0 10px 40px rgba(0,0,0,.45); }
-.panel h2{ margin:0; padding:.5em .9em .4em; font-family:var(--font-display); font-weight:800; font-size:clamp(20px,1.9vw,38px);
+.panel h2{ margin:0; padding:.5em .9em .4em; font-family:var(--font-display); font-weight:800; font-size:36px;
   display:flex; align-items:center; gap:.6em; border-bottom:2px solid var(--panel-edge); }
 .panel h2 .tools{ margin-left:auto; display:flex; gap:8px; }
 
@@ -64,10 +66,10 @@ header{ display:flex; align-items:center; gap:clamp(12px,1.6vw,32px); }
 .docwrap{ position:relative; flex:1; min-height:0; overflow:hidden; }
 .docwrap:has(iframe:not([hidden])){ background:#fff; }
 .docwrap iframe{ border:0; position:absolute; top:0; left:0; transform-origin:0 0; background:#fff; }
-.empty{ position:absolute; inset:0; display:grid; place-items:center; text-align:center; padding:6%; background:transparent; color:var(--dust); font-size:clamp(16px,1.4vw,28px); line-height:1.4; }
+.empty{ position:absolute; inset:0; display:grid; place-items:center; text-align:center; padding:6%; background:transparent; color:var(--dust); font-size:27px; line-height:1.4; }
 .empty[hidden]{ display:none; }
 /* table of contents drawn by the board itself (crisp text, fills the panel at any zoom) */
-.tocn{ position:absolute; inset:0; overflow:auto; background:rgba(18,18,18,.55); --tz:1; font-size:calc(clamp(16px,1.3vw,28px) * var(--tz)); }
+.tocn{ position:absolute; inset:0; overflow:auto; background:rgba(18,18,18,.55); --tz:1; font-size:calc(25px * var(--tz)); }
 .tocn[hidden]{ display:none; }
 .toc-t{ width:100%; border-collapse:collapse; }
 .toc-t th{ position:sticky; top:0; z-index:1; background:#141414; color:var(--cheese); font-family:var(--font-display); font-weight:800;
@@ -89,21 +91,21 @@ header{ display:flex; align-items:center; gap:clamp(12px,1.6vw,32px); }
 /* warm-up */
 .warm{ border-color:var(--sauce); border-width:3px; }
 .warm h2{ background:var(--sauce); color:var(--black); border-bottom:3px solid var(--black); }
-.wbody{ flex:1; min-height:0; overflow:auto; padding:clamp(14px,1.4vw,30px) clamp(18px,1.8vw,38px); display:flex; flex-direction:column; gap:clamp(12px,1.4vh,24px); }
-.prompt{ margin:0; font-size:clamp(22px,2.15vw,46px); line-height:1.35; white-space:pre-wrap; overflow-wrap:anywhere; }
-.wimg{ max-width:100%; max-height:38vh; object-fit:contain; align-self:flex-start; border-radius:8px; background:#fff; }
-.choices{ list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(8px,1vh,16px) 1.4vw; }
-.choices li{ display:flex; gap:.6em; align-items:baseline; font-size:clamp(20px,1.95vw,42px); padding:.25em .45em; border-radius:10px; }
+.wbody{ flex:1; min-height:0; overflow:auto; padding:27px 35px; display:flex; flex-direction:column; gap:15px; }
+.prompt{ margin:0; font-size:41px; line-height:1.35; white-space:pre-wrap; overflow-wrap:anywhere; }
+.wimg{ max-width:100%; max-height:410px; object-fit:contain; align-self:flex-start; border-radius:8px; background:#fff; }
+.choices{ list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:11px 1.4vw; }
+.choices li{ display:flex; gap:.6em; align-items:baseline; font-size:37px; padding:.25em .45em; border-radius:10px; }
 .choices li .n{ font-family:var(--font-display); font-weight:800; color:var(--sauce); min-width:1.1em; }
 .choices li.right{ background:var(--cheese); color:var(--black); }
 .choices li.right .n{ color:var(--black); }
-.answer{ margin-top:auto; font-size:clamp(20px,1.95vw,42px); font-weight:700; color:var(--cheese); white-space:pre-wrap; }
+.answer{ margin-top:auto; font-size:37px; font-weight:700; color:var(--cheese); white-space:pre-wrap; }
 .answer[hidden]{ display:block !important; visibility:hidden; }
-.cue{ margin-top:auto; color:var(--dust); font-size:clamp(14px,1.1vw,22px); }
+.cue{ margin-top:auto; color:var(--dust); font-size:21px; }
 .answer:not([hidden]) + .cue{ display:none; }
 
 /* buttons: big enough for a touch board */
-button{ font:inherit; font-size:clamp(14px,1vw,20px); font-weight:700; color:var(--chalk); background:#2E2E2E; border:2px solid var(--panel-edge);
+button{ font:inherit; font-size:19px; font-weight:700; color:var(--chalk); background:#2E2E2E; border:2px solid var(--panel-edge);
   border-radius:999px; padding:.35em .9em; min-height:44px; cursor:pointer; }
 button:hover{ border-color:var(--dust); }
 button:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible{ outline:3px solid var(--cheese); outline-offset:2px; }
@@ -111,7 +113,7 @@ button.pri{ background:var(--sauce); border-color:var(--black); color:var(--blac
 button.pri:hover{ background:#ff6a3a; }
 .corner{ position:fixed; z-index:2; right:12px; bottom:10px; display:flex; align-items:center; padding:.4em .8em; border-radius:999px; background:rgba(0,0,0,.75); }
 .corner:not(:has(.status[data-s="warn"])){ display:none; }
-.status{ display:flex; align-items:center; gap:.5em; font-size:clamp(13px,.9vw,17px); color:var(--dust); padding:0 .4em; }
+.status{ display:flex; align-items:center; gap:.5em; font-size:17px; color:var(--dust); padding:0 .4em; }
 .status::before{ content:""; width:.7em; height:.7em; border-radius:50%; background:var(--dust); }
 .status[data-s="synced"]::before{ background:var(--lettuce); }
 .status[data-s="busy"]::before{ background:var(--cheese); }
@@ -138,20 +140,20 @@ dialog::backdrop{ background:rgba(0,0,0,.65); }
 .msg{ color:var(--cheese); font-weight:700; min-height:1.2em; margin:0; }
 
 /* what you'll need today */
-.needs{ display:flex; align-items:center; gap:clamp(8px,1vw,18px); flex-wrap:wrap; }
+.needs{ display:flex; align-items:center; gap:18px; flex-wrap:wrap; }
 .needs[hidden]{ display:none; }
-.needs h2{ margin:0; font-family:var(--font-display); font-weight:800; font-size:clamp(16px,1.4vw,30px); color:var(--cheese); white-space:nowrap; }
-.needs ul{ list-style:none; margin:0; padding:0; display:flex; gap:clamp(6px,.8vw,14px); flex-wrap:wrap; }
-.needs li{ display:flex; align-items:center; gap:.4em; font-size:clamp(15px,1.35vw,28px); font-weight:700; padding:.22em .75em .22em .5em;
+.needs h2{ margin:0; font-family:var(--font-display); font-weight:800; font-size:27px; color:var(--cheese); white-space:nowrap; }
+.needs ul{ list-style:none; margin:0; padding:0; display:flex; gap:14px; flex-wrap:wrap; }
+.needs li{ display:flex; align-items:center; gap:.4em; font-size:26px; font-weight:700; padding:.22em .75em .22em .5em;
   border:2px solid var(--cheese); border-radius:999px; background:rgba(0,0,0,.45); white-space:nowrap; }
 .needs li .ic{ font-size:1.15em; line-height:1; }
 
 /* hide the table of contents (T): warm-up takes the whole board */
 body.no-toc .toc, body.no-toc .todo .step-toc{ display:none; }
 body.no-toc .split{ grid-template-columns:minmax(0,1fr); }
-body.no-toc .prompt{ font-size:clamp(26px,2.9vw,62px); }
-body.no-toc .choices li, body.no-toc .answer{ font-size:clamp(24px,2.6vw,56px); }
-body.no-toc .wimg{ max-height:46vh; }
+body.no-toc .prompt{ font-size:56px; }
+body.no-toc .choices li, body.no-toc .answer{ font-size:50px; }
+body.no-toc .wimg{ max-height:497px; }
 
 /* need-today picker */
 .pick{ display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:8px; }
@@ -173,11 +175,17 @@ body.no-toc .wimg{ max-height:46vh; }
 #calcNW{ top:10px; right:10px; bottom:10px; }
 #calcNW .frame{ background:transparent; }
 #calcNW iframe{ position:absolute; top:0; left:0; width:368px; height:720px; transform-origin:0 0; }
-#calcDS{ top:4vh; left:4vw; right:4vw; bottom:4vh; }
+#calcDS{ top:43px; left:77px; right:77px; bottom:43px; }
 #calcDS iframe{ width:100%; height:100%; }
 .handback{ display:none; }
 body.in-desmos .handback{ display:inline-flex; }
 body.nw-open .corner{ right:auto; left:12px; }
+/* with NumWorks docked, the header tightens so the title and date still fit */
+body.nw-open .title{ font-size:70px; }
+body.nw-open .burger{ width:84px; }
+body.nw-open .date{ font-size:34px; }
+body.nw-open .clock{ font-size:30px; }
+body.nw-open #stage .tmr-chip{ left:905px; }
 
   /* classroom timer — deliberately generic "digital clock" hardware look, separate from the deck's theme ---------- */
   .tmr-panel, .tmr-chip, .tmr-done{ --led:#ff3326; --led-off:rgba(255,51,38,.075); --bezel:#0c0c0c; --face:#050505; --key:#2a2a2a; --key-hi:#3a3a3a; --key-t:#e8e8e8; --lbl:#8a8a8a;
@@ -241,15 +249,16 @@ body.nw-open .corner{ right:auto; left:12px; }
   @media (prefers-reduced-motion: reduce){ .tmr-chip.hurry .seg7{ animation:none; } }
 
   /* the timer chip sits in the open space between the title and the date */
-  .tmr-chip{ left:61%; top:calc(1.2vmin + env(safe-area-inset-top,0px)); transform:translateX(-50%); }
+  #stage .tmr-chip{ left:1171px; top:13px; transform:translateX(-50%); gap:9px; padding:12px 17px 11px; border-radius:13px; box-shadow:0 13px 32px -11px #000, inset 0 1px 0 #2a2a2a; }
+  #stage .tmr-chip .seg7{ font-size:71px; } #stage .tmr-chip .bar{ height:6px; border-radius:11px; } #stage .tmr-chip .pz{ right:15px; top:5px; font-size:15px; }
 
   /* ---------- pen (Q) and whiteboard (W): same tools as the lesson decks ---------- */
-  .ink{ position:fixed; inset:0; width:100vw; height:100vh; z-index:4; pointer-events:none; touch-action:none; }
+  .ink{ position:absolute; inset:0; width:1920px; height:1080px; z-index:4; pointer-events:none; touch-action:none; }
   body.drawing .ink{ pointer-events:auto; cursor:crosshair; }
   .pentools{ position:fixed; z-index:6; left:12px; top:50%; transform:translateY(-50%); display:none; flex-direction:column; gap:6px; padding:8px;
     background:#1B1B1B; border:2px solid var(--panel-edge); border-radius:22px; box-shadow:0 12px 40px rgba(0,0,0,.6); }
   body.drawing .pentools{ display:flex; }
-  .pentools button{ width:clamp(46px,3.6vw,68px); height:clamp(46px,3.6vw,68px); min-height:0; padding:0; border-radius:15px; border:0; background:transparent; color:var(--chalk);
+  .pentools button{ width:68px; height:68px; min-height:0; padding:0; border-radius:15px; border:0; background:transparent; color:var(--chalk);
     display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
   .pentools button:active{ transform:scale(.92); }
   .pentools button svg{ width:55%; height:55%; }
@@ -259,22 +268,21 @@ body.nw-open .corner{ right:auto; left:12px; }
   .pentools .done{ background:var(--sauce); color:var(--black); }
   .wboard{ position:fixed; inset:0; z-index:3; display:none; background:#1C1C1C; }
   body.wb .wboard{ display:block; }
-  .wboard[data-bg="grid"]{ background-image:linear-gradient(rgba(255,255,255,.1) 1.5px, transparent 1.5px), linear-gradient(90deg, rgba(255,255,255,.1) 1.5px, transparent 1.5px); background-size:3.2vw 3.2vw; }
+  .wboard[data-bg="grid"]{ background-image:linear-gradient(rgba(255,255,255,.1) 1.5px, transparent 1.5px), linear-gradient(90deg, rgba(255,255,255,.1) 1.5px, transparent 1.5px); background-size:61px 61px; }
   .wboard .plane{ position:absolute; inset:0; width:100%; height:100%; display:none; }
   .wboard[data-bg="plane"] .plane{ display:block; }
   .wbbar{ position:fixed; z-index:6; left:12px; top:12px; display:none; align-items:center; gap:6px; padding:6px; background:#262626; border:2px solid var(--panel-edge); border-radius:20px; box-shadow:0 12px 40px rgba(0,0,0,.6); }
   body.wb .wbbar{ display:flex; }
   body.wb .pentools{ top:calc(50% + 30px); }
-  .wbbar button{ height:clamp(42px,3.2vw,60px); min-width:64px; padding:0 18px; border-radius:14px; border:0; background:transparent; color:var(--chalk); font:700 clamp(16px,1.2vw,24px)/1 var(--font-display); }
+  .wbbar button{ height:60px; min-width:64px; padding:0 18px; border-radius:14px; border:0; background:transparent; color:var(--chalk); font:700 23px/1 var(--font-display); }
   .wbbar button.on{ background:#1C1C1C; box-shadow:inset 0 0 0 3px var(--cheese); }
   .wbbar .sep{ width:2px; height:36px; background:var(--panel-edge); margin:0 4px; }
   .wbbar .wbback{ background:var(--sauce); color:var(--black); }
   .toast{ position:fixed; z-index:70; left:50%; top:18px; transform:translate(-50%,-14px); opacity:0; pointer-events:none; background:var(--chalk); color:var(--black);
-    font:700 clamp(16px,1.4vw,28px)/1.2 var(--font-body); padding:.6em 1.2em; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.5); transition:opacity .25s, transform .25s; }
+    font:700 27px/1.2 var(--font-body); padding:.6em 1.2em; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.5); transition:opacity .25s, transform .25s; }
   .toast.show{ opacity:1; transform:translate(-50%,0); }
   body.wb .toast{ top:90px; }
 
-@media (max-width:900px){ .split{ grid-template-columns:1fr; } body{ overflow:auto; } .main{ height:auto; } header{ flex-wrap:wrap; } .title{ white-space:normal; } }
 @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
 </style>
 </head>
@@ -350,6 +358,7 @@ body.nw-open .corner{ right:auto; left:12px; }
 </svg>
 <div class="vignette" aria-hidden="true"></div>
 
+<div id="stage">
 <main class="main">
   <header>
     <div class="brand">
@@ -415,6 +424,18 @@ body.nw-open .corner{ right:auto; left:12px; }
 <div class="wbbar" id="wbBar" role="toolbar" aria-label="Whiteboard"><button data-bg="blank">Blank</button><button data-bg="grid">Grid</button><button data-bg="plane">Graph</button><span class="sep"></span><button class="wbback" data-act="back">Back to board</button></div>
 <div class="pentools" id="penTools" role="toolbar" aria-label="Pen tools"></div>
 <div class="toast" id="toast" role="status"></div>
+<button class="tmr-chip" id="tmrChip" aria-label="Timer — tap for controls"><span class="pz">PAUSED</span><span id="tmrChipT"></span><span class="bar"><i id="tmrBar"></i></span></button>
+<!-- live calculators (load the first time they open, then keep whatever was typed) -->
+<div class="calc" id="calcNW" role="region" aria-label="NumWorks calculator">
+  <div class="bar">NumWorks<span class="sp"></span><button type="button" data-close="nw" aria-label="Close NumWorks">✕</button></div>
+  <div class="frame" id="nwFrame"></div>
+</div>
+<div class="calc" id="calcDS" role="region" aria-label="Desmos graphing calculator">
+  <div class="bar">Desmos · Texas testing version<span class="sp"></span><button type="button" class="handback" id="handBack" title="Tap so the clicker works again">👆 Clicker</button><button type="button" data-close="ds" aria-label="Close Desmos">✕</button></div>
+  <div class="frame" id="dsFrame"></div>
+</div>
+</div><!-- /stage -->
+
 <div class="tmr-panel" id="tmrPanel" role="dialog" aria-label="Timer">
   <div class="tmr-card">
     <div class="tmr-title">Timer</div>
@@ -441,18 +462,8 @@ body.nw-open .corner{ right:auto; left:12px; }
     <p class="tmr-hint"><kbd>↑</kbd><kbd>↓</kbd> minutes · <kbd>←</kbd><kbd>→</kbd> 15 sec · <kbd>1</kbd>–<kbd>9</kbd> quick set · <kbd>Enter</kbd> start / pause · <kbd>T</kbd> hide</p>
   </div>
 </div>
-<button class="tmr-chip" id="tmrChip" aria-label="Timer — tap for controls"><span class="pz">PAUSED</span><span id="tmrChipT"></span><span class="bar"><i id="tmrBar"></i></span></button>
 <div class="tmr-done" id="tmrDone"><div class="msg"><div class="tmr-screen" id="tmrDoneDigits"></div><div class="big">Time's up</div><small>tap or press T to close</small></div></div>
 
-<!-- live calculators (load the first time they open, then keep whatever was typed) -->
-<div class="calc" id="calcNW" role="region" aria-label="NumWorks calculator">
-  <div class="bar">NumWorks<span class="sp"></span><button type="button" data-close="nw" aria-label="Close NumWorks">✕</button></div>
-  <div class="frame" id="nwFrame"></div>
-</div>
-<div class="calc" id="calcDS" role="region" aria-label="Desmos graphing calculator">
-  <div class="bar">Desmos · Texas testing version<span class="sp"></span><button type="button" class="handback" id="handBack" title="Tap so the clicker works again">👆 Clicker</button><button type="button" data-close="ds" aria-label="Close Desmos">✕</button></div>
-  <div class="frame" id="dsFrame"></div>
-</div>
 
 <!-- What you'll need today -->
 <dialog id="dlgNeeds">
@@ -486,7 +497,7 @@ body.nw-open .corner{ right:auto; left:12px; }
         <span class="hint">Leave blank to use the address built into this file.</span>
       </label>
     </details>
-    <p class="hint" style="margin:0"><b>Table of contents status:</b> <span id="tocInfo"></span><br>Board version 2026-10-15e</p>
+    <p class="hint" style="margin:0"><b>Table of contents status:</b> <span id="tocInfo"></span><br>Board version 2026-10-15f</p>
     <p class="msg" id="setupMsg" role="status"></p>
     <div class="row"><button type="button" class="pri" id="saveSetup">Save setup</button><button value="cancel">Cancel</button></div>
   </form>
@@ -529,6 +540,17 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbx639KsczdlRGLuWguhvJO
     get(k, d){ try{ const v = localStorage.getItem("walkin:" + k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
     set(k, v){ try{ localStorage.setItem("walkin:" + k, JSON.stringify(v)); return true; }catch(e){ return false; } }
   };
+
+  /* fixed 1920×1080 stage, scaled as one piece to fit the screen (letterboxed). The chalk background scales with it. */
+  let stageScale = 1;
+  function fitStage(){
+    const sc = Math.min(innerWidth / 1920, innerHeight / 1080), l = (innerWidth - 1920 * sc) / 2, t = (innerHeight - 1080 * sc) / 2;
+    stageScale = sc;
+    $("stage").style.transform = "translate(" + l + "px," + t + "px) scale(" + sc + ")";
+    document.querySelectorAll(".bg pattern").forEach(pt => pt.setAttribute("patternTransform", "translate(" + l + " " + t + ") scale(" + sc + ")"));
+    if(typeof inkSize === "function") try{ inkSize(); }catch(_){}
+  }
+  fitStage(); addEventListener("resize", fitStage);
 
   /* shared state (synced to Google): warm-ups + table of contents link.
      Per-computer: zoom, PIN, cached copy. Older boards' saved warm-ups carry over. */
@@ -588,7 +610,7 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbx639KsczdlRGLuWguhvJO
   let lastDay = today();
   function tick(){
     const n = new Date();
-    $("date").textContent = n.toLocaleDateString(undefined, { weekday:"long", month:"long", day:"numeric" });
+    $("date").textContent = n.toLocaleDateString(undefined, document.body.classList.contains("nw-open") ? { weekday:"short", month:"short", day:"numeric" } : { weekday:"long", month:"long", day:"numeric" });
     $("clock").textContent = n.toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit" });
     if(today() !== lastDay){ lastDay = today(); shown = false; render(); renderNeeds(); applyToc(); }
   }
@@ -732,7 +754,7 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbx639KsczdlRGLuWguhvJO
     body.innerHTML =
       (w.prompt ? '<p class="prompt">' + esc(w.prompt) + '</p>' : "") +
       (w.image ? '<img class="wimg" src="' + esc(w.image) + '" alt="Warm-up problem">' : "") +
-      (ch.length ? '<ol class="choices">' + ch.map((c, i) => '<li data-i="' + (i + 1) + '"><span class="n">' + (i + 1) + '</span><span>' + esc(c) + '</span></li>').join("") + '</ol>' : "") +
+      (ch.length ? '<ol class="choices">' + ch.map((c, i) => '<li data-i="' + (i + 1) + '"><span class="n">' + (i + 1) + '</span><span' + (String(c).length <= 14 ? ' style="white-space:nowrap"' : '') + '>' + esc(c) + '</span></li>').join("") + '</ol>' : "") +
       '<p class="answer" id="ans"' + (shown ? "" : " hidden") + '>' + esc(w.answer || "") + '</p>' +
       '<p class="cue">Work silently. The answer shows when class starts.</p>';
     body.querySelectorAll(".choices li").forEach(li => li.classList.toggle("right", shown && +li.dataset.i === +w.right));
@@ -917,7 +939,7 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbx639KsczdlRGLuWguhvJO
   function fitNW(){
     const box = $("calcNW"); if(!box.classList.contains("open")) return;
     const fr = $("nwFrame"), f = fr.querySelector("iframe"); if(!f) return;
-    const h = innerHeight - 20 - box.querySelector(".bar").offsetHeight - 6;
+    const h = 1080 - 20 - box.querySelector(".bar").offsetHeight - 6;
     const sc = h / 720, w = Math.round(368 * sc);
     box.style.width = (w + 6) + "px"; fr.style.width = w + "px";
     f.style.transform = "scale(" + sc + ")";
@@ -933,14 +955,14 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbx639KsczdlRGLuWguhvJO
     }
     box.classList.toggle("open", on);
     if(name === "nw"){
-      document.body.classList.toggle("nw-open", on);
+      document.body.classList.toggle("nw-open", on); tick();
       if(on) fitNW(); else { document.querySelector(".main").style.marginRight = ""; setTimeout(fitDoc, 300); }
     }
     if(!on) takeFocusBack();
   }
   const toggleCalc = name => setCalc(name, !$(CALC[name].el).classList.contains("open"));
   document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => setCalc(b.dataset.close, false));
-  addEventListener("resize", fitNW);
+
 
   /* clicker hand-back: a tap on NumWorks gives it the keyboard; a few seconds later the board takes it back
      so the clicker works again. Desmos keeps its typing cursor, so it gets a 👆 Clicker button instead. */
@@ -965,8 +987,8 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbx639KsczdlRGLuWguhvJO
   const IK = () => wbOn ? "wb" : "board";
   const PENS = ["#F2F0EA", "#FFC22E", "#FF4D12", "#7CC243", "#5CC8FF", "#FF5CA8"];   // chalk, cheese, sauce, lettuce, sky, pink
   const activeStrokes = new Map();
-  const W = () => innerWidth, Hh = () => innerHeight;
-  function inkSize(){ inkRes = Math.min(2.5, Math.max(1, devicePixelRatio || 1)); inkC.width = Math.round(W() * inkRes); inkC.height = Math.round(Hh() * inkRes); inkDraw(); }
+  const W = () => 1920, Hh = () => 1080;                   // ink lives on the 1920×1080 stage, like the decks
+  function inkSize(){ const r = Math.min(2.5, Math.max(1, stageScale * (devicePixelRatio || 1))); if(Math.abs(r - inkRes) > .05 || inkC.width !== Math.round(1920 * r)){ inkRes = r; inkC.width = Math.round(1920 * r); inkC.height = Math.round(1080 * r); } inkDraw(); }
   function strokePath(s){                                    // points are stored as fractions of the screen so ink survives a resize
     const p = s.pts.map(q => [q[0] * W(), q[1] * Hh()]); if(!p.length) return;
     ictx.beginPath(); ictx.moveTo(p[0][0], p[0][1]);
@@ -980,7 +1002,7 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbx639KsczdlRGLuWguhvJO
     const list = inkStore[IK()]; list.forEach(s => { if(s.hl) strokePath(s); }); list.forEach(s => { if(!s.hl) strokePath(s); }); ictx.globalAlpha = 1;
   }
   function inkQueue(){ if(!inkQueued){ inkQueued = true; requestAnimationFrame(inkDraw); } }
-  const toFrac = e => [e.clientX / W(), e.clientY / Hh()];
+  const toFrac = e => { const r = $("stage").getBoundingClientRect(); return [(e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height]; };
   function eraseAt(p){
     const before = inkStore[IK()].length, r = 24 / 1920;
     inkStore[IK()] = inkStore[IK()].filter(s => !s.pts.some(q => Math.hypot((q[0] - p[0]), (q[1] - p[1]) * Hh() / W()) < r + s.w / 2));
