@@ -65,6 +65,7 @@ header{ display:flex; align-items:center; gap:clamp(12px,1.6vw,32px); }
 .docwrap:has(iframe:not([hidden])){ background:#fff; }
 .docwrap iframe{ border:0; position:absolute; top:0; left:0; transform-origin:0 0; background:#fff; }
 .empty{ position:absolute; inset:0; display:grid; place-items:center; text-align:center; padding:6%; background:transparent; color:var(--dust); font-size:clamp(16px,1.4vw,28px); line-height:1.4; }
+.empty[hidden]{ display:none; }
 .empty b{ color:var(--chalk); }
 
 /* warm-up */
