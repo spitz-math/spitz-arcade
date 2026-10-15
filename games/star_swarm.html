@@ -222,6 +222,7 @@ button:disabled{ cursor:default; }
 .sw-space.frenzy::after{ content:''; position:absolute; inset:0; border-radius:inherit; box-shadow:inset 0 0 40px 6px var(--hot); opacity:0; z-index:40; pointer-events:none; animation:szGlowO 0.6s infinite alternate; }
 @keyframes szGlowO{ to{ opacity:1; } }
 /* ================= /PERF ================= */
+#sw-nameinput::placeholder{ font-size:.86em; }
 </style>
 <script>/* a hub link with an algebra set (anything but mult and int): answers can be long, so layouts that tile short answers fall back to a list */
 if(/[?&]set=(?!(?:mult|int)\b)[a-z]/.test(location.search)) document.documentElement.classList.add('sz-alg');
@@ -270,7 +271,7 @@ var szm=/[?&]set=([a-z]+)/.exec(location.search); if(szm) document.documentEleme
       <div class="sw-step"><b>2. Blast</b>Hold Space to fire. Grab power-ups, chain your zaps and dodge their shots. Stop to answer and your shield goes up.</div>
       <div class="sw-step"><b>3. Upgrade</b>Spend cash in the Shop on more energy, bigger guns, score multipliers and power-ups.</div>
     </div>
-    <div class="sw-row"><input class="sw-input" id="sw-nameinput" maxlength="24" placeholder="Your first and last name" autocomplete="off" aria-label="Your name"><button class="sz-mus" id="sz-mus" aria-label="Music on or off, key N">♪ Music on</button></div>
+    <div class="sw-row"><input class="sw-input" id="sw-nameinput" maxlength="24" placeholder="First name + last initial" autocomplete="off" aria-label="Your name"><button class="sz-mus" id="sz-mus" aria-label="Music on or off, key N">♪ Music on</button></div>
     <button class="sw-go" id="sw-go" disabled>Start</button>
     <div class="sw-keys">Keys: 1–4 answer · Enter next · A D or ← → move · hold Space or W to fire · B shop · N music · M mute · Shift+R new game · F full screen</div>
   </div><button class="sw-lbbtn" id="sw-lbopen">Teacher: Leaderboard</button><span class="sw-credit sz-credit">Made by Spitz 🍔</span></div>
