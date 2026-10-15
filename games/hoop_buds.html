@@ -300,11 +300,11 @@ var szm=/[?&]set=([a-z]+)/.exec(location.search); if(szm) document.documentEleme
     <div class="hb-steps">
       <div class="hb-step"><b>Huddle</b>Answer 2 questions before every possession. Both right: a bigger green zone and a crossover that always works.</div>
       <div class="hb-step"><b>Offense</b>Hold Space, let go in the green. Press ↓ to cross over, then dunk. Missed? Grab the rebound.</div>
-      <div class="hb-step"><b>Defense</b>Stay in front of the Rival. Jump to block when you see the ! Then box out for the rebound.</div>
+      <div class="hb-step"><b>Defense</b>Stay in front. Press ↓ to steal when he dribbles in. Jump to block on the ! Grab his misses.</div>
     </div>
     <div class="hb-row"><input class="hb-input" id="hb-nameinput" maxlength="24" placeholder="Your first and last name" autocomplete="off" aria-label="Your name"><button class="sz-mus" id="sz-mus" aria-label="Music on or off, key N">♪ Music on</button></div>
     <button class="hb-go" id="hb-go" disabled>Start</button>
-    <div class="hb-keys">Keys: 1–4 answer · Space shoot, block · ↓ crossover · ← → move · ↑ jump · N music · M mute · Shift+R new game · F full screen</div>
+    <div class="hb-keys">Keys: 1–4 answer · Space shoot, block · ↓ crossover, steal · ← → move · ↑ jump · N music · M mute · Shift+R new game · F full screen</div>
   </div><span class="hb-credit sz-credit">Made by Spitz 🍔</span></div>
 
   <div class="hb-over" id="hb-end" hidden><div class="hb-box"><div class="sz-eyebrow">Spitz <b>Arcade</b></div>
@@ -538,7 +538,7 @@ window.__verify=function(n){ var out={}, seen={}; Object.keys(GEN).forEach(funct
 var NEED=2, GAME=90, SHOT=10;               /* 2 questions in every huddle; a 1:30 game clock that only runs while the ball is live; 10-second shot clock */
 var S, PL=null;
 function fresh(){ return { name:'', started:false, over:false, buds:0, rivals:0, poss:1, clock:GAME, ot:false, run:0, fire:false,
-  streak:0, best:0, answered:0, correct:0, huddles:0, perfect:0, makes:0, shots:0, blocks:0, threes:0, dunks:0, swishes:0, boards:0, crosses:0, snapsO:0, snapsD:0, hud:[], ready:false,
+  streak:0, best:0, answered:0, correct:0, huddles:0, perfect:0, makes:0, shots:0, blocks:0, threes:0, dunks:0, swishes:0, boards:0, steals:0, crosses:0, snapsO:0, snapsD:0, hud:[], ready:false,
   topics:QS?QS.topicTable():{'Facts 0–3':[0,0],'Facts 4–6':[0,0],'Facts 7–9':[0,0],'Facts 10–12':[0,0]}, q:null, qDone:false, picked:-1 }; }
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); localStorage.setItem(KEY+'_mute',muted?'1':'0'); }catch(e){} }
 function load(){ try{ var v=JSON.parse(localStorage.getItem(KEY)||'null'); muted=localStorage.getItem(KEY+'_mute')==='1'; if(v&&v.topics&&v.hud&&v.clock!==undefined&&v.boards!==undefined&&v.poss) return v; }catch(e){} return null; }
@@ -564,7 +564,7 @@ function showQ(){ var q=S.q; $('hb-tag').textContent=q.topic; $('hb-prompt').inn
 function newQ(){ clearTimeout(nextT); clearTimeout(lockT); S.q=nextQuestion(); S.qDone=false; S.picked=-1; save(); showQ(); }
 function startHuddle(){ S.hud=[]; S.ready=false; newQ(); }
 function readyMsg(){ var n=sum(S.hud), fb=$('hb-fb'), o=S.poss>0; fb.className='hb-fb '+(n>=1?'ok':'bad');
-  fb.innerHTML='<span class="h">'+(S.streak>=8||S.fire?'You are ON FIRE!':n===2?'Perfect huddle! '+(o?'Big green zone, sure crossover.':'Quick feet, long arms.'):n===1?'Huddle: 1 of 2. Normal play.':'Huddle: 0 of 2. '+(o?'Tiny green zone.':'Slow feet on defense.'))+'</span> Press Space to '+(o?'check the ball.':'play defense.'); }
+  fb.innerHTML='<span class="h">'+(S.streak>=8||S.fire?'You are ON FIRE!':n===2?'Perfect huddle! '+(o?'Big green zone, sure crossover.':'Quick hands, long arms.'):n===1?'Huddle: 1 of 2. Normal play.':'Huddle: 0 of 2. '+(o?'Tiny green zone.':'Slow feet on defense.'))+'</span> Press Space to '+(o?'check the ball.':'play defense.'); }
 function advance(){ if(S.over||!S.qDone) return; if(S.hud.length<NEED){ newQ(); return; } if(S.ready) return;
   S.ready=true; S.huddles++; if(sum(S.hud)===NEED){ S.perfect++; SND.star(); } readyMsg(); save(); hud(); }
 function markAnswered(i,fresh){ var q=S.q, btns=$('hb-choices').querySelectorAll('.hb-ch'), c=q.choices[i], fb=$('hb-fb');
@@ -596,7 +596,7 @@ function rvPlan(){ var k=level(), r=Math.random(); PL.cs=RUN*(0.62+0.03*k); PL.p
 /* every possession starts frozen; it only goes live after the huddle, when the student presses Space */
 function setPlay(){ var k=level();
   PL={ live:false, dead:0, t:0, off:S.poss, owner:S.poss>0?'me':'rv', ball:null, dunk:null, shot:null, msg:'', sub:'', col:'#fff', zone:1, spd:1, xs:0.7, reach:1, pm:0, fire:false,
-    clock:SHOT, near:0, stuck:0, rst:'drive', hopped:false, xcd:0, shake:0, loose:0 };
+    clock:SHOT, near:0, scd:0, sp:0.45, stuck:0, rst:'drive', hopped:false, xcd:0, shake:0, loose:0 };
   if(S.poss>0){ PL.me=guy(330,0); PL.rv=guy(402,1); PL.ds=RUN*(0.74+0.04*k); PL.beat=0.6-0.05*k; PL.stay=0.45+0.08*k; }
   else { PL.rv=guy(W-330,1); PL.me=guy(W-420,0); rvPlan(); }
   keys.l=keys.r=false; jumpQ=actQ=relQ=crossQ=false; }
@@ -622,11 +622,11 @@ function afterPlay(){ if(!S.ot&&S.clock<=0){ if(S.buds!==S.rivals){ endRun(); re
   else if(S.ot&&S.buds!==S.rivals){ endRun(); return; }
   setPlay(); startHuddle(); }
 function tip(){ var n=sum(S.hud); PL.live=true; PL.t=0; PL.fire=S.fire||S.streak>=8; SND.hike();
-  PL.zone=PL.fire?1.7:n===2?1.4:n===1?1:0.6; PL.spd=PL.fire?1.2:n===2?1.1:n===1?1:0.9; PL.xs=PL.fire||n===2?1:n===1?0.7:0.4; PL.reach=PL.fire?1.3:n===2?1.2:n===1?1:0.8;
+  PL.zone=PL.fire?1.7:n===2?1.4:n===1?1:0.6; PL.spd=PL.fire?1.2:n===2?1.1:n===1?1:0.9; PL.xs=PL.fire||n===2?1:n===1?0.7:0.4; PL.reach=PL.fire?1.3:n===2?1.2:n===1?1:0.8; PL.sp=PL.fire?0.45:n===2?0.3:n===1?0.22:0.12;
   if(PL.off>0){ S.snapsO++; PL.stay=PL.fire?0.2:Math.max(0,PL.stay+(n===2?-0.1:n===0?0.15:0)); } else { S.snapsD++; PL.pm=PL.fire?-0.12:n===2?-0.08:n===0?0.08:0; }
   if(S.ot) pop('OVERTIME','Next bucket wins','#FFD23F'); else if(PL.fire) pop('ON FIRE!','','#FF8A3D'); else if(n===2) pop('BOOST!','','#7CE04A'); else if(n===0) pop('WEAK PLAY','Missed questions in the huddle','#FF7A7A');
 
-  var fb=$('hb-fb'); fb.className='hb-fb'; fb.innerHTML='<span class="h">Ball is live!</span>'+(PL.off>0?'Get open and shoot. ↓ crossover, then dunk.':'Stay in front. Jump to block his shot.'); hud(); }
+  var fb=$('hb-fb'); fb.className='hb-fb'; fb.innerHTML='<span class="h">Ball is live!</span>'+(PL.off>0?'Get open and shoot. ↓ crossover, then dunk.':'Stay in front. Jump to block, ↓ to steal.'); hud(); }
 function fall(o,dt){ if(o.h>0||o.vy>0){ o.h+=o.vy*dt; o.vy-=GRAV*dt; if(o.h<=0){ o.h=0; o.vy=0; } } }
 function hop(o){ o.vy=JV; o.h=0.01; SND.jump(); }
 function walk(o,dx,dt){ if(dx){ o.x+=dx; o.face=dx<0?-1:1; o.walk+=dt; o.st='run'; } else if(o.st==='run') o.st='idle'; o.x=Math.max(40,Math.min(W-40,o.x)); }
@@ -666,12 +666,13 @@ function release(v){ var me=PL.me, z=zoneHalf(), dv=Math.abs(v-MID), d=RH-me.x, 
   if(covered()) PL.contest=true;
   if(perfect){ pop('PERFECT!','','#7CE04A'); S.swishes++; }
   PL.ball=b; PL.owner=null; PL.shot=null; SND.pass(); }
-function rvShoot(front){ var rv=PL.rv, k=level(), d=rv.x-LH, pts=d>=ARC?3:2, p=(pts===3?0.4:d<200?0.68:0.56)+0.03*k+PL.pm-(front?0.12:0), mk=Math.random()<p;
+function rvShoot(front){ var rv=PL.rv, me=PL.me, k=level(), d=rv.x-LH, pts=d>=ARC?3:2, hand=me.h>15&&Math.abs(me.x-rv.x)<130, p=(pts===3?0.4:d<200?0.68:0.56)+0.03*k+PL.pm-(front?0.15:0)-(hand?0.2:0), mk=Math.random()<p;
+  if(hand){ pop('CONTESTED!','','#7CE04A'); S.contests=(S.contests||0)+1; }
   var b=aim(rv.x-12,GY-rv.h-122,-1,mk?(Math.random()<0.4?'swish':'in'):(Math.random()<0.5?'short':'long')); b.shot.pts=pts; b.shot.by='rv'; PL.ball=b; PL.owner=null; SND.pass(); }
 function made(b,sg){ var t=sg>0?1:-1, pts=b.shot.team===t?b.shot.pts:2, sw=!b.shot.touched; b.vx*=0.2; b.vy=Math.min(b.vy,240); nets[sg>0?0:1]=1; b.shot=null;
   scored(t,pts,t>0?(pts===3?(sw?'SPLASH! +3':'THREE! +3'):(sw?'SWISH! +2':'BUCKET! +2')):'RIVALS SCORE +'+pts); }
 function hands(o){ return {x:o.x+o.face*6, y:GY-o.h-118}; }
-function block(b,by){ var t=b.shot.team; b.vx=-t*(170+Math.random()*130); b.vy=-160; b.shot=null; b.age=0; SND.crash(); PL.shake=0.3;
+function block(b,by){ var t=b.shot.team; if(by==='me'){ b.vx=(PL.me.x-b.x)*2.5; b.vy=-60; } else { b.vx=-t*(170+Math.random()*130); b.vy=-160; } b.shot=null; b.age=0; SND.crash(); PL.shake=0.3;
   if(by==='me'){ S.blocks++; var q=stagePoint(cv,b.x,b.y); confetti(q[0],q[1],50,2.4); pop('REJECTED!','Now grab it','#7CE04A'); } else pop('BLOCKED!','Get space before you shoot','#FF7A7A'); }
 function grab(who){ var t=who==='me'?1:-1, o=PL[who]; PL.ball=null; PL.owner=who; o.st='idle';
   if(t===PL.off){ PL.clock=Math.max(PL.clock,7); SND.grab(); if(t>0){ S.boards++; pop('BOARD!','Go again','#7CE04A'); } else { pop('RIVAL BOARD','','#FF7A7A'); rvPlan(); } }
@@ -687,7 +688,7 @@ function updLoose(dt){ var me=PL.me, rv=PL.rv, b=PL.ball, k=level(), sh=b.shot;
     if(rv.jcd<=0&&(!sh||sh.touched)&&b.age>0.2&&Math.abs(b.x-rv.x)<70&&b.y<GY-150&&b.y>GY-300&&b.vy>-200){ hop(rv); rv.jcd=0.7; } }
   bump();
   /* blocks: only on the way up, before the ball touches anything */
-  if(sh&&!sh.touched&&!sh.bchk&&b.vy<0){ var o=sh.by==='me'?rv:me, hd=hands(o), rx=sh.by==='me'?28:30*PL.reach, ry=sh.by==='me'?34:34*PL.reach;
+  if(sh&&!sh.touched&&!sh.bchk&&b.vy<0){ var o=sh.by==='me'?rv:me, hd=hands(o), rx=sh.by==='me'?28:46*PL.reach, ry=sh.by==='me'?34:56*PL.reach;
     if(o.h>12&&Math.abs(b.x-hd.x)<rx&&Math.abs(b.y-hd.y)<ry){ sh.bchk=true; if(sh.by==='rv'||Math.random()<(0.45+0.08*k)*(PL.fire?0.5:1)) { block(b,sh.by==='me'?'rv':'me'); return; } } }
   if(sh&&!sh.touched) return;                                                   /* nobody grabs a shot before it hits the rim, the board or the floor */
   if(b.age<0.15) return;
@@ -714,11 +715,17 @@ function startDunk(o,t){ PL.dunk={o:o,t:0,x0:o.x,h0:o.h,x1:t>0?RH-36:LH+36,team:
 /* ---- Rivals ball: you guard ---- */
 function updDef(dt){ var me=PL.me, rv=PL.rv, k=level();
   PL.clock-=dt;
-  walk(me,moveDir()*RUN*1.1*PL.spd*dt,dt); if((jumpQ||actQ)&&me.h===0) hop(me);
+  if(PL.scd>0) PL.scd-=dt; if(me.beat>0){ me.beat-=dt; jumpQ=actQ=crossQ=false; if(me.beat<=0) me.st='idle'; }
+  walk(me,me.beat>0?0:moveDir()*RUN*1.1*PL.spd*dt,dt); if((jumpQ||actQ)&&me.h===0) hop(me);
   fall(me,dt); fall(rv,dt);
-  var front=me.x<rv.x&&rv.x-me.x<104;                                                     /* you are close and between him and the hoop */
+  var front=me.x<rv.x&&rv.x-me.x<104;
+  /* ↓ swipes at the ball: it works best when he dribbles right into you; a miss leaves you reaching while he goes by */
+  if(crossQ&&me.h===0&&(PL.scd||0)<=0&&!PL.spin){ PL.scd=0.8; SND.cross(); me.st='reach'; me.t=0;
+    if(rv.h===0&&Math.abs(rv.x-me.x)<110&&PL.rst!=='jump'){ if(Math.random()<Math.max(0.2,PL.sp-0.03*k+(PL.rst==='drive'&&front?0.1:0))){ S.steals=(S.steals||0)+1; PL.owner=null; SND.star(); var q=stagePoint(cv,me.x,GY-120); confetti(q[0],q[1],40,2.4); turnover('STEAL!',true); return; }
+      me.beat=0.45; pop('REACH!','He got by you','#FF7A7A'); }
+    else me.beat=0.25; }                                                     /* you are close and between him and the hoop */
   if(PL.spin>0){ PL.spin-=dt; rv.x=Math.max(40,rv.x-420*dt); rv.st='run'; rv.walk+=dt*2; rv.face=PL.spin*20%2<1?-1:1; return; }
-  if(PL.rst==='drive'){ var nx=rv.x-PL.cs*dt, wall=me.h<40&&rv.h<40&&me.x<rv.x&&nx-me.x<GAP;
+  if(PL.rst==='drive'){ var nx=rv.x-PL.cs*dt, wall=me.beat<=0&&me.h<40&&rv.h<40&&me.x<rv.x&&nx-me.x<GAP;
     if(wall){ PL.stuck+=dt; rv.st='idle'; if(!PL.hopped&&PL.stuck>0.3){ PL.hopped=true; var r=Math.random(); if(r<0.25+0.06*k){ PL.spin=0.3; pop('SPIN MOVE!','','#FF7A7A'); SND.cross(); PL.plan='dunk'; PL.spot=LH+DUNK-10; } else if(k>=2&&r<0.55){ hop(rv); PL.plan='dunk'; PL.spot=LH+DUNK-10; } } }
     else { rv.x=Math.max(40,nx); rv.face=-1; rv.walk+=dt; rv.st='run'; }
     if(rv.h===0&&(rv.x<=PL.spot||PL.stuck>0.55||PL.clock<SHOT-6)){
@@ -727,7 +734,7 @@ function updDef(dt){ var me=PL.me, rv=PL.rv, k=level();
   else if(PL.rst==='wind'){ rv.t+=dt; if(rv.t>=PL.wind){ rv.t=0; rv.st='idle'; if(PL.fake){ PL.fake=false; PL.rst='hold'; pop('PUMP FAKE!','','#FFC82E'); } else { PL.rst='jump'; hop(rv); } } }
   else if(PL.rst==='hold'){ rv.t+=dt; if(rv.t>=0.45){ PL.rst='wind'; rv.st='wind'; rv.t=PL.wind-0.33; } }
   else if(PL.rst==='jump'){ rv.t+=dt; if(rv.t>=PL.rel){ rvShoot(front); return; } }
-  bump(); }
+  if(me.beat<=0) bump(); }
 function update(dt){ if(!S.started||S.over) return;
   if(PL.ball&&PL.ball.shot&&buzzer()) dt*=0.45;                                          /* a shot in the air at the buzzer plays in slow motion */
   gt+=dt; nets[0]=Math.max(0,nets[0]-dt*1.5); nets[1]=Math.max(0,nets[1]-dt*1.5); if(PL.shake>0) PL.shake-=dt;
@@ -771,7 +778,7 @@ function drawGuy(o,mark,up){ var x=o.x, col=o.team?'#E5484D':'#3D9BFF', band=o.t
   cx.fillStyle='#F3F5F9'; rr(cx,-17+sw,-4,15,7,3); cx.fill(); rr(cx,2-sw,-4,15,7,3); cx.fill();                     // shoes
   cx.fillStyle=band; rr(cx,-19,-26,38,14,5); cx.fill();                                                           // shorts
   cx.fillStyle=col; rr(cx,-19,-50,38,28,9); cx.fill();                                                            // jersey
-  cx.fillStyle='#FFD3A8'; if(up||(air&&!fl)){ cx.fillRect(-26,-70,8,24); cx.fillRect(18,-70,8,24); } else { cx.fillRect(-26,-46,7,18); cx.fillRect(19,-46,7,18); }
+  cx.fillStyle='#FFD3A8'; if(up||(air&&!fl)){ cx.fillRect(-26,-70,8,24); cx.fillRect(18,-70,8,24); } else if(o.st==='reach'){ cx.fillRect(f>0?18:-40,-44,22,8); cx.fillRect(f>0?-26:19,-46,7,16); } else { cx.fillRect(-26,-46,7,18); cx.fillRect(19,-46,7,18); }
   cx.beginPath(); cx.arc(0,-62,16,0,6.28); cx.fill();
   cx.fillStyle=band; cx.fillRect(-16,-72,32,7); cx.fillStyle='#0E1016'; cx.beginPath(); cx.arc(f*8,-61,2.5,0,6.28); cx.fill();
   cx.restore();
@@ -814,7 +821,7 @@ function render(){ var live=S.started&&!S.over, MX=W/2, me=PL.me, rv=PL.rv, b=PL
   cx.fillText(S.ot?'NEXT BUCKET WINS':PL.live&&PL.owner?'SHOT CLOCK  '+Math.max(0,Math.ceil(PL.clock)):'GAME CLOCK  '+clockText(),W-174,106);
   // touch buttons
   var act=PL.dead>0||PL.dunk?'':PL.live?(PL.owner==='me'?(canDunk()&&!PL.shot?'DUNK':'SHOOT'):'JUMP'):(S.ready?'GO':''), cr=PL.live&&PL.owner==='me'&&!PL.shot&&!PL.dunk;
-  [['l','◀'],['r','▶'],['x',cr?'CROSS':''],['a',act],['j','▲']].forEach(function(bt){ var Q=BTN[bt[0]], on=Object.keys(ptr).some(function(k){ return ptr[k]===bt[0]; }); if((bt[0]==='a'||bt[0]==='x')&&!bt[1]) return;
+  [['l','◀'],['r','▶'],['x',cr?'CROSS':PL.live&&PL.owner==='rv'?'STEAL':''],['a',act],['j','▲']].forEach(function(bt){ var Q=BTN[bt[0]], on=Object.keys(ptr).some(function(k){ return ptr[k]===bt[0]; }); if((bt[0]==='a'||bt[0]==='x')&&!bt[1]) return;
     cx.fillStyle=on?'rgba(255,210,63,.85)':'rgba(8,9,13,.6)'; cx.beginPath(); cx.arc(Q.x,Q.y,Q.r,0,6.28); cx.fill(); cx.lineWidth=4; cx.strokeStyle='rgba(243,245,249,.65)'; cx.stroke();
     cx.fillStyle='#F3F5F9'; cx.font='800 '+(bt[0]==='a'?30:bt[0]==='x'?24:bt[0]==='j'?56:48)+'px Inter, sans-serif'; cx.textBaseline='middle'; cx.fillText(bt[1],Q.x,Q.y+3); cx.textBaseline='alphabetic'; });
   pops.forEach(function(o){ var yy=206-o.t*30; cx.globalAlpha=Math.min(1,(1.4-o.t)*2.5); label(o.txt,MX,yy,o.col,52); if(o.lab) label(o.lab,MX,yy+44,'#fff',28); cx.globalAlpha=1; });
@@ -825,7 +832,7 @@ function render(){ var live=S.started&&!S.over, MX=W/2, me=PL.me, rv=PL.rv, b=PL
   if(PL.dead>0){ box(PL.sub?170:120,PL.col); cx.fillStyle=PL.col; cx.font='400 54px '+DF; cx.fillText(PL.msg,MX,226); if(PL.sub){ cx.font='700 30px Inter, sans-serif'; cx.fillStyle='#fff'; cx.fillText(PL.sub,MX,282); } }
   else if(!PL.live&&!S.ready){ box(150,'#C07BFF'); cx.fillStyle='#fff'; cx.font='400 50px '+DF; cx.fillText('HUDDLE',MX,222); cx.font='700 32px Inter, sans-serif'; cx.fillStyle='#FFB020'; cx.fillText('Answer 2 questions to '+(PL.off>0?'call the play':'set the defense')+'  →',MX,272); }
   else if(!PL.live&&PL.off>0&&S.snapsO===0){ box(276,'#7CE04A'); cx.fillStyle='#fff'; cx.font='400 46px '+DF; cx.fillText('HOLD SPACE TO SHOOT',MX,220); lines(['Let go in the green. Bright middle = swish.','↓ crossover makes him fall. Then dunk!','Missed? Grab the rebound and go again.']); }
-  else if(!PL.live&&PL.off<0&&S.snapsD===0){ box(276,'#FF7A7A'); cx.fillStyle='#fff'; cx.font='400 46px '+DF; cx.fillText('DEFENSE!',MX,220); lines(['Stay close, between him and your hoop.','When you see  !  press SPACE to jump and block.','He missed? Jump for the rebound!']); }
+  else if(!PL.live&&PL.off<0&&S.snapsD===0){ box(276,'#FF7A7A'); cx.fillStyle='#fff'; cx.font='400 46px '+DF; cx.fillText('DEFENSE!',MX,220); lines(['Stay close. ↓ steals when he dribbles into you.','When you see  !  press SPACE to jump and block.','He missed? Jump for the rebound!']); }
   else if(!PL.live){ cx.globalAlpha=0.65+0.35*Math.sin(now()/260); label('PRESS SPACE',MX,236,'#fff',44); cx.globalAlpha=1; } }
 var lastF=now(); function loop(){ var t=now(), dt=Math.min(0.033,(t-lastF)/1000); lastF=t; update(dt); render(); requestAnimationFrame(loop); }
 function canvasPt(e){ var r=cv.getBoundingClientRect(); return {x:(e.clientX-r.left)*W/r.width, y:(e.clientY-r.top)*H/r.height}; }
