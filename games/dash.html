@@ -138,6 +138,8 @@ button:disabled{ cursor:default; }
 .ds-reward{ display:flex; align-items:center; line-height:1.25; }
 .ds-hp{ display:inline-block; width:44px; height:20px; border-radius:10px; margin-left:10px; background:var(--panel-2); border:2px solid var(--border); }
 .ds-hp.y{ background:var(--lime); border-color:var(--lime); }
+.ds-mult{ white-space:nowrap; margin-left:18px; padding:6px 12px; border:2px solid var(--border); color:var(--muted); }
+.ds-mult.on{ border-color:var(--mag); color:var(--mag); }
 .ds-result{ font:400 44px/1.1 var(--display); color:var(--text); margin-top:2px; }
 .ds-final{ font-size:130px; }
 
@@ -267,7 +269,7 @@ html.sz-alg .ds-next{ height:68px; }
 </style>
 <script>/* a hub link with an algebra set (anything but mult and int): answers can be long, so layouts that tile short answers fall back to a list */
 if(/[?&]set=(?!(?:mult|int)\b)[a-z]/.test(location.search)) document.documentElement.classList.add('sz-alg');
-var szm=/[?&]set=([a-z]+)/.exec(location.search); if(szm) document.documentElement.classList.add('sz-set-'+szm[1]);</script>
+var szm=/[?&]set=([a-z0-9]+)/.exec(location.search); if(szm) document.documentElement.classList.add('sz-set-'+szm[1]);</script>
 </head>
 <body>
 <div id="stage">
@@ -282,28 +284,28 @@ var szm=/[?&]set=([a-z]+)/.exec(location.search); if(szm) document.documentEleme
   </div>
   <div id="ds-main">
     <div class="ds-range" id="ds-range">
-      <canvas id="ds-canvas" width="1054" height="936" aria-label="Dash course. Space or tap to go, then to jump the spikes."></canvas>
+      <canvas id="ds-canvas" width="1054" height="936" aria-label="Dash course. Space or tap to go, then to jump. Hold to fly the ship. Press to flip the ball."></canvas>
     </div>
     <div class="ds-q" id="ds-q">
       <div class="ds-qhead"><span class="ds-tag" id="ds-tag">Facts</span><span class="ds-reward" id="ds-reward"></span></div>
       <div class="ds-prompt" id="ds-prompt"></div>
       <div id="ds-body"><div id="ds-visual"></div><div class="ds-choices" id="ds-choices"></div></div>
-      <div class="ds-fb" id="ds-fb">3 right answers in a row earn 1 attempt. 6 in a row earns a flag.</div>
+      <div class="ds-fb" id="ds-fb"></div>
       <button class="ds-next" id="ds-next" disabled>Next question ›</button>
     </div>
   </div>
 
   <div class="ds-over" id="ds-start"><div class="ds-box">
     <div class="sz-eyebrow">Spitz <b>Arcade</b></div><h2 class="ds-big"><b>DA</b><i>SH</i></h2>
-    <p class="ds-sub"><span class="sz-setname">Multiplication facts, 0 to 12.</span> You have 5 minutes. Right answers earn attempts and flags. How far can you dash?</p>
+    <p class="ds-sub"><span class="sz-setname">Multiplication facts, 0 to 12.</span> You have 5 minutes. Right answers earn attempts. Beat as many levels as you can.</p>
     <div class="ds-steps">
-      <div class="ds-step"><b>1. Answer</b>3 right answers in a row earn 1 attempt. 6 in a row earns a flag. A miss starts the count over, so don’t guess.</div>
-      <div class="ds-step"><b>2. Dash</b>Space to go. That costs 1 attempt. Space to jump spikes and climb blocks. Don’t jump under hanging spikes.</div>
-      <div class="ds-step"><b>3. Checkpoint</b>Pass a pole while you hold a flag and it plants itself. Crash, and you restart from your flag.</div>
+      <div class="ds-step"><b>1. Answer</b>Right answers earn attempts. A streak earns flags and up to ×4 points. A miss ends the streak, so don’t guess.</div>
+      <div class="ds-step"><b>2. Dash</b>Space to go and jump. Tap yellow orbs in the air. Portals make you a ship (hold to fly) or a ball (press to flip).</div>
+      <div class="ds-step"><b>3. Beat it</b>A flag saves your spot at the next pole. Grab the 3 coins. Each level is faster than the last.</div>
     </div>
     <div class="ds-row"><input class="ds-input" id="ds-nameinput" maxlength="24" placeholder="Your first and last name" autocomplete="off" aria-label="Your name"><button class="sz-mus" id="sz-mus" aria-label="Music on or off, key N">♪ Music on</button></div>
     <button class="ds-go" id="ds-go" disabled>Start</button>
-    <div class="ds-keys">Keys: 1–4 answer · Space or ↑ go and jump (hold to keep jumping) · N music · M mute sound and music · Shift+R new game · F full screen</div>
+    <div class="ds-keys">Keys: 1–4 answer · Space or ↑ go, jump, fly (hold) and flip · N music · M mute sound and music · Shift+R new game · F full screen</div>
   </div><span class="ds-credit sz-credit">Made by Spitz 🍔</span></div>
 
   <div class="ds-over" id="ds-end" hidden><div class="ds-box"><div class="sz-eyebrow">Spitz <b>Arcade</b></div>
@@ -471,28 +473,36 @@ function verifyQ(q){ var e=[], m=txt(q.prompt).match(/^(\d+) × (\d+) = \?$/), o
 window.__verify=function(n){ var out={}, seen={}; Object.keys(GEN).forEach(function(t){ var bad=0, ex=null; for(var i=0;i<n;i++){ var q=build(t), er=verifyQ(q); seen[Math.min(q.data.a,q.data.b)+'x'+Math.max(q.data.a,q.data.b)]=1; if(er.length){ bad++; ex=ex||{e:er,q:q.prompt}; } } out[t]={bad:bad,ex:ex}; }); out.distinctFacts=Object.keys(seen).length; return out; };
 
 /* ================= GAME STATE ================= */
-var RUNLEN=300, CAP=5, FCAP=3, NEEDA=3, FSTREAK=6;      /* a 5:00 run; 3 right answers in a row earn an attempt (hold 5); every 6 in a row earns a flag (hold 3) */
+/* a 5:00 run. Quick questions (facts, integers, squares): 2 right answers earn an attempt and a streak of 5 earns a flag and the next points tier.
+   Longer algebra questions: every right answer earns an attempt and a streak of 3 does. A miss ends the streak but keeps the attempt progress. */
+var RUNLEN=300, CAP=5, FCAP=3;
+var FAST=!QS||QS.set==='mult'||!!(window.SpitzQ&&SpitzQ.sets[QS.set]&&SpitzQ.sets[QS.set].big);
+var NEEDA=FAST?2:1, FSTREAK=FAST?5:3;
+function multOf(s){ return 1+Math.min(3,Math.floor(s/FSTREAK)); }      /* ×1 … ×4 points while dashing */
 var S, P=null, LV=null;
-function fresh(){ return { name:'', started:false, over:false, clock:RUNLEN, seed:1+Math.floor(Math.random()*1e9), level:1, cp:-1, planted:[], passed:0, live:false,
-  attempts:0, flags:0, run3:0, score:0, cleared:0, flagsPlanted:0, tries:0, crashes:0,
+function fresh(){ return { ver:4, name:'', started:false, over:false, clock:RUNLEN, seed:1+Math.floor(Math.random()*1e9), level:1, cp:-1, planted:[], passed:0, live:false,
+  attempts:0, flags:0, toward:0, score:0, cleared:0, flagsPlanted:0, tries:0, crashes:0, lvBest:0, coins:[], coinTotal:0, modes:[], lvTries:0,
   streak:0, best:0, answered:0, correct:0,
   topics:QS?QS.topicTable():{'Facts 0–3':[0,0],'Facts 4–6':[0,0],'Facts 7–9':[0,0],'Facts 10–12':[0,0]}, q:null, qDone:false, picked:-1 }; }
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); localStorage.setItem(KEY+'_mute',muted?'1':'0'); }catch(e){} }
-function load(){ try{ var v=JSON.parse(localStorage.getItem(KEY)||'null'); muted=localStorage.getItem(KEY+'_mute')==='1'; if(v&&v.topics&&v.planted&&v.seed>0&&v.level>0) return v; }catch(e){} return null; }
+/* runs saved by the old Dash have no ver:4, so they start fresh (same save key, so the 20-minute expiry list still covers it) */
+function load(){ try{ var v=JSON.parse(localStorage.getItem(KEY)||'null'); muted=localStorage.getItem(KEY+'_mute')==='1'; if(v&&v.ver===4&&v.topics&&v.planted&&v.coins&&v.seed>0&&v.level>0) return v; }catch(e){} return null; }
 function now(){ return Date.now(); }
-function panelOpen(){ return S.started&&!S.over&&!(P&&P.live); }      /* the facts wait while the cube is running */
+function panelOpen(){ return S.started&&!S.over&&!(P&&P.live); }      /* the questions wait while the cube is running */
 
 /* ================= HUD ================= */
 function clockDraw(){ var s=Math.max(0,Math.ceil(S.clock)), a=Math.floor(s/60)+':'+('0'+(s%60)).slice(-2), e=$('ds-time'); if(e.textContent!==a) e.textContent=a;
   $('ds-timerchip').classList.toggle('low',S.started&&!S.over&&s<=30); }
 function hudLive(){ clockDraw(); var o=panelOpen(), q=$('ds-q'); if(q.classList.contains('open')!==o){ q.classList.toggle('open',o); q.classList.toggle('locked',!o); } }
-function hud(){ hudLive(); $('ds-scorev').textContent=S.score; $('ds-attv').textContent=S.attempts; $('ds-flagv').textContent=S.flags; $('ds-streak').textContent=S.streak;
-  $('ds-streakchip').classList.toggle('fire',S.streak>=9);
+function hud(){ hudLive(); var m=multOf(S.streak); $('ds-scorev').textContent=S.score; $('ds-attv').textContent=S.attempts; $('ds-flagv').textContent=S.flags;
+  $('ds-streak').textContent=S.streak+(m>1?'  ×'+m:'');
+  $('ds-streakchip').classList.toggle('fire',m>1);
   $('ds-enchip').classList.toggle('empty',S.started&&!S.over&&S.attempts===0&&!(P&&P.live));
-  var h=S.attempts>=CAP?'Attempts full':'Next attempt'; for(var i=0;i<NEEDA;i++) h+='<span class="ds-hp'+(i<S.run3?' y':'')+'"></span>'; $('ds-reward').innerHTML=h; }
+  var h=S.attempts>=CAP?'Attempts full':NEEDA>1?'Next attempt':'1 right = 1 attempt'; if(S.attempts<CAP&&NEEDA>1) for(var i=0;i<NEEDA;i++) h+='<span class="ds-hp'+(i<S.toward?' y':'')+'"></span>';
+  h+='<span class="ds-mult'+(m>1?' on':'')+'">×'+m+' points</span>'; $('ds-reward').innerHTML=h; }
 
 /* ================= QUESTIONS UI ================= */
-var nextT=0, lockT=0, INTRO='3 right answers in a row earn 1 attempt. 6 in a row earns a flag.';
+var nextT=0, lockT=0, INTRO=FAST?'2 right answers earn 1 attempt. 5 in a row earn a flag and more points.':'Each right answer earns 1 attempt. 3 in a row earn a flag and more points.';
 function showQ(){ var q=S.q; $('ds-tag').textContent=q.topic; $('ds-prompt').innerHTML=q.prompt; $('ds-visual').innerHTML=q.visual; $('ds-q').classList.toggle('vis',!!q.visual);
   $('ds-choices').innerHTML=q.choices.map(function(c,i){ return '<button class="ds-ch" data-i="'+i+'"><span class="k">'+(i+1)+'</span><span class="t">'+c.html+'</span></button>'; }).join('');
   var fb=$('ds-fb'); if(!S.answered){ fb.className='ds-fb'; fb.innerHTML=INTRO; } $('ds-next').disabled=true;
@@ -505,15 +515,16 @@ function markAnswered(i,note){ var q=S.q, btns=$('ds-choices').querySelectorAll(
   else { fb.className='ds-fb bad'; fb.innerHTML='<span class="h">Not quite.</span>'+c.why+'<br>'+q.explain; } }
 function answer(i){ if(!panelOpen()||S.qDone||!S.q) return; var c=S.q.choices[i]; if(!c) return; S.qDone=true; S.picked=i; S.answered++; S.topics[S.q.topic][1]++;
   if(c.ok){ S.correct++; S.topics[S.q.topic][0]++; S.streak++; S.best=Math.max(S.best,S.streak); var gain=[], full=false;
-    S.run3++; if(S.run3>=NEEDA){ S.run3=0; if(S.attempts<CAP){ S.attempts++; gain.push('+1 attempt'); } else full=true; }
-    if(S.streak%FSTREAK===0&&S.flags<FCAP){ S.flags++; gain.push('+1 flag'); }
+    if(S.attempts<CAP){ S.toward++; if(S.toward>=NEEDA){ S.toward=0; S.attempts++; gain.push('+1 attempt'); } } else full=true;
+    if(S.streak%FSTREAK===0){ if(S.flags<FCAP){ S.flags++; gain.push('+1 flag'); } if(S.streak<=3*FSTREAK) gain.push('×'+multOf(S.streak)+' points'); }
     SND.correct(); if(gain.length) SND.star();
-    markAnswered(i,(S.streak>1?' Streak '+S.streak+'.':'')+(gain.length?' '+gain.join(', ')+'.':full?' Attempts full. Go dash!':'')); nextT=setTimeout(advance,150); }
-  else { S.streak=0; S.run3=0; SND.miss(); markAnswered(i,''); lockT=setTimeout(advance,1200); }
+    markAnswered(i,(S.streak>1?' Streak '+S.streak+'.':'')+(gain.length?' '+gain.join(', ')+'.':full?' Attempts full. Go dash!':'')); nextT=setTimeout(advance,FAST?150:1400); }
+  else { S.streak=0; SND.miss(); markAnswered(i,''); lockT=setTimeout(advance,FAST?1200:2600); }
   save(); hud(); }
 $('ds-choices').addEventListener('click',function(e){ var b=e.target.closest('.ds-ch'); if(b) answer(+b.dataset.i); });
 
-/* ================= MUSIC (synthesized loop, only while the cube is running; kept quiet for a room of Chromebooks) ================= */
+/* ================= MUSIC (synthesized loop, only while the cube is running; kept quiet for a room of Chromebooks) =================
+   The course is laid out on the beat, so the music starts at the step that matches where the cube is. */
 var MUS={on:false,t:0,step:0,iv:0,gain:null,dt:0.11};
 var CHORDS=[[110,440,523.25,659.25],[87.31,349.23,440,523.25],[130.81,523.25,659.25,783.99],[98,392,493.88,587.33]], ARP=[1,2,3,2,1,3,2,3,1,2,3,2,3,2,1,2];
 function musNote(f1,f2,t,dur,type,vol){ var o=AC.createOscillator(), g=AC.createGain(); o.type=type; o.frequency.setValueAtTime(f1,t); if(f2!==f1) o.frequency.exponentialRampToValueAtTime(f2,t+dur);
@@ -524,138 +535,278 @@ function musTick(){ if(!MUS.on) return; while(MUS.t<AC.currentTime+0.25){ var s=
     if(s%2===0) musNote(c[0]*(s%8===6?2:1),c[0]*(s%8===6?2:1),t,d*1.7,'triangle',0.2);   /* bass */
     musNote(c[ARP[s%16]],c[ARP[s%16]],t,d*0.9,'square',0.035);                        /* arpeggio */
     if(Math.floor(s/16)%4===3&&s%16>=12) musNote(c[3]*2,c[3]*2,t,d*0.8,'triangle',0.06);
+    if(P&&P.mode==='ship'&&s%2===1) musNote(c[ARP[(s+5)%16]]*2,c[ARP[(s+5)%16]]*2,t,d*0.7,'triangle',0.04);   /* a sparkle line while flying */
     MUS.t+=d; MUS.step++; } }
-function musStart(){ var a=ac(); if(!a||muted||SZ_MUSIC_OFF||MUS.on) return; MUS.on=true; MUS.gain=a.createGain(); MUS.gain.gain.value=0.5; MUS.gain.connect(a.destination);
-  MUS.dt=15/Math.min(168,132+6*(S.level-1)); MUS.t=a.currentTime+0.05; MUS.step=0; window.__mus=(window.__mus||0)+1; musTick(); MUS.iv=setInterval(musTick,60); }
+function musStart(step){ var a=ac(); if(!a||muted||SZ_MUSIC_OFF||MUS.on) return; MUS.on=true; MUS.gain=a.createGain(); MUS.gain.gain.value=0.5; MUS.gain.connect(a.destination);
+  MUS.dt=15/LV.bpm; MUS.t=a.currentTime+0.03; MUS.step=Math.max(0,step||0); window.__mus=(window.__mus||0)+1; musTick(); MUS.iv=setInterval(musTick,60); }
 function musStop(){ if(!MUS.on) return; MUS.on=false; clearInterval(MUS.iv); var g=MUS.gain, t=AC.currentTime; MUS.gain=null;
   try{ g.gain.setValueAtTime(0.5,t); g.gain.linearRampToValueAtTime(0.0001,t+0.12); }catch(e){} setTimeout(function(){ try{ g.disconnect(); }catch(e){} },500); }
+function musStep(){ return Math.round((P.x-START)/(LV.grid/2)); }
+SND.orb=function(){ tone(660,1320,0,0.16,'triangle',0.16); tone(990,990,0.05,0.12,'sine',0.08); };
+SND.pad=function(){ tone(220,880,0,0.2,'triangle',0.16); };
+SND.flip=function(){ tone(520,300,0,0.12,'triangle',0.13); };
+SND.portal=function(){ tone(400,1200,0,0.3,'sine',0.12); tone(600,1800,0.04,0.26,'triangle',0.07); };
+SND.coin=function(){ tone(1568,1568,0,0.09,'triangle',0.13); tone(2093,2093,0.08,0.22,'triangle',0.13); };
+SND.best=function(){ tone(784,784,0,0.1,'triangle',0.12); tone(1046.5,1046.5,0.1,0.22,'triangle',0.12); };
 
-/* ================= THE COURSE ================= */
+/* ================= THE COURSE =================
+   Geometry Dash style: the cube runs by itself on the beat. Space (or tap) jumps; hold to keep jumping.
+   Yellow orbs: press while touching one to jump again in the air. Yellow pads launch you up a wall.
+   Portals change the cube: SHIP (hold to fly up, let go to drop) and BALL (press to flip to the other side), then back to CUBE.
+   Heights are in px above the ground (up is +). Everything is fixed-step (120 a second) so the solver below plays the same game. */
 var cv=$('ds-canvas'), cx=cv.getContext('2d'), W=1054, H=936, DF="'Russo One', Inter, sans-serif";
-var GY=640, CAMX=250, SPW=46, SPH=50, HITH=34, INSET=10, HALF=18, GRAV=3600, JV=900, BASE=480, START=140, B=46, TOL=16, TH=30, CEILH=78;
-var cam=START, gt=0, pops=[], bits=[], hold=false, jumpQ=0;
+var GY=640, CAMX=260, B=46, SPH=50, HITH=34, INSET=10, HZ=17, HW=22, PH=50, PHS=36, TOL=16, TH=30, CEILH=78,
+    GRAV=3600, JV=900, PADV=1300, ORBR=60, SHIPA=2700, SHIPG=2300, SHIPV=560, FLIPV=220, START=140, DT=1/120, RS=8*B, RB=6*B, COINR=46;
+var cam=START, gt=0, pops=[], bits=[], trail=[], hold=false, acc=0, trT=0;
+var MODEC={cube:'#3DF58C',ship:'#FF2BD6',ball:'#FF8A1F'};
 /* the course is built from a saved seed, so a reload brings back the same level */
 function rng(seed){ var a=seed>>>0; return function(){ a=(a+0x6D2B79F5)>>>0; var t=a; t=Math.imul(t^(t>>>15),t|1); t^=t+Math.imul(t^(t>>>7),t|61); return ((t^(t>>>14))>>>0)/4294967296; }; }
-/* difficulty: every level is faster, packs obstacles closer, and uses wider spike rows, taller stairs and longer platform chains. t goes 0 (level 1) to 1 (level 10). */
-function genLevel(n,seed){ var r=rng(seed+n*7919), v=Math.min(960,BASE+40*(n-1)), t=Math.min(1,(n-1)/9), N=Math.min(14,8+n), x=START+1.2*v, i, j, k, last='';
-  var L={n:n,speed:v,spikes:[],ceils:[],blocks:[],posts:[],marks:[],jumps:[],hue:(200+n*47)%360};
+var HUES=[220,275,325,175,245,350,200,140,295,15];   /* each level its own color, never close to the yellow cube */
+var NAMES=['Neon Start','Liftoff','Flip Side','Orb Rush','Double Time','Night Drive','Sky Rail','Gravity Jam','Hyper Lane','Final Pulse'];
+function plan(n,r){ var a,b;
+  if(n===1) return [['cube',5],['cube',5,'teach']];
+  if(n===2) return [['cube',4],['ship',5],['cube',4]];
+  if(n===3) return [['cube',4],['ball',6],['cube',4]];
+  if(n===4) return [['cube',3],['ship',5],['cube',3],['ball',5],['cube',2]];
+  a=r()<0.5?'ship':'ball'; b=r()<0.6?(a==='ship'?'ball':'ship'):a;
+  return [['cube',3],[a,5+Math.floor(r()*2)],['cube',3],[b,5+Math.floor(r()*2)],['cube',3]]; }
+/* difficulty: every level is faster and packs things closer. t goes 0 (level 1) to 1 (level 9). */
+function genLevel(n,seed){ var r=rng(seed+n*7919), v=Math.min(840,480+36*(n-1)), t=Math.min(1,(n-1)/8), bpm=Math.min(168,132+6*(n-1)), grid=v*30/bpm, x=START+1.3*v, cands=[], i, j, k;
+  var L={n:n,name:NAMES[(n-1)%NAMES.length]+(n>NAMES.length?' '+(1+Math.floor((n-1)/NAMES.length)):''),speed:v,bpm:bpm,grid:grid,
+    rects:[],spikes:[],pads:[],orbs:[],coins:[],posts:[],marks:[],secs:[{x0:-1e9,mode:'cube',roof:Infinity}],portals:[],hue:HUES[(n-1)%HUES.length]};
   var wmax=Math.max(1,Math.min(6,Math.floor((0.4177*v-16-(0.16-0.01*Math.min(n,10))*v)/B)));          /* widest spike row that still leaves a fair jump window at this speed */
-  var mix=[['sp',47-13*t],['block',15-11*t],['ceil',16],['stairs',22-2*t],['float',n===1?0:10+16*t]], tot=0; mix.forEach(function(m){ tot+=m[1]; });
-  var pad=Math.max(6,50-5*n), spread=Math.max(24,250-26*n), p1=Math.floor(N/3), p2=Math.floor(2*N/3);
-  function spikes(w){ L.spikes.push({x:Math.round(x),w:w}); L.jumps.push(x+w*B/2-0.25*v); x=Math.round(x)+w*B; }
-  function block(top,len,fl){ var b={x:Math.round(x),len:Math.round(len),top:top,fl:!!fl}; L.blocks.push(b); L.jumps.push(b.x-HALF-0.25*v); x=b.x+b.len; return b; }
-  function bed(a,b){ var w=Math.floor((b-a-8)/B); if(w>0) L.spikes.push({x:Math.round(a+4),w:w,bed:1}); }
-  for(i=0;i<N;i++){ var u=r()*tot, g=r(), g2=r(), kind='sp', elev=false, a;
-    for(j=0;j<mix.length;j++){ if(u<mix[j][1]){ kind=mix[j][0]; break; } u-=mix[j][1]; }
-    if(i===0||(n===1&&i===1)){ spikes(1); kind='sp'; }                                  /* a very short calm opening */
-    else if(kind==='ceil'&&last==='ceil'){ spikes(wmax); kind='sp'; }
-    else if(kind==='sp') spikes(Math.min(wmax,1+Math.floor(Math.pow(g,1-0.6*t)*wmax)));
-    else if(kind==='ceil'){ k=4+Math.floor(g*(4+4*t)); L.ceils.push({x:Math.round(x),w:k}); x=Math.round(x)+k*B; }       /* hanging spikes: do not jump under them */
-    else if(kind==='block'){ block(B,0.52*v); elev=true; }
-    else if(kind==='stairs'){ k=Math.min(5,2+Math.floor((n-1)/3+g*1.4)); for(j=0;j<k;j++) block((j+1)*B,0.46*v); elev=true; }
-    else { k=n<3?1:Math.min(4,1+Math.floor((n-1)/3+g*1.3)); block(B,0.52*v); a=x;                                       /* a chain of rising platforms over a spike pit */
-      for(j=0;j<k;j++){ x+=0.12*v; block((j+2)*B,(j===k-1?0.6-0.15*t:0.5-0.14*t)*v,true); } bed(a,x); elev=true; }
-    last=kind; L.marks.push(Math.round(x));
-    if(i===p1-1||i===p2-1){ L.posts.push(Math.round(x+0.5*v)); x+=1.45*v; }      /* a pole sits in a long calm gap, so a restart there is fair */
-    else if(i<N-1) x+=(elev?0.66:0.5)*v+18+pad+g2*spread;
-    else x+=0.8*v; }
-  L.end=Math.round(x); return L; }
+  var pad=Math.max(6,50-5*n), spread=Math.max(24,250-26*n);
+  function snap(){ x=START+Math.ceil((x-START)/grid-0.001)*grid; }                                     /* obstacles start on the half beat */
+  function R(x0,w,y0,y1,kind){ L.rects.push({x:Math.round(x0),w:Math.round(w),y0:y0,y1:y1,k:kind}); }
+  function SP(x0,w,y,dir,bed){ L.spikes.push({x:Math.round(x0),w:w,y:y,dir:dir,bed:!!bed}); }
+  function C(cx0,cy,pri){ cands.push({x:Math.round(cx0),y:cy,p:pri}); }
+  function mark(){ L.marks.push(Math.round(x)); }
+  function gapAfter(elev){ x+=(elev?0.66:0.5)*v+18+pad+r()*spread; snap(); }
+  function post(){ L.posts.push(Math.round(x+0.5*v)); x+=1.45*v; snap(); }
+  function portal(mode,roof){ x=Math.round(x); L.secs.push({x0:x,mode:mode,roof:roof}); L.portals.push({x:x,mode:mode,roof:roof}); }
+  var mixBase=[['sp',40-12*t],['block',12-8*t],['ceil',14],['stairs',18],['float',n===1?0:12+12*t],['pad',n===1?0:9],['orb',n===1?0:9]];
+  function cubeItem(kind,first){ var g=r(), a, elev=false;
+    if(kind==='sp'){ k=first?1:Math.min(wmax,1+Math.floor(Math.pow(g,1-0.6*t)*wmax)); SP(x,k,0,1); if(k<=2) C(x+k*B/2,150,0); x+=k*B; }
+    else if(kind==='block'){ R(x,0.52*v,0,B,'block'); x+=Math.round(0.52*v); elev=true; }
+    else if(kind==='stairs'){ k=Math.min(5,2+Math.floor((n-1)/3+g*1.4)); for(j=0;j<k;j++){ R(x,0.46*v,0,(j+1)*B,'block'); x+=Math.round(0.46*v); } elev=true; }
+    else if(kind==='ceil'){ k=4+Math.floor(g*(4+4*t)); R(x,k*B,CEILH+SPH,4000,'ceil'); SP(x,k,CEILH+SPH,-1); C(x+k*B/2,25,1); x+=k*B; }       /* hanging spikes: do not jump under them */
+    else if(kind==='float'){ k=n<3?1:Math.min(4,1+Math.floor((n-1)/3+g*1.3)); R(x,0.52*v,0,B,'block'); x+=Math.round(0.52*v); a=x;    /* a chain of rising platforms over a spike pit */
+      for(j=0;j<k;j++){ x+=Math.round(0.12*v); var len=Math.round((j===k-1?0.6-0.15*t:0.5-0.14*t)*v); R(x,len,(j+2)*B-TH,(j+2)*B,'float'); x+=len; }
+      var w=Math.floor((x-a-8)/B); if(w>0) SP(a+4,w,0,1,true); elev=true; }
+    else if(kind==='pad'){ L.pads.push({x:Math.round(x)}); R(x+0.36*v,0.62*v,0,3*B,'block'); C(x-HW+0.361*v,260,1); x+=Math.round(0.36*v)+Math.round(0.62*v); elev=true; }   /* the wall is too tall to jump: the pad launches you onto it */
+    else if(kind==='orb'){ k=Math.floor(0.6*v/B); L.orbs.push({x:Math.round(x+0.12*v),y:150}); SP(x,k,0,1); x+=k*B; }                     /* a pit too wide to jump: hit the orb at the top of the jump */
+    else if(kind==='bonus'){ SP(x,1,0,1); L.orbs.push({x:Math.round(x+B/2+0.04*v),y:150,bonus:1}); C(x+B/2+0.29*v,262,3); x+=B+0.95*v; }        /* an extra orb over a spike sends you up to a coin */
+    return elev; }
+  function cubeSeg(cnt,teach,firstSeg){ var mix=mixBase.map(function(m){ return m.slice(); }), tot=0, last='', list=[], b=Math.floor(r()*cnt);
+    if(teach) list=['sp','pad','sp','orb','bonus'];
+    else for(i=0;i<cnt;i++){ var u, kind='sp'; tot=0; mix.forEach(function(m){ tot+=m[1]; }); u=r()*tot;
+      for(j=0;j<mix.length;j++){ if(u<mix[j][1]){ kind=mix[j][0]; break; } u-=mix[j][1]; }
+      if(firstSeg&&i<2) kind=i===0?'sp':(kind==='sp'||kind==='block'?kind:'sp');                 /* a calm opening */
+      if(kind==='ceil'&&last==='ceil') kind='sp';
+      if(i===b&&!firstSeg) kind='bonus';
+      list.push(kind); last=kind; }
+    list.forEach(function(kind,ii){ var elev=cubeItem(kind,firstSeg&&ii===0); mark();
+      if(cnt>=5&&ii===2&&L.posts.length<2&&!teach) post(); else gapAfter(elev); }); }
+  function shipSeg(cnt){ portal('ship',RS); x+=0.95*v; snap(); var G=Math.round(Math.max(4*B,(6-1.6*t)*B)), c=RS/2, pw=2*B;
+    for(i=0;i<cnt;i++){ c+=(r()-0.5)*2*Math.min(2.2*B,0.9*G); var gb=Math.round(Math.max(0,Math.min(RS-G,c-G/2))); c=gb+G/2;
+      if(gb>0) R(x,pw,0,gb,'pillar'); if(gb+G<RS) R(x,pw,gb+G,RS,'pillar');
+      C(x+pw/2,r()<0.5?gb+G-30:gb+30,2); x+=pw; mark(); x+=(0.85+0.3*r())*v; snap(); }
+    portal('cube',Infinity); x+=0.95*v; snap(); }
+  function ballSeg(cnt){ portal('ball',RB); x+=0.8*v; snap(); var side=1;
+    for(i=0;i<cnt;i++){ k=2+Math.floor(r()*(1+2*t)); if(side>0) SP(x,k,0,1); else SP(x,k,RB,-1); x+=k*B; mark();
+      var nx=r()<0.75?-side:side, gx=(0.58+0.25*r())*v; if(nx!==side) C(x+gx/2,RB/2,2); side=nx; x+=gx; snap(); }
+    portal('cube',Infinity); x+=0.95*v; snap(); }
+  var segs=plan(n,r);
+  segs.forEach(function(sg,si){ if(sg[0]==='cube') cubeSeg(sg[1],sg[2]==='teach',si===0); else if(sg[0]==='ship') shipSeg(sg[1]); else ballSeg(sg[1]);
+    if(si<segs.length-1&&L.posts.length<2&&si<2) post(); });
+  x+=0.6*v; L.end=Math.round(x);
+  /* 3 coins: the best spot in each third of the level */
+  for(k=0;k<3;k++){ var a0=START+(L.end-START)*k/3, a1=START+(L.end-START)*(k+1)/3, bestC=null;
+    cands.forEach(function(c){ if(c.x>=a0&&c.x<a1&&!c.used&&(!bestC||c.p>bestC.p)) bestC=c; });
+    if(!bestC) cands.forEach(function(c){ if(!c.used&&(!bestC||c.p>bestC.p)) bestC=c; });
+    if(bestC){ bestC.used=1; L.coins.push({x:bestC.x,y:bestC.y,i:L.coins.length}); } }
+  ['rects','spikes','pads','orbs','coins'].forEach(function(nm){ L[nm].sort(function(p,q){ return p.x-q.x; }); });
+  L.coins.forEach(function(c,ii){ c.i=ii; });
+  return L; }
+
+/* ---- the physics: one fixed step. Returns 1 on a crash. p.ev (if set) collects sound events. ---- */
+function pStart(L,x){ var si=0; while(si+1<L.secs.length&&L.secs[si+1].x0<=x) si++; return {x:x,h:0,vy:0,gs:1,mode:L.secs[si].mode,si:si,on:true,orbs:0,jq:0,rot:0,ev:null}; }
+function phys(L,p,inp,dt){ var i, o, dx, dy;
+  while(p.si+1<L.secs.length&&p.x>=L.secs[p.si+1].x0){ p.si++; var sc=L.secs[p.si];
+    if(sc.mode!==p.mode){ p.mode=sc.mode; p.gs=1; p.on=false; if(sc.mode==='ship') p.vy=Math.max(-300,Math.min(300,p.vy)); if(p.ev) p.ev.push('portal'); } }
+  var roof=L.secs[p.si].roof, ph=p.mode==='ship'?PHS:PH;
+  if(p.jq>0) p.jq-=dt;
+  var go=inp||p.jq>0;
+  if(p.mode==='cube'){
+    for(i=0;i<L.pads.length;i++){ o=L.pads[i]; if(o.x+B<p.x-HW) continue; if(o.x>p.x+HW) break; if(p.h<=20&&p.vy<=0){ p.vy=PADV; p.on=false; if(p.ev) p.ev.push('pad'); } }
+    if(go) for(i=0;i<L.orbs.length;i++){ o=L.orbs[i]; dx=o.x-p.x; if(dx<-ORBR) continue; if(dx>ORBR) break; dy=o.y-(p.h+ph/2);
+      if(dx*dx+dy*dy<ORBR*ORBR&&!(p.orbs&(1<<i))){ p.orbs|=1<<i; p.vy=JV; p.on=false; p.jq=0; go=false; if(p.ev) p.ev.push('orb'); break; } }
+    if(p.on&&go){ p.vy=JV; p.on=false; p.jq=0; if(p.ev) p.ev.push('jump'); } }
+  else if(p.mode==='ball'){ if(p.on&&go){ p.gs=-p.gs; p.vy=-p.gs*FLIPV; p.on=false; p.jq=0; if(p.ev) p.ev.push('flip'); } }
+  var h0=p.h;
+  if(p.mode==='ship'){ p.vy+=(go?SHIPA:-SHIPG)*dt; if(p.vy>SHIPV) p.vy=SHIPV; if(p.vy<-SHIPV) p.vy=-SHIPV; }
+  else { p.vy-=GRAV*p.gs*dt; if(p.vy<-1600) p.vy=-1600; if(p.vy>1600) p.vy=1600; }
+  p.x+=L.speed*dt; p.h+=p.vy*dt;
+  var fl=0, rf=roof, lo=p.x-HW, hi=p.x+HW;
+  for(i=0;i<L.rects.length;i++){ o=L.rects[i]; if(o.x>=hi) break; if(o.x+o.w<=lo) continue;
+    if(o.y1<=h0+TOL){ if(o.y1>fl) fl=o.y1; }                          /* below: stand on it (or step up a little) */
+    else if(o.y0>=h0+ph-TOL){ if(o.y0<rf) rf=o.y0; }                  /* above: a ceiling */
+    else return 1; }                                                   /* ran into the side */
+  if(rf-fl<ph-0.5) return 1;
+  if(p.h<fl){ p.h=fl; if(p.vy<0) p.vy=0; }
+  if(p.h+ph>rf){ p.h=rf-ph; if(p.vy>0) p.vy=0; }
+  var was=p.on; p.on=p.mode!=='ship'&&(p.gs>0? p.h<=fl+0.01 : p.h+ph>=rf-0.01);
+  if(p.on&&!was&&p.ev) p.ev.push('land');
+  if(p.mode==='cube'){ if(p.on) p.rot=Math.round(p.rot/(Math.PI/2))*(Math.PI/2); else p.rot+=dt*Math.PI*GRAV/(2*JV); }
+  else if(p.mode==='ship') p.rot=-Math.atan2(p.vy,L.speed)*0.8;
+  else p.rot+=p.gs*L.speed*dt/26;
+  var bx0=p.x-HZ, bx1=p.x+HZ, by0=p.h+3, by1=p.h+ph-3;
+  for(i=0;i<L.spikes.length;i++){ o=L.spikes[i]; var zx0=o.x+INSET, zx1=o.x+o.w*B-INSET; if(zx0>bx1) break; if(zx1<bx0) continue;
+    if(o.dir>0? (by0<o.y+HITH&&by1>o.y) : (by1>o.y-HITH&&by0<o.y)) return 1; }
+  return 0; }
+
+/* ---- the solver: proves a level can be beaten from a spot with inputs held for 1/20 s at a time (used by the tests and the bot) ---- */
+function solve(L,x0,max,K){ K=K||6; var nodes=[{p:pStart(L,x0),t:0,par:-1,c:0}], st=[0], seen={}, n=0; max=max||400000;
+  while(st.length){ var id=st.pop(), e=nodes[id], p=e.p;
+    if(p.x>=L.end){ var path=[]; while(id>0){ path.push(nodes[id].c); id=nodes[id].par; } return {ok:true,n:n,path:path.reverse()}; }
+    if(++n>max) return {ok:false,n:n,timeout:true};
+    var k=e.t+'|'+Math.round(p.h/3)+'|'+Math.round(p.vy/40)+'|'+p.gs+p.mode+(p.on?1:0)+'|'+p.orbs; if(seen[k]) continue; seen[k]=1;
+    for(var c=1;c>=0;c--){ var q={x:p.x,h:p.h,vy:p.vy,gs:p.gs,mode:p.mode,si:p.si,on:p.on,orbs:p.orbs,jq:0,rot:0,ev:null}, dead=0;
+      for(var s=0;s<K&&!dead&&q.x<L.end;s++) dead=phys(L,q,!!c,DT);
+      if(!dead){ nodes.push({p:q,t:e.t+1,par:id,c:c}); st.push(nodes.length-1); } } }
+  return {ok:false,n:n}; }
+
 function spawnX(){ return S.cp<0? START : LV.posts[S.cp]; }
-function setCourse(){ LV=genLevel(S.level,S.seed); if(S.cp>=LV.posts.length) S.cp=-1;
-  P={x:spawnX(),h:0,vy:0,rot:0,on:true,live:false,dead:0,clear:false,msg:'',sub:'',seen:{}}; cam=P.x; hold=false; jumpQ=0; }
+function setCourse(){ if(!LV||LV.n!==S.level||LV.seed!==S.seed){ LV=genLevel(S.level,S.seed); LV.seed=S.seed; } if(S.cp>=LV.posts.length) S.cp=-1;
+  P=pStart(LV,spawnX()); P.live=false; P.dead=0; P.clear=false; P.msg=''; P.sub=''; P.seen={}; cam=P.x; hold=false; acc=0; trail=[]; }
 function nudge(){ var q=$('ds-q'); q.classList.remove('nudge'); void q.offsetWidth; q.classList.add('nudge'); }
 function pop(txt,lab,col){ pops.push({t:0,txt:txt,lab:lab||'',col:col||'#fff'}); }
 function tryMove(){ SND.empty(); nudge(); }
 function pct(){ return Math.max(0,Math.min(100,Math.floor(100*(P.x-START)/(LV.end-START)))); }
 function say(h,rest){ var fb=$('ds-fb'); fb.className='ds-fb'; fb.innerHTML='<span class="h">'+h+'</span>'+rest; }
-function launch(){ if(S.attempts<=0){ tryMove(); return; } S.attempts--; S.tries++; S.live=true; P.live=true; P.seen={}; hold=false; jumpQ=0; SND.go(); musStart();
-  say('Dash!','Jump spikes and blocks. Stay low under hanging spikes.'); hud(); save(); }
-/* one button does everything: go when the cube is waiting, jump when it is running */
-function press(){ if(!S.started||S.over||P.dead>0) return; if(P.live) jumpQ=0.12; else launch(); }
-function crash(){ var p=pct(); S.live=false; P.live=false; P.dead=0.75; P.clear=false; S.crashes++; musStop(); SND.crash();
+function launch(){ if(S.attempts<=0){ tryMove(); return; } S.attempts--; S.tries++; S.lvTries++; S.live=true; P.live=true; P.seen={}; P.jq=0; acc=0; SND.go(); musStart(musStep());
+  if(P.x===START) pop('LEVEL '+LV.n,LV.name.toUpperCase(),'#C6FF00');
+  say('Dash!','Jump the spikes. Tap orbs in the air. Portals change your shape.'); hud(); save(); }
+/* one button does everything: go when the cube is waiting; jump, fly or flip when it is running */
+function press(){ if(!S.started||S.over||P.dead>0) return; if(P.live) P.jq=0.12; else launch(); }
+function crash(){ var p=pct(), nb=p>S.lvBest; S.live=false; P.live=false; P.dead=0.8; P.clear=false; S.crashes++; musStop(); SND.crash();
+  if(nb){ S.lvBest=p; setTimeout(function(){ SND.best(); },250); }
+  P.msg=p+'%'; P.sub=nb?'NEW BEST!':'Best '+S.lvBest+'%';
   for(var i=0;i<16;i++){ var a=Math.random()*6.28, v=160+Math.random()*340; bits.push({x:P.x,y:GY-P.h-26,vx:Math.cos(a)*v,vy:Math.sin(a)*v-200,t:0}); }
-  say('Crashed at '+p+'%.',(S.cp<0?'Back to the start.':'Back to your flag.')+' Right answers earn more attempts.'); hud(); save(); }
-function clearLevel(){ S.live=false; P.live=false; P.dead=1.7; P.clear=true; P.msg='LEVEL '+S.level+' CLEARED!'; P.sub='+250 · Level '+(S.level+1)+' is next';
-  S.cleared++; S.score+=250; S.level++; S.cp=-1; S.planted=[]; S.passed=0; musStop(); SND.gold();
+  say('Crashed at '+p+'%.'+(nb?' New best!':''),(S.cp<0?'Back to the start.':'Back to your flag.')+' Right answers earn more attempts.'); hud(); save(); }
+function clearLevel(){ var m=multOf(S.streak), got=0; LV.coins.forEach(function(c){ if(S.coins.indexOf(c.i)>=0) got++; });
+  S.live=false; P.live=false; P.dead=1.9; P.clear=true; P.msg='LEVEL '+S.level+' COMPLETE!'; P.sub='+'+(250*m)+(got?' · '+got+' of 3 coins':'')+' · Level '+(S.level+1)+' is next';
+  S.cleared++; S.score+=250*m; S.level++; S.cp=-1; S.planted=[]; S.passed=0; S.lvBest=0; S.coins=[]; S.lvTries=0; musStop(); SND.gold();
   var q=stagePoint(cv,W/2,300); confetti(q[0],q[1],110,2.8); confetti(q[0]-300,q[1]+200,50,2); confetti(q[0]+300,q[1]+200,50,2);
-  say('Level cleared!','Level '+S.level+' is faster and harder.'); hud(); save(); }
-function update(dt,real){ if(!S.started||S.over) return;
-  S.clock=Math.max(0,S.clock-(real==null?dt:real)); if(S.clock<=0){ endRun(); return; }
-  gt+=dt; pops.forEach(function(o){ o.t+=dt; }); pops=pops.filter(function(o){ return o.t<1.4; });
-  bits.forEach(function(b){ b.t+=dt; b.vy+=1500*dt; b.x+=b.vx*dt; b.y+=b.vy*dt; }); bits=bits.filter(function(b){ return b.t<0.75; });
-  if(jumpQ>0) jumpQ-=dt;
-  if(P.dead>0){ P.dead-=dt; if(P.dead<=0) setCourse(); hudLive(); return; }
-  if(!P.live){ cam+=(P.x-cam)*Math.min(1,dt*10); hudLive(); return; }
-  if(P.on&&(jumpQ>0||hold)){ P.vy=JV; P.on=false; jumpQ=0; SND.jump(); }
-  P.x+=LV.speed*dt; cam=P.x;
-  if(!P.on){ P.h+=P.vy*dt-0.5*GRAV*dt*dt; P.vy-=GRAV*dt; P.rot+=dt*Math.PI*GRAV/(2*JV); }
-  var i, o, n=0, changed=false, f=0, lo=P.x-HALF, hi=P.x+HALF;
-  for(i=0;i<LV.blocks.length;i++){ o=LV.blocks[i]; if(o.x+o.len<=lo) continue; if(o.x>=hi) break;
-    if(P.h>=o.top-TOL){ if(o.top>f) f=o.top; }                       /* on top, or close enough to step up */
-    else if(o.fl&&P.h+52<=o.top-TH){ }                              /* under a floating platform */
-    else { crash(); return; } }                                      /* ran into the side */
-  if(P.h<=f){ if(P.vy<=0){ P.h=f; P.vy=0; P.on=true; P.rot=0; } } else if(P.on){ P.on=false; P.vy=0; }
-  for(i=0;i<LV.spikes.length;i++){ o=LV.spikes[i]; if(o.x+o.w*B-INSET<lo) continue; if(o.x+INSET>hi) break; if(P.h<HITH){ crash(); return; } }
-  for(i=0;i<LV.ceils.length;i++){ o=LV.ceils[i]; if(o.x+o.w*B-INSET<lo) continue; if(o.x+INSET>hi) break; if(P.h+52>CEILH+10){ crash(); return; } }
+  say('Level complete!','Level '+S.level+' is faster.'); hud(); save(); }
+var MODEPOP={ship:['SHIP!','Hold to fly up. Let go to drop.'],ball:['BALL!','Press to flip to the other side.'],cube:['CUBE','Back to jumping.']};
+function events(ev){ ev.forEach(function(e){
+  if(e==='jump') SND.jump(); else if(e==='orb'){ SND.orb(); ring(P.x,P.h+PH/2,'#FFD23F'); } else if(e==='pad'){ SND.pad(); ring(P.x,10,'#FFD23F'); } else if(e==='flip') SND.flip();
+  else if(e==='portal'){ SND.portal(); var mp=MODEPOP[P.mode]; if(S.modes.indexOf(P.mode)<0&&P.mode!=='cube'){ S.modes.push(P.mode); pop(mp[0],mp[1],MODEC[P.mode]); } else if(P.mode!=='cube') pop(mp[0],'',MODEC[P.mode]); } }); }
+function ring(x,h,col){ bits.push({ring:1,x:x,y:GY-h,t:0,col:col}); }
+function collect(){ var m=multOf(S.streak), cy=P.h+(P.mode==='ship'?PHS:PH)/2, got=false;
+  LV.coins.forEach(function(c){ if(S.coins.indexOf(c.i)>=0) return; var dx=c.x-P.x, dy=c.y-cy; if(dx*dx+dy*dy<COINR*COINR){ S.coins.push(c.i); S.coinTotal++; S.score+=100*m; SND.coin(); pop('COIN!','+'+(100*m),'#FFD23F'); ring(c.x,c.y,'#FFD23F'); got=true; } });
+  return got; }
+function update(real){ if(!S.started||S.over) return;
+  S.clock=Math.max(0,S.clock-real); if(S.clock<=0){ endRun(); return; }
+  gt+=real; pops.forEach(function(o){ o.t+=real; }); pops=pops.filter(function(o){ return o.t<1.6; });
+  bits.forEach(function(b){ b.t+=real; if(!b.ring){ b.vy+=1500*real; b.x+=b.vx*real; b.y+=b.vy*real; } }); bits=bits.filter(function(b){ return b.t<0.75; });
+  trail.forEach(function(o){ o.t+=real; }); trail=trail.filter(function(o){ return o.t<0.35; });
+  if(P.dead>0){ P.dead-=real; if(P.dead<=0) setCourse(); hudLive(); return; }
+  if(!P.live){ cam+=(P.x-cam)*Math.min(1,real*10); hudLive(); return; }
+  acc+=Math.min(real,0.07); var changed=false, m=multOf(S.streak), i, n=0;
+  while(acc>=DT){ acc-=DT; P.ev=[]; if(phys(LV,P,hold,DT)){ cam=P.x; crash(); return; } cam=P.x; if(P.ev.length) events(P.ev); if(collect()) changed=true;
+    if(P.x>=LV.end){ clearLevel(); return; } }
+  trT-=real; if(trT<=0){ trT=0.03; trail.push({x:P.x,h:P.h,t:0,m:P.mode}); }
+  var lo=P.x-HW;
   for(i=0;i<LV.marks.length;i++){ if(LV.marks[i]<lo) n++; else break; }
-  if(n>S.passed){ S.score+=10*(n-S.passed); S.passed=n; changed=true; }       /* points only the first time an obstacle is cleared */
+  if(n>S.passed){ S.score+=10*m*(n-S.passed); S.passed=n; changed=true; }       /* points only the first time an obstacle is cleared */
   for(i=0;i<LV.posts.length;i++){ if(P.x<LV.posts[i]||P.seen[i]) continue; P.seen[i]=1;
     if(S.planted.indexOf(i)>=0){ S.cp=Math.max(S.cp,i); }
-    else if(S.flags>0){ S.flags--; S.planted.push(i); S.cp=Math.max(S.cp,i); S.flagsPlanted++; S.score+=50; SND.star(); pop('CHECKPOINT!','Flag planted','#3DF58C'); changed=true; save(); }
-    else pop('NO FLAG','6 right in a row earns one','#FFD23F'); }
+    else if(S.flags>0){ S.flags--; S.planted.push(i); S.cp=Math.max(S.cp,i); S.flagsPlanted++; S.score+=50; SND.star(); pop('CHECKPOINT!','Flag planted','#C6FF00'); changed=true; save(); }
+    else pop('NO FLAG',FSTREAK+' right in a row earn one','#FFD23F'); }
   if(changed) hud();
-  if(P.x>=LV.end) clearLevel();
   hudLive(); }
+
+/* ---- drawing ---- */
 function sxw(x){ return x-cam+CAMX; }
 function rr(c,x,y,w,h,r){ c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
 function label(txt,x,y,col,size){ cx.textAlign='center'; cx.font='400 '+(size||30)+'px '+DF; cx.lineWidth=6; cx.strokeStyle='rgba(0,0,0,.75)'; cx.strokeText(txt,x,y); cx.fillStyle=col; cx.fillText(txt,x,y); }
 function flagAt(x,y,on){ cx.strokeStyle=on?'#F3F5F9':'rgba(243,245,249,.5)'; cx.lineWidth=6; cx.lineCap='round'; cx.beginPath(); cx.moveTo(x,y); cx.lineTo(x,y-150); cx.stroke(); cx.lineCap='butt';
   cx.beginPath(); cx.moveTo(x+3,y-150); cx.lineTo(x+66,y-126); cx.lineTo(x+3,y-102); cx.closePath();
-  if(on){ cx.fillStyle='#3DF58C'; cx.fill(); } else { cx.lineWidth=3; cx.setLineDash([8,7]); cx.stroke(); cx.setLineDash([]); } }
+  if(on){ cx.fillStyle='#C6FF00'; cx.fill(); } else { cx.lineWidth=3; cx.setLineDash([8,7]); cx.stroke(); cx.setLineDash([]); } }
+function drawPlayer(mode,x,y,rot,a){ cx.save(); cx.globalAlpha=a==null?1:a; cx.translate(x,y); cx.rotate(rot);
+  if(mode==='ship'){ cx.fillStyle='#FF2BD6'; cx.beginPath(); cx.moveTo(-32,6); cx.lineTo(34,6); cx.lineTo(18,20); cx.lineTo(-30,20); cx.closePath(); cx.fill(); cx.lineWidth=4; cx.strokeStyle='#0B0E1A'; cx.stroke();
+    cx.fillStyle='#FFD23F'; cx.fillRect(-14,-18,28,26); cx.strokeRect(-14,-18,28,26); cx.fillStyle='#2DE2E6'; cx.fillRect(-7,-12,6,6); cx.fillRect(3,-12,6,6); }
+  else if(mode==='ball'){ cx.fillStyle='#FFD23F'; cx.beginPath(); cx.arc(0,0,25,0,6.2832); cx.fill(); cx.lineWidth=5; cx.strokeStyle='#0B0E1A'; cx.stroke();
+    cx.strokeStyle='#FF8A1F'; cx.lineWidth=6; cx.beginPath(); cx.moveTo(-17,0); cx.lineTo(17,0); cx.moveTo(0,-17); cx.lineTo(0,17); cx.stroke(); }
+  else { cx.fillStyle='#FFD23F'; cx.fillRect(-26,-26,52,52); cx.lineWidth=5; cx.strokeStyle='#0B0E1A'; cx.strokeRect(-26,-26,52,52);
+    cx.fillStyle='#2DE2E6'; cx.fillRect(-15,-14,11,11); cx.fillRect(5,-14,11,11); cx.fillRect(-15,6,31,8); cx.lineWidth=3; cx.strokeRect(-15,-14,11,11); cx.strokeRect(5,-14,11,11); cx.strokeRect(-15,6,31,8); }
+  cx.restore(); }
 function render(){ var live=S.started&&!S.over, hue=LV.hue, i, j, x, MX=W/2;
-  var g=cx.createLinearGradient(0,0,0,GY); g.addColorStop(0,'hsl('+hue+',70%,20%)'); g.addColorStop(1,'hsl('+hue+',78%,44%)'); cx.fillStyle=g; cx.fillRect(0,0,W,GY);
-  for(i=0;i<9;i++){ var sz=70+((i*53)%4)*36, px=((i*310-cam*0.3)%2480+2480)%2480-260, py=110+((i*137)%5)*86; cx.fillStyle='rgba(255,255,255,.07)'; cx.fillRect(px,py,sz,sz); cx.strokeStyle='rgba(255,255,255,.12)'; cx.lineWidth=3; cx.strokeRect(px,py,sz,sz); }
-  cx.fillStyle='hsl('+hue+',62%,13%)'; cx.fillRect(0,GY,W,H-GY);
+  var pulse=0;           /* steady colors: no beat flashing (Kody, photosensitivity) */
+  var g=cx.createLinearGradient(0,0,0,GY); g.addColorStop(0,'hsl('+hue+',70%,'+(16+4*pulse)+'%)'); g.addColorStop(1,'hsl('+hue+',78%,'+(38+6*pulse)+'%)'); cx.fillStyle=g; cx.fillRect(0,0,W,GY);
+  for(i=0;i<9;i++){ var sz=70+((i*53)%4)*36+10*pulse, px=((i*310-cam*0.3)%2480+2480)%2480-260, py=110+((i*137)%5)*86; cx.fillStyle='rgba(255,255,255,'+(0.05+0.05*pulse)+')'; cx.fillRect(px,py,sz,sz); cx.strokeStyle='rgba(255,255,255,.12)'; cx.lineWidth=3; cx.strokeRect(px,py,sz,sz); }
+  cx.fillStyle='hsl('+hue+',62%,11%)'; cx.fillRect(0,GY,W,H-GY);
   cx.strokeStyle='rgba(255,255,255,.1)'; cx.lineWidth=3; var off=((cam%92)+92)%92; for(x=-off;x<W+92;x+=92){ cx.strokeRect(x,GY+14,92,92); }
-  cx.fillStyle='#F3F5F9'; cx.fillRect(0,GY,W,5);
+  cx.fillStyle='#F3F5F9'; cx.fillRect(0,GY,W,5); cx.fillStyle='rgba(198,255,0,'+(0.25+0.5*pulse)+')'; cx.fillRect(0,GY+5,W,4);
+  /* ship and ball sections have a roof */
+  for(i=1;i<LV.secs.length;i++){ var s=LV.secs[i]; if(s.roof===Infinity) continue; var x0=sxw(s.x0), x1=i+1<LV.secs.length?sxw(LV.secs[i+1].x0):W+20, yr=GY-s.roof; if(x1<-10||x0>W+10) continue;
+    cx.fillStyle='hsl('+hue+',62%,9%)'; cx.fillRect(x0,0,x1-x0,yr); cx.fillStyle='#F3F5F9'; cx.fillRect(x0,yr-5,x1-x0,5); cx.fillStyle=MODEC[s.mode]; cx.globalAlpha=0.35+0.4*pulse; cx.fillRect(x0,yr-9,x1-x0,4); cx.globalAlpha=1; }
   /* finish gate */
   x=sxw(LV.end); if(x>-80&&x<W+80){ for(j=0;j<16;j++) for(i=0;i<2;i++){ cx.fillStyle=(i+j)%2?'#F3F5F9':'#0B0E1A'; cx.fillRect(x+i*24,GY-(j+1)*40,24,40); } label('FINISH',x+24,104,'#FFD23F',30); }
   /* poles and flags */
   LV.posts.forEach(function(p,k){ var sx=sxw(p); if(sx>-90&&sx<W+90) flagAt(sx,GY,S.planted.indexOf(k)>=0); });
-  /* blocks, stairs and floating platforms */
-  cx.lineJoin='round'; LV.blocks.forEach(function(o){ var sx=sxw(o.x); if(sx>W+10||sx+o.len<-10) return; var y=GY-o.top, hh=o.fl?TH:o.top;
-    cx.fillStyle='#0B0E1A'; cx.fillRect(sx,y,o.len,hh); cx.strokeStyle='rgba(243,245,249,.16)'; cx.lineWidth=2; for(j=B;j<o.len-8;j+=B){ cx.beginPath(); cx.moveTo(sx+j,y); cx.lineTo(sx+j,y+hh); cx.stroke(); }
-    cx.lineWidth=4; cx.strokeStyle='#F3F5F9'; cx.strokeRect(sx,y,o.len,hh); cx.fillStyle=o.fl?'#2DE2E6':'#3DF58C'; cx.fillRect(sx,y-3,o.len,6); });
-  /* spikes on the ground */
-  LV.spikes.forEach(function(o){ var sx=sxw(o.x); if(sx>W+10||sx+o.w*B<-10) return;
-    for(j=0;j<o.w;j++){ var x0=sx+j*B; cx.beginPath(); cx.moveTo(x0+2,GY); cx.lineTo(x0+B/2,GY-SPH); cx.lineTo(x0+B-2,GY); cx.closePath(); cx.fillStyle='#0B0E1A'; cx.fill(); cx.lineWidth=4; cx.strokeStyle='#F3F5F9'; cx.stroke(); } });
-  /* hanging spikes */
-  LV.ceils.forEach(function(o){ var sx=sxw(o.x), ww=o.w*B, yb=GY-CEILH-SPH; if(sx>W+10||sx+ww<-10) return;
-    cx.fillStyle='rgba(11,14,26,.9)'; cx.fillRect(sx,0,ww,yb); cx.lineWidth=4; cx.strokeStyle='#F3F5F9'; cx.strokeRect(sx,-6,ww,yb+6);
-    for(j=0;j<o.w;j++){ var x1=sx+j*B; cx.beginPath(); cx.moveTo(x1+2,yb); cx.lineTo(x1+B/2,yb+SPH); cx.lineTo(x1+B-2,yb); cx.closePath(); cx.fillStyle='#0B0E1A'; cx.fill(); cx.strokeStyle='#FF7A7A'; cx.stroke(); } });
-  /* the cube */
-  if(!(P.dead>0&&!P.clear)){ x=sxw(P.x); cx.save(); cx.translate(x,GY-P.h-26); cx.rotate(P.rot);
-    cx.fillStyle='#FFD23F'; cx.fillRect(-26,-26,52,52); cx.lineWidth=5; cx.strokeStyle='#0B0E1A'; cx.strokeRect(-26,-26,52,52);
-    cx.fillStyle='#2DE2E6'; cx.fillRect(-15,-14,11,11); cx.fillRect(5,-14,11,11); cx.fillRect(-15,6,31,8); cx.lineWidth=3; cx.strokeRect(-15,-14,11,11); cx.strokeRect(5,-14,11,11); cx.strokeRect(-15,6,31,8); cx.restore(); }
-  bits.forEach(function(b){ cx.globalAlpha=Math.max(0,1-b.t/0.75); cx.fillStyle='#FFD23F'; cx.fillRect(sxw(b.x)-7,b.y-7,14,14); }); cx.globalAlpha=1;
-  /* progress bar, level, attempts gauge */
-  var BW=W-300, f=pct()/100; cx.fillStyle='rgba(8,9,13,.7)'; rr(cx,30,24,BW,30,15); cx.fill(); if(f>0.02){ cx.fillStyle='#FFD23F'; rr(cx,30,24,BW*f,30,15); cx.fill(); }
-  LV.posts.forEach(function(p,k){ var bx=30+BW*(p-START)/(LV.end-START); cx.fillStyle=S.planted.indexOf(k)>=0?'#3DF58C':'#F3F5F9'; cx.fillRect(bx-3,18,6,42); });
-  cx.textAlign='right'; cx.font='400 36px '+DF; cx.fillStyle='#F3F5F9'; cx.fillText('LEVEL '+LV.n,W-30,52);
-  cx.textAlign='left'; cx.font='800 24px Inter, sans-serif'; cx.fillStyle='rgba(243,245,249,.75)'; cx.fillText('ATTEMPTS',36,GY+166); cx.fillText('FLAGS',470,GY+166);
+  /* blocks, stairs, floating platforms, pillars, hanging blocks */
+  cx.lineJoin='round'; LV.rects.forEach(function(o){ var sx=sxw(o.x); if(sx>W+10||sx+o.w<-10) return; var y=GY-o.y1, hh=Math.min(o.y1,GY+20)-o.y0; if(o.k==='ceil'){ y=-10; hh=GY-o.y0+10; }
+    cx.fillStyle='#0B0E1A'; cx.fillRect(sx,y,o.w,hh); cx.strokeStyle='rgba(243,245,249,.16)'; cx.lineWidth=2; for(j=B;j<o.w-8;j+=B){ cx.beginPath(); cx.moveTo(sx+j,y); cx.lineTo(sx+j,y+hh); cx.stroke(); }
+    cx.lineWidth=4; cx.strokeStyle='#F3F5F9'; cx.strokeRect(sx,y,o.w,hh); if(o.k!=='ceil'){ cx.fillStyle=o.k==='float'?'#2DE2E6':o.k==='pillar'?'#FF2BD6':'#C6FF00'; cx.fillRect(sx,y-3,o.w,6); } });
+  /* spikes */
+  LV.spikes.forEach(function(o){ var sx=sxw(o.x); if(sx>W+10||sx+o.w*B<-10) return; var yb=GY-o.y;
+    for(j=0;j<o.w;j++){ var x0=sx+j*B; cx.beginPath(); cx.moveTo(x0+2,yb); cx.lineTo(x0+B/2,yb-o.dir*SPH); cx.lineTo(x0+B-2,yb); cx.closePath(); cx.fillStyle='#0B0E1A'; cx.fill(); cx.lineWidth=4; cx.strokeStyle=o.dir>0?'#F3F5F9':'#FF7A7A'; cx.stroke(); } });
+  /* pads and orbs */
+  LV.pads.forEach(function(o){ var sx=sxw(o.x); if(sx>W+10||sx<-60) return; cx.fillStyle='#FFD23F'; cx.beginPath(); cx.ellipse(sx+B/2,GY,B/2+4,16+4*pulse,0,Math.PI,0); cx.fill(); cx.strokeStyle='#0B0E1A'; cx.lineWidth=3; cx.stroke(); if(LV.n<=2) label('PAD',sx+B/2,GY-34,'#FFD23F',24); });
+  LV.orbs.forEach(function(o,k){ var sx=sxw(o.x); if(sx>W+40||sx<-40) return; var used=P&&(P.orbs&(1<<k)), y=GY-o.y;
+    cx.globalAlpha=used?0.35:1; cx.strokeStyle='#FFD23F'; cx.lineWidth=4; cx.beginPath(); cx.arc(sx,y,30+6*pulse,0,6.2832); cx.stroke();
+    cx.fillStyle='#FFD23F'; cx.beginPath(); cx.arc(sx,y,18,0,6.2832); cx.fill(); cx.strokeStyle='#0B0E1A'; cx.lineWidth=3; cx.stroke(); cx.globalAlpha=1; if(LV.n<=2&&!used) label('TAP',sx,y-46,'#FFD23F',24); });
+  /* portals */
+  LV.portals.forEach(function(o){ var sx=sxw(o.x); if(sx>W+60||sx<-60) return; var top=o.roof===Infinity?GY-380:GY-o.roof, mid=(top+GY)/2, hh=(GY-top)/2-8, col=MODEC[o.mode];
+    cx.lineWidth=12; cx.strokeStyle=col; cx.globalAlpha=0.35; cx.beginPath(); cx.ellipse(sx,mid,26,hh,0,0,6.2832); cx.stroke(); cx.globalAlpha=1; cx.lineWidth=5; cx.beginPath(); cx.ellipse(sx,mid,20+3*pulse,hh-6,0,0,6.2832); cx.stroke();
+    label(o.mode.toUpperCase(),sx,top-14,col,26); });
+  /* coins: a ghost once you have it for this level */
+  LV.coins.forEach(function(c){ var sx=sxw(c.x); if(sx>W+40||sx<-40) return; var got=S.coins.indexOf(c.i)>=0, y=GY-c.y, sq=Math.abs(Math.cos(gt*3+c.i));
+    cx.globalAlpha=got?0.3:1; cx.fillStyle='#FFD23F'; cx.beginPath(); cx.ellipse(sx,y,22*Math.max(0.25,sq),22,0,0,6.2832); cx.fill(); cx.strokeStyle='#8A5A00'; cx.lineWidth=4; cx.stroke(); cx.globalAlpha=1; });
+  /* the trail and the player */
+  trail.forEach(function(o){ cx.globalAlpha=0.35*(1-o.t/0.35); cx.fillStyle=MODEC[o.m]; var tx=sxw(o.x)-22, ty=GY-o.h-(o.m==='ship'?18:26); cx.fillRect(tx-6,ty-6,12,12); }); cx.globalAlpha=1;
+  if(!(P.dead>0&&!P.clear)) drawPlayer(P.mode,sxw(P.x),GY-P.h-(P.mode==='ship'?PHS/2:PH/2+1),P.rot);
+  bits.forEach(function(b){ var a=Math.max(0,1-b.t/0.75); if(b.ring){ cx.globalAlpha=a; cx.strokeStyle=b.col; cx.lineWidth=5; cx.beginPath(); cx.arc(sxw(b.x),b.y,20+b.t*120,0,6.2832); cx.stroke(); }
+    else { cx.globalAlpha=a; cx.fillStyle='#FFD23F'; cx.fillRect(sxw(b.x)-7,b.y-7,14,14); } }); cx.globalAlpha=1;
+  /* progress bar with your best, level name, coins */
+  var BW=W-330, f=pct()/100; cx.fillStyle='rgba(8,9,13,.7)'; rr(cx,30,24,BW,30,15); cx.fill(); if(f>0.02){ cx.fillStyle='#FFD23F'; rr(cx,30,24,BW*f,30,15); cx.fill(); }
+  LV.posts.forEach(function(p,k){ var bx=30+BW*(p-START)/(LV.end-START); cx.fillStyle=S.planted.indexOf(k)>=0?'#C6FF00':'#F3F5F9'; cx.fillRect(bx-3,18,6,42); });
+  if(S.lvBest>0){ var bb=30+BW*S.lvBest/100; cx.fillStyle='#FF2BD6'; cx.beginPath(); cx.moveTo(bb-10,66); cx.lineTo(bb+10,66); cx.lineTo(bb,54); cx.closePath(); cx.fill(); }
+  cx.textAlign='left'; cx.font='800 22px Inter, sans-serif'; cx.fillStyle='rgba(243,245,249,.8)'; cx.fillText(LV.name.toUpperCase()+(S.lvBest>0?'  ·  BEST '+S.lvBest+'%':''),34,90);
+  cx.textAlign='right'; cx.font='400 34px '+DF; cx.fillStyle='#F3F5F9'; cx.fillText('LEVEL '+LV.n,W-30,52);
+  for(i=0;i<3;i++){ var have=LV.coins[i]&&S.coins.indexOf(LV.coins[i].i)>=0; cx.beginPath(); cx.arc(W-150+i*44,84,15,0,6.2832); cx.fillStyle=have?'#FFD23F':'rgba(255,255,255,.12)'; cx.fill(); cx.lineWidth=3; cx.strokeStyle=have?'#8A5A00':'rgba(243,245,249,.5)'; cx.stroke(); }
+  /* bottom: attempts and flags gauges, the points bonus */
+  cx.textAlign='left'; cx.font='800 24px Inter, sans-serif'; cx.fillStyle='rgba(243,245,249,.75)'; cx.fillText('ATTEMPTS',36,GY+166); cx.fillText('FLAGS',400,GY+166);
   for(i=0;i<CAP;i++){ cx.fillStyle=i<S.attempts?'#FFD23F':'rgba(255,255,255,.12)'; cx.fillRect(36+i*62,GY+184,50,50); cx.lineWidth=3; cx.strokeStyle='rgba(243,245,249,.6)'; cx.strokeRect(36+i*62,GY+184,50,50); }
-  for(i=0;i<FCAP;i++){ cx.beginPath(); cx.moveTo(474+i*70,GY+184); cx.lineTo(474+i*70+50,GY+209); cx.lineTo(474+i*70,GY+234); cx.closePath(); cx.fillStyle=i<S.flags?'#3DF58C':'rgba(255,255,255,.12)'; cx.fill(); cx.lineWidth=3; cx.strokeStyle='rgba(243,245,249,.6)'; cx.stroke(); }
-  cx.textAlign='right'; cx.font='800 26px Inter, sans-serif'; cx.fillStyle='rgba(243,245,249,.6)'; cx.fillText('TAP HERE OR PRESS SPACE',W-36,GY+166);
-  pops.forEach(function(o){ var yy=206-o.t*30; cx.globalAlpha=Math.min(1,(1.4-o.t)*2.5); label(o.txt,MX,yy,o.col,52); if(o.lab) label(o.lab,MX,yy+44,'#fff',28); cx.globalAlpha=1; });
-  function box(h,col){ cx.fillStyle='rgba(8,9,13,.86)'; cx.fillRect(MX-380,150,760,h); cx.strokeStyle=col; cx.lineWidth=4; cx.strokeRect(MX-380,150,760,h); cx.textAlign='center'; }
-  function lines(a){ cx.font='700 30px Inter, sans-serif'; cx.fillStyle='#FFD23F'; a.forEach(function(s,k){ cx.fillText(s,MX,278+k*44); }); }
+  for(i=0;i<FCAP;i++){ cx.beginPath(); cx.moveTo(404+i*70,GY+184); cx.lineTo(404+i*70+50,GY+209); cx.lineTo(404+i*70,GY+234); cx.closePath(); cx.fillStyle=i<S.flags?'#C6FF00':'rgba(255,255,255,.12)'; cx.fill(); cx.lineWidth=3; cx.strokeStyle='rgba(243,245,249,.6)'; cx.stroke(); }
+  var mm=multOf(S.streak); cx.textAlign='right'; cx.font='800 24px Inter, sans-serif'; cx.fillStyle='rgba(243,245,249,.75)'; cx.fillText('POINTS',W-36,GY+166);
+  cx.font='400 56px '+DF; cx.fillStyle=mm>1?'#FF2BD6':'rgba(243,245,249,.45)'; cx.fillText('×'+mm,W-36,GY+232);
+  cx.font='800 20px Inter, sans-serif'; cx.fillStyle='rgba(243,245,249,.55)'; cx.fillText(mm<4?'streak of '+FSTREAK*mm+' for ×'+(mm+1):'top bonus',W-36,GY+264);
+  pops.forEach(function(o,pi){ var yy=206+(pops.length-1-pi)*96-o.t*24; cx.globalAlpha=Math.min(1,(1.6-o.t)*2.5); label(o.txt,MX,yy,o.col,52); if(o.lab) label(o.lab,MX,yy+44,'#fff',28); cx.globalAlpha=1; });
+  function box(h,col){ cx.fillStyle='rgba(8,9,13,.86)'; cx.fillRect(MX-400,150,800,h); cx.strokeStyle=col; cx.lineWidth=4; cx.strokeRect(MX-400,150,800,h); cx.textAlign='center'; }
+  function lines(a,y0){ cx.font='700 29px Inter, sans-serif'; cx.fillStyle='#FFD23F'; a.forEach(function(s,k){ cx.fillText(s,MX,y0+k*42); }); }
   if(!live) return;
-  if(P.dead>0){ if(P.clear){ box(170,'#3DF58C'); cx.fillStyle='#3DF58C'; cx.font='400 52px '+DF; cx.fillText(P.msg,MX,226); cx.font='700 30px Inter, sans-serif'; cx.fillStyle='#fff'; cx.fillText(P.sub,MX,282); } else label('CRASH!',MX,230,'#FF7A7A',60); }
+  if(P.dead>0){ if(P.clear){ box(170,'#C6FF00'); cx.fillStyle='#C6FF00'; cx.font='400 50px '+DF; cx.fillText(P.msg,MX,226); cx.font='700 28px Inter, sans-serif'; cx.fillStyle='#fff'; cx.fillText(P.sub,MX,282); }
+    else { label('CRASH!  '+P.msg,MX,240,'#FF7A7A',60); label(P.sub,MX,292,P.sub==='NEW BEST!'?'#FF2BD6':'#fff',P.sub==='NEW BEST!'?40:30); } }
   else if(P.live){ }
-  else if(S.attempts<=0){ box(150,'#FF7A7A'); cx.fillStyle='#fff'; cx.font='400 48px '+DF; cx.fillText('OUT OF ATTEMPTS',MX,222); cx.font='700 32px Inter, sans-serif'; cx.fillStyle='#FFD23F'; cx.fillText('Answer 3 in a row to earn one  →',MX,272); }
-  else if(S.tries===0){ box(276,'#2DE2E6'); cx.fillStyle='#fff'; cx.font='400 46px '+DF; cx.fillText('SPACE = GO, THEN JUMP',MX,220); lines(['Jump the spikes. Jump up onto blocks.','Do NOT jump under hanging spikes.','A flag saves your spot at the next pole.']); }
-  else { cx.globalAlpha=0.65+0.35*Math.sin(now()/260); label('SPACE TO DASH',MX,226,'#fff',48); cx.globalAlpha=1; label(S.cp<0?'from the start':'from your flag',MX,270,'#FFD23F',28); } }
-var lastF=now(); function loop(){ var t=now(), real=(t-lastF)/1000, d=Math.min(0.033,real)/2, rd=Math.min(600,real)/2; lastF=t; update(d,rd); update(d,rd); render(); requestAnimationFrame(loop); }   /* two half steps a frame keep collisions exact at high speed */
+  else if(S.attempts<=0){ box(150,'#FF7A7A'); cx.fillStyle='#fff'; cx.font='400 48px '+DF; cx.fillText('OUT OF ATTEMPTS',MX,222); cx.font='700 32px Inter, sans-serif'; cx.fillStyle='#FFD23F'; cx.fillText('Answer questions to earn more  →',MX,272); }
+  else if(S.tries===0){ box(300,'#2DE2E6'); cx.fillStyle='#fff'; cx.font='400 44px '+DF; cx.fillText('SPACE = GO, THEN JUMP',MX,214);
+    lines(['Jump the spikes. Land on the blocks.','Yellow orb: press while you touch it.','Ship: hold to fly. Ball: press to flip.','A flag saves your spot at the next pole.'],268); }
+  else { cx.globalAlpha=0.65+0.35*Math.sin(now()/260); label('SPACE TO DASH',MX,226,'#fff',48); cx.globalAlpha=1; label(S.cp<0?(S.lvTries?'Attempt '+(S.lvTries+1)+' · from the start':'from the start'):'from your flag',MX,270,'#FFD23F',28); } }
+var lastF=now(), paused=false; function loop(){ var t=now(), real=Math.min(600,(t-lastF)/1000); lastF=t; if(!paused) update(real); render(); requestAnimationFrame(loop); }
 cv.addEventListener('pointerdown',function(e){ e.preventDefault(); if(!S.started||S.over) return; try{ cv.setPointerCapture(e.pointerId); }catch(x){} hold=true; press(); });
 ['pointerup','pointercancel'].forEach(function(n){ cv.addEventListener(n,function(){ hold=false; }); });
 addEventListener('blur',function(){ hold=false; });
@@ -667,14 +818,14 @@ $('ds-go').addEventListener('click',function(){ var n=$('ds-nameinput').value.tr
   $('ds-nameinput').blur(); setCourse(); newQ(); save(); hud(); });
 function endRun(){ S.over=true; S.live=false; if(P) P.live=false; musStop(); clearTimeout(nextT); clearTimeout(lockT); save(); hud(); showEnd(true); }
 function showEnd(celebrate){ if(window.SpitzCode) setTimeout(function(){ window.SpitzCode.show('ds','dash',S); },0); $('ds-endname').textContent=S.name; $('ds-endscore').textContent=S.score;
-  $('ds-endres').textContent='Reached level '+S.level+' · '+S.flagsPlanted+(S.flagsPlanted===1?' flag':' flags')+' planted';
+  $('ds-endres').textContent='Reached level '+S.level+' · '+S.cleared+(S.cleared===1?' level':' levels')+' complete';
   var acc=S.answered?Math.round(100*S.correct/S.answered):0;
-  $('ds-endstats').innerHTML=[['Correct',S.correct+' of '+S.answered],['Accuracy',acc+'%'],['Best streak',S.best],['Levels cleared',S.cleared]].map(function(a){ return '<div class="ds-stat"><div class="l">'+a[0]+'</div><div class="v">'+a[1]+'</div></div>'; }).join('');
+  $('ds-endstats').innerHTML=[['Correct',S.correct+' of '+S.answered],['Accuracy',acc+'%'],['Best streak',S.best],['Coins',S.coinTotal||0]].map(function(a){ return '<div class="ds-stat"><div class="l">'+a[0]+'</div><div class="v">'+a[1]+'</div></div>'; }).join('');
   $('ds-endtopics').innerHTML=Object.keys(S.topics).map(function(k){ var t=S.topics[k]; return '<div class="ds-stat"><div class="l">'+k+'</div><div class="v">'+t[0]+' / '+t[1]+'</div></div>'; }).join('');
   $('ds-end').hidden=false; if(celebrate){ SND.win(); [0,350,700,1100].forEach(function(ms,i){ setTimeout(function(){ confetti(200+i*500,1070,90,1.3); confetti(1720-i*500,1070,90,1.3); },ms); }); } }
 var armT=0; $('ds-again').addEventListener('click',function(){ var b=this; if(!b.classList.contains('arm')){ b.classList.add('arm'); b.textContent='Tap again to start over'; clearTimeout(armT); armT=setTimeout(function(){ b.classList.remove('arm'); b.textContent='Play again'; },3000); return; }
   b.classList.remove('arm'); b.textContent='Play again'; resetRun(); });
-function resetRun(){ var keepName=S.name; musStop(); clearTimeout(nextT); clearTimeout(lockT); S=fresh(); S.name=keepName; setCourse(); pops=[]; bits=[];
+function resetRun(){ var keepName=S.name; musStop(); clearTimeout(nextT); clearTimeout(lockT); S=fresh(); S.name=keepName; setCourse(); pops=[]; bits=[]; trail=[];
   $('ds-end').hidden=true; $('ds-start').hidden=false; $('ds-nameinput').value=keepName; $('ds-go').disabled=!keepName; save(); hud();
   $('ds-choices').innerHTML=''; $('ds-prompt').innerHTML=''; $('ds-visual').innerHTML=''; var fb=$('ds-fb'); fb.className='ds-fb'; fb.innerHTML=INTRO; }
 
@@ -711,12 +862,13 @@ S=load()||fresh(); if(S.live){ S.live=false; S.attempts=Math.min(CAP,S.attempts+
 fit(); setCourse();
 if(S.started){ $('ds-start').hidden=true; if(S.over){ showEnd(false); } else if(S.q&&!S.qDone){ showQ(); } else newQ(); }
 else { $('ds-nameinput').value=S.name||''; $('ds-go').disabled=!S.name; }
+$('ds-fb').innerHTML=S.answered?$('ds-fb').innerHTML:INTRO;
 hud(); setInterval(function(){ if(S.started&&!S.over) save(); },1000); requestAnimationFrame(loop);
 
 /* test hooks */
-window.__G={ music:function(){ return MUS.on; }, state:function(){ return S; }, player:function(){ return P; }, level:function(){ return LV; }, gen:genLevel, press:press, hold:function(b){ hold=!!b; }, step:function(dt){ update(dt,0); },
-  setCourse:setCourse, give:function(a,f){ S.attempts=a; S.flags=f||0; hud(); }, panelOpen:panelOpen, answer:answer,
-  consts:{GRAV:GRAV,JV:JV,BASE:BASE,SPW:SPW,B:B,INSET:INSET,HALF:HALF,HITH:HITH,START:START,CAP:CAP,FCAP:FCAP,NEEDA:NEEDA,FSTREAK:FSTREAK,RUNLEN:RUNLEN}, build:build,
+window.__G={ music:function(){ return MUS.on; }, state:function(){ return S; }, player:function(){ return P; }, level:function(){ return LV; }, gen:genLevel, solve:solve, phys:phys, pStart:pStart, press:press, hold:function(b){ hold=!!b; },
+  step:function(n){ for(var k=0;k<(n||1);k++) update(DT); }, setCourse:setCourse, give:function(a,f){ S.attempts=a; S.flags=f||0; hud(); }, panelOpen:panelOpen, answer:answer, pause:function(b){ paused=!!b; }, multOf:multOf, render:render,
+  consts:{GRAV:GRAV,JV:JV,B:B,DT:DT,START:START,CAP:CAP,FCAP:FCAP,NEEDA:NEEDA,FSTREAK:FSTREAK,RUNLEN:RUNLEN,FAST:FAST,RS:RS,RB:RB}, build:build,
   show:function(type){ S.q=build(type); S.qDone=false; S.picked=-1; showQ(); }, end:function(){ S.clock=0; endRun(); }, types:Object.keys(GEN) };
 })();
 </script>
@@ -727,7 +879,7 @@ window.__G={ music:function(){ return MUS.on; }, state:function(){ return S; }, 
     while(Math.max(e.scrollWidth,e.offsetWidth)>room+1&&fs>40){ fs=Math.floor(fs*0.9); e.style.fontSize=fs+'px'; } }
   function all(){ els.forEach(fit); } setInterval(all,300); all(); if(document.fonts&&document.fonts.ready) document.fonts.ready.then(function(){ last=[]; all(); }); })();</script>
 <script>/* the start screen names the question set the hub link picked */
-(function(){ var m=/[?&]set=([a-z]+)/.exec(location.search); if(m&&window.SpitzQ&&SpitzQ.sets&&SpitzQ.sets[m[1]]) document.querySelectorAll('.sz-setname').forEach(function(e){ e.textContent=SpitzQ.sets[m[1]].name+'.'; }); })();</script>
+(function(){ var m=/[?&]set=([a-z0-9]+)/.exec(location.search); if(m&&window.SpitzQ&&SpitzQ.sets&&SpitzQ.sets[m[1]]) document.querySelectorAll('.sz-setname').forEach(function(e){ e.textContent=SpitzQ.sets[m[1]].name+'.'; }); })();</script>
 <!-- ================= FULL SCREEN REMINDER: shows until the game is full screen; click it or press F ================= -->
 <style>
 .sz-fs{ position:fixed; left:50%; bottom:16px; transform:translateX(-50%); transform-origin:50% 100%; z-index:9999; display:flex; white-space:nowrap; align-items:center; gap:10px; padding:10px 20px 10px 12px; border-radius:999px;
