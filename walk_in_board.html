@@ -356,6 +356,7 @@ body.nw-open .corner{ right:auto; left:12px; }
         <span class="hint">Leave blank to use the address built into this file.</span>
       </label>
     </details>
+    <p class="hint" style="margin:0"><b>Table of contents status:</b> <span id="tocInfo"></span><br>Board version 2026-10-15c</p>
     <p class="msg" id="setupMsg" role="status"></p>
     <div class="row"><button type="button" class="pri" id="saveSetup">Save setup</button><button value="cancel">Cancel</button></div>
   </form>
@@ -524,17 +525,21 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbwhsPZlCqzclIKMDPVww4s
     box.scrollTop = jumpToNewest ? box.scrollHeight : keep;   // newest lessons are at the bottom
     return true;
   }
+  let tocInfo = "Not checked yet.";
   async function fetchToc(jump){
     const src = tocSource(state.docUrl), url = serverUrl();
-    if(!src || !url) return false;
+    if(!src){ tocInfo = "The table of contents link isn't a Google Docs link."; return false; }
+    if(!url){ tocInfo = "No Apps Script URL."; return false; }
     try{
       const r = await fetch(url + (url.includes("?") ? "&" : "?") + "toc=" + encodeURIComponent(src) + "&t=" + Date.now());
       const j = await r.json();
-      if(!j.ok || !j.html) return false;
+      if(j.ok && j.html === undefined){ tocInfo = "Your Apps Script is still running the old version. Deploy → Manage deployments → pencil → Version: New version → Deploy."; return false; }
+      if(!j.ok){ tocInfo = "Your Apps Script couldn't open the doc (" + (j.code ? "Google answered " + j.code : (j.error || "unknown error")) + "). Make sure the doc is published to the web."; return false; }
       const ok = renderToc(j.html, jump);
+      tocInfo = ok ? "✓ Working: the board is drawing your table of contents." : "The doc loaded, but no table was found in it.";
       if(ok) local.set("tocCache", { doc: state.docUrl, html: j.html });
       return ok;
-    }catch(e){ return false; }
+    }catch(e){ tocInfo = "Couldn't reach your Apps Script (" + e.message + ")."; return false; }
   }
   function embedUrl(raw){
     const u = (raw || "").trim(); if(!u) return "";
@@ -685,7 +690,7 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbwhsPZlCqzclIKMDPVww4s
   /* setup */
   function openSetup(){
     $("docUrl").value = state.docUrl || ""; $("pinIn").value = local.get("pin", ""); $("urlIn").value = local.get("saveUrl", "");
-    $("setupMsg").textContent = ""; $("dlgSetup").showModal();
+    $("setupMsg").textContent = ""; $("tocInfo").textContent = tocInfo; $("dlgSetup").showModal();
   }
   $("saveSetup").onclick = async () => {
     const v = $("docUrl").value.trim(), u = $("urlIn").value.trim();
