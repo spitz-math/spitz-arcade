@@ -183,7 +183,7 @@ if(/[?&]set=mult\b/.test(location.search)) document.documentElement.classList.ad
       <button class="fh-next" id="fh-next" disabled>Next question ›</button>
     </div>
     <div class="fh-lake" id="fh-lake">
-      <canvas id="fh-canvas" width="1054" height="936" aria-label="The lake. Hold to aim, let go to cast, tap when a fish bites."></canvas>
+      <canvas id="fh-canvas" width="1054" height="936" aria-label="The lake. Press Space or tap to drop your line, steer with the arrow keys or the mouse."></canvas>
       <div class="fh-buffs" id="fh-buffs"></div>
       <div class="fh-shop" id="fh-shop" hidden>
         <div class="fh-shophead"><h2>Tackle Shop</h2><span class="cash" id="fh-shopcash">$0</span><span class="fh-sp"></span><button class="fh-x" id="fh-shopx" aria-label="Close the shop">×</button></div>
@@ -197,15 +197,15 @@ if(/[?&]set=mult\b/.test(location.search)) document.documentElement.classList.ad
 
   <div class="fh-over" id="fh-start"><div class="fh-box">
     <div class="sz-eyebrow">Spitz <b>Arcade</b></div><h2 class="fh-big"><b>GO</b> <i>FISH</i></h2>
-    <p class="fh-sub"><span class="sz-setname">Slope-intercept form, point-slope form, graphs, HOY and VUX.</span> You have 5 minutes: answer to earn bait, then cast for the rarest fish in the lake.</p>
+    <p class="fh-sub"><span class="sz-setname">Slope-intercept form, point-slope form, graphs, HOY and VUX.</span> You have 5 minutes: answer to earn bait, then drop your line deep for the rarest fish.</p>
     <div class="fh-steps">
-      <div class="fh-step"><b>1. Answer</b>Each right answer earns bait and cash. A wrong answer costs $5 and breaks your streak.</div>
-      <div class="fh-step"><b>2. Cast</b>Hold Space or the lake, let go to cast. Land on the sparkle or in deep water for rarer fish. Tap at the ! to hook it.</div>
-      <div class="fh-step"><b>3. Upgrade</b>Spend cash in the Tackle Shop on more bait, a luckier lure, better prices and power-ups.</div>
+      <div class="fh-step"><b>1. Answer</b>Each right answer earns bait and cash. Every fish you hook takes 1 bait. A wrong answer costs $5.</div>
+      <div class="fh-step"><b>2. Drop</b>Press Space to drop your line. Dodge fish on the way down to go deep. On the way up, steer into fish to hook them.</div>
+      <div class="fh-step"><b>3. Upgrade</b>Spend cash in the Tackle Shop on a longer line, more bait, better prices and power-ups.</div>
     </div>
     <div class="fh-row"><input class="fh-input" id="fh-nameinput" maxlength="24" placeholder="Your first and last name" autocomplete="off" aria-label="Your name"><button class="sz-mus" id="sz-mus" aria-label="Music on or off, key N">♪ Music on</button></div>
     <button class="fh-go" id="fh-go" disabled>Start</button>
-    <div class="fh-keys">Keys: 1–4 answer · Enter next question · Space cast and hook · S shop · N music · M mute · Shift+R new game · F full screen</div>
+    <div class="fh-keys">Keys: 1–4 answer · Enter next question · Space drop line · ← → steer · S shop · N music · M mute · Shift+R new game · F full screen</div>
   </div><span class="fh-credit sz-credit">Made by Spitz 🍔</span></div>
 
   <div class="fh-over" id="fh-end" hidden><div class="fh-box"><div class="sz-eyebrow">Spitz <b>Arcade</b></div>
@@ -529,15 +529,15 @@ window.__verify=function(n){ var out={}; Object.keys(GEN).forEach(function(t){ v
 
 /* ================= GAME STATE ================= */
 var UPG=[
-  {id:'bait', name:'Bait Bucket', vals:[2,3,4,6],     cost:[30,70,150],  d:function(a,b){ return b==null? '+'+a+' bait per answer' : '+'+a+' → +'+b+' bait per answer'; }},
+  {id:'bait', name:'Bait Bucket', vals:[3,4,6,8],     cost:[30,70,150],  d:function(a,b){ return b==null? '+'+a+' bait per answer' : '+'+a+' → +'+b+' bait per answer'; }},
   {id:'cash', name:'Tip Jar',     vals:[10,15,25,40], cost:[35,80,170],  d:function(a,b){ return b==null? '$'+a+' per answer' : '$'+a+' → $'+b+' per answer'; }},
-  {id:'lure', name:'Lucky Lure',  vals:[0,1,2,3],     cost:[30,70,150],  d:function(a,b){ return b==null? 'Luck +'+a+': rarer fish' : 'Luck +'+a+' → +'+b+': rarer fish'; }},
+  {id:'line', name:'Long Line',   vals:[70,110,160,250], cost:[30,70,150], d:function(a,b){ return b==null? a+' m of line' : a+' → '+b+' m of line'; }},
   {id:'mult', name:'Fish Market', vals:[1,1.5,2,3],   cost:[50,120,240], d:function(a,b){ return b==null? '×'+a+' points per fish' : '×'+a+' → ×'+b+' points per fish'; }}
 ];
 var POW=[
-  {id:'chum',   name:'Chum Slick',  cost:20, secs:20, d:'Fish bite fast'},
+  {id:'magnet', name:'Magnet Lure', cost:25, secs:15, d:'Pulls fish in'},
   {id:'golden', name:'Golden Hour', cost:40, secs:15, d:'Rarer fish'},
-  {id:'free',   name:'Free Bait',   cost:30, secs:15, d:'Free casts'}
+  {id:'free',   name:'Free Bait',   cost:30, secs:15, d:'Free hooks'}
 ];
 /* rarity tiers and the 15 fish of the lake (tier, name, body, fin, length, pattern) */
 var TIERS=[{n:'Common',c:'#A9B8C6',pts:10},{n:'Uncommon',c:'#5EEAD4',pts:25},{n:'Rare',c:'#60A5FA',pts:60},{n:'Epic',c:'#C084FC',pts:150},{n:'Legendary',c:'#FFD166',pts:400}];
@@ -549,11 +549,11 @@ var SPECIES=[
   {t:4,n:'Moon Koi',b:'#EAF2FF',f:'#FF8F6B',L:96,p:'spots'},{t:4,n:'Burger Bass',b:'#D9963F',f:'#6BBF59',L:96,p:'burger'},{t:4,n:'Ancient Gar',b:'#3F7D7A',f:'#FFD166',L:116,p:'stripe'}
 ];
 var S;
-function fresh(){ return { name:'', len:5, started:false, over:false, endAt:0, score:0, bait:0, cash:0, streak:0, best:0, answered:0, correct:0, casts:0, fish:0, perfect:0,
-  topics:QS?QS.topicTable():{'Slope-intercept form':[0,0],'Point-slope form':[0,0],'Graphs':[0,0],'HOY & VUX':[0,0]}, lv:{bait:0,cash:0,lure:0,mult:0}, buff:{chum:0,golden:0,free:0},
+function fresh(){ return { ver:2, drops:0, deepest:0, orders:0, order:null, junk:0, golden:0, bestHaul:0, hooked:[], name:'', len:5, started:false, over:false, endAt:0, score:0, bait:0, cash:0, streak:0, best:0, answered:0, correct:0, casts:0, fish:0, perfect:0,
+  topics:QS?QS.topicTable():{'Slope-intercept form':[0,0],'Point-slope form':[0,0],'Graphs':[0,0],'HOY & VUX':[0,0]}, lv:{bait:0,cash:0,line:0,mult:0}, buff:{magnet:0,golden:0,free:0},
   q:null, qDone:false, picked:-1, log:SPECIES.map(function(){ return 0; }), bestTier:-1, bestName:'', frenzyShown:false }; }
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); localStorage.setItem(KEY+'_mute',muted?'1':'0'); }catch(e){} }
-function load(){ try{ var v=JSON.parse(localStorage.getItem(KEY)||'null'); muted=localStorage.getItem(KEY+'_mute')==='1'; if(v&&v.topics&&v.log) return v; }catch(e){} return null; }
+function load(){ try{ var v=JSON.parse(localStorage.getItem(KEY)||'null'); muted=localStorage.getItem(KEY+'_mute')==='1'; if(v&&v.ver===2&&v.topics&&v.log) return v; }catch(e){} return null; }
 function U(id){ var u=UPG.filter(function(x){ return x.id===id; })[0]; return u.vals[S.lv[id]]; }
 function now(){ return Date.now(); }
 function buffOn(id){ return S.buff[id]>now(); }
@@ -602,7 +602,7 @@ function drawShop(){ $('fh-shopcash').textContent='$'+S.cash;
       [0,1,2,3].map(function(k){ return '<span class="'+(k<=l?'on':'')+'"></span>'; }).join('')+'</div><button class="fh-buy" data-u="'+u.id+'"'+(max||S.cash<pr?' disabled':'')+'>'+(max?'Maxed':'Buy $'+pr)+'</button></div>'; }).join('');
   $('fh-pow').innerHTML=POW.map(function(p){ var on=buffOn(p.id);
     return '<div class="fh-card"><div class="n">'+p.name+'</div><div class="d">'+p.d+' · '+p.secs+'s</div><button class="fh-buy" data-p="'+p.id+'"'+(on||S.cash<p.cost?' disabled':'')+'>'+(on?'Active':'Buy $'+p.cost)+'</button></div>'; }).join(''); }
-function openShop(o){ if(!S.started||S.over) return; $('fh-shop').hidden=!o; if(o){ if(F.st==='aim') F.st='idle'; drawShop(); } }
+function openShop(o){ if(!S.started||S.over) return; $('fh-shop').hidden=!o; if(o) drawShop(); }
 $('fh-shopbtn').addEventListener('click',function(){ openShop($('fh-shop').hidden); this.blur(); });
 $('fh-shopx').addEventListener('click',function(){ openShop(false); });
 $('fh-shop').addEventListener('click',function(e){ var b=e.target.closest('.fh-buy'); if(!b||b.disabled) return;
@@ -611,42 +611,159 @@ $('fh-shop').addEventListener('click',function(e){ var b=e.target.closest('.fh-b
   SND.cash(); save(); hud(); drawShop(); });
 
 /* ================= THE LAKE =================
-   Hold to aim: a ring sweeps out across the water and back. Let go to cast there. Farther out is deeper water and rarer fish;
-   landing on the sparkle (fish rising) is a perfect cast and rarer still. Wait for the bite, then tap at the ! to hook it.
-   Nothing happens while the student reads, and a fish that gets away gives the bait back. */
-var cv=$('fh-canvas'), cx=cv.getContext('2d'), W=1054, H=936, WY=318, X0=280, X1=1000, LOGY=856, AIM_MS=1400, FONT='Fredoka, Inter, sans-serif';
-var bg=document.createElement('canvas'); bg.width=W; bg.height=H; var bx=bg.getContext('2d');
-var ZONES=[{n:'Shallows',x:280,s:0},{n:'Weed bed',x:460,s:0.6},{n:'Drop-off',x:640,s:1.2},{n:'Deep water',x:820,s:1.8}];
-var F={ st:'idle', t0:0, aimX:X0, x:0, tier:0, sp:0, bonus:0, biteAt:0, biteEnd:0, fx:0, fy:0, fx0:0, fy0:0, fsx:0, fsy:0, fdir:1, spent:false },
-    leaving=[], pops=[], ripples=[], card=null, shim=null, shimNext=0, AMB=[], frenzyAt=0;
-function zoneAt(x){ for(var i=ZONES.length-1;i>=0;i--) if(x>=ZONES[i].x) return i; return 0; }
-function floorY(x){ return Math.max(WY+70, Math.min(LOGY-26, WY+70+(x-200)*0.7)); }
-function hookY(x){ return WY+(floorY(x)-WY)*0.55; }
-function tri(p){ p=p%2; return p<1?p:2-p; }
+   Deep Drop. Press Space or tap the lake to drop your line. On the way DOWN, steer around the fish: the first one you touch
+   bites and you start reeling up, so dodging gets you deeper, where the rarer fish swim. On the way UP, steer INTO fish:
+   each one you touch is hooked (1 bait each). At the top the whole haul lands, and every extra fish on the line is worth more.
+   Fishing Orders give bonus points. Nothing moves until the student drops the line, so reading a question is always safe. */
+var cv=$('fh-canvas'), cx=cv.getContext('2d'), W=1054, H=936, SKY=300, LOGY=856, PXM=8, BED=262*PXM, FONT='Fredoka, Inter, sans-serif';
+var ZONES=[{n:'Shallows',m:0},{n:'Weed bed',m:40},{n:'Drop-off',m:80},{n:'Deep water',m:130},{n:'The Abyss',m:190}];
+var JUNK=[{n:'Old Boot',k:'boot'},{n:'Soda Can',k:'can'},{n:'Old Tire',k:'tire'}];
+var DOWN_V=300, UP_V=380, STEER_V=640, XMIN=40, XMAX=W-40, BUCKET=[196,-30];
+var F={ st:'idle', t0:0, x:620, y:0, vx:0, deep:0, aimX:620, hooked:[], haul:null, lastHook:0 },
+    fish=[], popsW=[], pops=[], card=null, bubbles=[], camY=-SKY, frenzyAt=0, keyL=false, keyR=false, ptrX=null, ptrOn=false, bgReady=false, LT=0, RK=1, oFlash=null, logCv=document.createElement('canvas'), logKey='';
+var bg=document.createElement('canvas'); bg.width=W; bg.height=SKY; var bx=bg.getContext('2d');
+function zoneAt(m){ for(var i=ZONES.length-1;i>=0;i--) if(m>=ZONES[i].m) return i; return 0; }
+function lineM(){ return U('line'); }
 function seeded(s){ return function(){ s=(s*16807)%2147483647; return (s-1)/2147483646; }; }
 function rr(c,x,y,w,h,r){ c.beginPath(); if(c.roundRect) c.roundRect(x,y,w,h,r); else c.rect(x,y,w,h); }
 function pickSpecies(tier){ var all=[], fresh=[]; SPECIES.forEach(function(s,i){ if(s.t===tier){ all.push(i); if(!S.log[i]) fresh.push(i); } });
-  return fresh.length&&Math.random()<0.6? pick(fresh) : pick(all); }                         // lean toward a fish not in the log yet
+  return fresh.length&&Math.random()<0.5? pick(fresh) : pick(all); }                         // lean toward a fish not in the log yet
 
-function drawBg(){ var c=bx, rnd=seeded(11), g=c.createLinearGradient(0,0,0,WY); g.addColorStop(0,'#040A12'); g.addColorStop(1,'#132A3B'); c.fillStyle=g; c.fillRect(0,0,W,WY);
-  for(var i=0;i<90;i++){ c.globalAlpha=0.25+rnd()*0.6; c.fillStyle='#E8F1F8'; c.beginPath(); c.arc(rnd()*W,rnd()*(WY-100),rnd()<0.12?2.2:1.2,0,6.28); c.fill(); } c.globalAlpha=1;
-  var mg=c.createRadialGradient(600,104,20,600,104,150); mg.addColorStop(0,'rgba(232,241,248,.32)'); mg.addColorStop(1,'rgba(232,241,248,0)'); c.fillStyle=mg; c.fillRect(430,0,340,260);
-  c.fillStyle='#EEF4F8'; c.beginPath(); c.arc(600,104,44,0,6.28); c.fill();
-  c.fillStyle='rgba(150,172,190,.35)'; [[588,92,9],[614,116,6],[608,88,4]].forEach(function(m){ c.beginPath(); c.arc(m[0],m[1],m[2],0,6.28); c.fill(); });
-  c.fillStyle='#0D1E2B'; c.beginPath(); c.moveTo(0,WY); for(var x=0;x<=W;x+=20) c.lineTo(x,WY-46-Math.sin(x/130)*22-Math.sin(x/47)*8); c.lineTo(W,WY); c.fill();   // hills
-  c.fillStyle='#08151F'; for(var p=-10;p<W+20;p+=24){ var h=34+rnd()*48, y=WY-6; c.beginPath(); c.moveTo(p-13,y); c.lineTo(p,y-h); c.lineTo(p+13,y); c.fill(); }   // pines
-  var wg=c.createLinearGradient(0,WY,0,LOGY); wg.addColorStop(0,'#14405A'); wg.addColorStop(0.45,'#0C2B3C'); wg.addColorStop(1,'#051521'); c.fillStyle=wg; c.fillRect(0,WY,W,LOGY-WY);
-  c.fillStyle='#16251E'; c.beginPath(); c.moveTo(0,LOGY); for(var x2=0;x2<=W;x2+=8) c.lineTo(x2,floorY(x2)); c.lineTo(W,LOGY); c.closePath(); c.fill();          // lake floor
-  c.strokeStyle='#2B4434'; c.lineWidth=6; c.beginPath(); for(var x3=0;x3<=W;x3+=8) c.lineTo(x3,floorY(x3)); c.stroke();
-  c.fillStyle='#22332A'; for(var k=0;k<14;k++){ var rx=60+rnd()*980; c.beginPath(); c.ellipse(rx,floorY(rx)+4,10+rnd()*22,6+rnd()*8,0,0,6.28); c.fill(); }      // stones
-  c.strokeStyle='#2E5A3C'; c.lineWidth=5; c.lineCap='round'; for(var w=0;w<26;w++){ var wx=ZONES[1].x+10+rnd()*170, fy=floorY(wx), wh=60+rnd()*110;               // weed bed
-    c.beginPath(); c.moveTo(wx,fy); c.quadraticCurveTo(wx+(rnd()-0.5)*50,fy-wh*0.55,wx+(rnd()-0.5)*30,fy-wh); c.stroke(); }
-  c.fillStyle='rgba(40,28,20,.8)'; for(var pl=24;pl<236;pl+=68) c.fillRect(pl,WY-10,14,floorY(pl)-WY+10);                                                  // dock posts
-  c.fillStyle='#6B4A33'; c.fillRect(0,WY-32,240,22); c.fillStyle='#55392A'; for(var q=0;q<240;q+=34) c.fillRect(q,WY-32,3,22); c.fillStyle='#3E2A1E'; c.fillRect(0,WY-12,240,5);
-  c.fillStyle='#04101A'; c.fillRect(0,LOGY,W,H-LOGY); c.fillStyle='#1E3A4A'; c.fillRect(0,LOGY,W,3); }
+/* ---------- the sky above the lake (drawn once) ---------- */
+function drawBg(){ var c=bx, rnd=seeded(11), g=c.createLinearGradient(0,0,0,SKY); g.addColorStop(0,'#040A12'); g.addColorStop(1,'#132A3B'); c.fillStyle=g; c.fillRect(0,0,W,SKY);
+  for(var i=0;i<80;i++){ c.globalAlpha=0.25+rnd()*0.6; c.fillStyle='#E8F1F8'; c.beginPath(); c.arc(rnd()*W,rnd()*(SKY-100),rnd()<0.12?2.2:1.2,0,6.28); c.fill(); } c.globalAlpha=1;
+  var mg=c.createRadialGradient(640,96,20,640,96,150); mg.addColorStop(0,'rgba(232,241,248,.32)'); mg.addColorStop(1,'rgba(232,241,248,0)'); c.fillStyle=mg; c.fillRect(470,0,340,250);
+  c.fillStyle='#EEF4F8'; c.beginPath(); c.arc(640,96,42,0,6.28); c.fill();
+  c.fillStyle='rgba(150,172,190,.35)'; [[628,84,9],[654,108,6],[648,80,4]].forEach(function(m){ c.beginPath(); c.arc(m[0],m[1],m[2],0,6.28); c.fill(); });
+  c.fillStyle='#0D1E2B'; c.beginPath(); c.moveTo(0,SKY); for(var x=0;x<=W;x+=20) c.lineTo(x,SKY-44-Math.sin(x/130)*22-Math.sin(x/47)*8); c.lineTo(W,SKY); c.fill();   // hills
+  c.fillStyle='#08151F'; for(var p=-10;p<W+20;p+=24){ var h=34+rnd()*48, y=SKY-4; c.beginPath(); c.moveTo(p-13,y); c.lineTo(p,y-h); c.lineTo(p+13,y); c.fill(); }   // pines
+  c.fillStyle='#6B4A33'; c.fillRect(0,SKY-30,250,22); c.fillStyle='#55392A'; for(var q=0;q<250;q+=34) c.fillRect(q,SKY-30,3,22); c.fillStyle='#3E2A1E'; c.fillRect(0,SKY-10,250,5);   // the dock
+  // the bucket on the dock
+  c.fillStyle='#3E6E8C'; c.beginPath(); c.moveTo(BUCKET[0]-26,SKY-72); c.lineTo(BUCKET[0]+26,SKY-72); c.lineTo(BUCKET[0]+20,SKY-30); c.lineTo(BUCKET[0]-20,SKY-30); c.closePath(); c.fill();
+  c.fillStyle='#2B5068'; c.fillRect(BUCKET[0]-27,SKY-76,54,7); c.strokeStyle='#9DB4C4'; c.lineWidth=3; c.beginPath(); c.arc(BUCKET[0],SKY-74,22,Math.PI,0); c.stroke();
+  bgReady=true; }
 
-function initAmb(){ var rnd=seeded(5); AMB=[]; for(var i=0;i<8;i++){ var x=260+rnd()*760; AMB.push({x:x, y:WY+50+rnd()*(floorY(x)-WY-90), v:(rnd()<0.5?-1:1)*(18+rnd()*26), L:40+rnd()*50, ph:rnd()*6}); } }
+/* glows in each rarity color, made once so the frame stays cheap on a slow Chromebook */
+var GLOW={};
+function glow(col){ if(GLOW[col]) return GLOW[col]; var g=document.createElement('canvas'); g.width=g.height=128; var c=g.getContext('2d'), r=c.createRadialGradient(64,64,4,64,64,64);
+  r.addColorStop(0,col+'AA'); r.addColorStop(1,col+'00'); c.fillStyle=r; c.fillRect(0,0,128,128); return GLOW[col]=g; }
 
+/* ---------- the lake's fish: a fresh lake after every haul ---------- */
+function stockLake(){ var gold=buffOn('golden'); fish=[]; var y=8*PXM;
+  while(y<BED-40){ var m=y/PXM, z=zoneAt(m), r=Math.random(), tier=z;
+    if(r<0.22) tier=z-1; else if(r>0.9) tier=z+1; if(gold) tier=Math.max(1,tier+1); tier=Math.max(0,Math.min(4,tier));
+    var dir=Math.random()<0.5?-1:1, x=ri(XMIN+60,XMAX-60);
+    if(Math.random()<0.11&&m>12){ var j=pick(JUNK); fish.push({junk:j.k,n:j.n,x:x,y:y,vx:dir*ri(10,26),L:46,ph:Math.random()*6}); y+=ri(46,70); continue; }
+    var sp=pickSpecies(tier), L=SPECIES[sp].L, school=tier===0&&Math.random()<0.45?ri(2,3):1, v=(34+tier*26+Math.random()*30)*dir;
+    for(var k=0;k<school;k++) fish.push({sp:sp,tier:tier,x:Math.max(XMIN,Math.min(XMAX,x-dir*k*(L+16))),y:y+k*10,vx:v,L:L,ph:Math.random()*6});
+    y+=ri(52,78)-(gold?6:0); }
+  if(Math.random()<(gold?1:0.4)){ var gy=ri(20,Math.max(30,Math.min(250,lineM())))*PXM; fish.push({gold:1,tier:4,x:ri(XMIN+60,XMAX-60),y:gy,vx:(Math.random()<0.5?-1:1)*300,L:46,ph:0}); }
+  if(gold) for(var g2=0;g2<2;g2++) fish.push({gold:1,tier:4,x:ri(XMIN+60,XMAX-60),y:ri(20,240)*PXM,vx:(Math.random()<0.5?-1:1)*300,L:46,ph:0});
+  fish.stockedGold=gold; }
+
+/* ---------- Fishing Orders: one at a time, bonus points ---------- */
+function reachTier(){ return Math.min(4,zoneAt(lineM()-1)); }
+function newOrder(){ var rt=reachTier(), last=S.order?S.order.k:'', kinds=['species','haul','tier','deep','clean','golden'].filter(function(k){ return k!==last; }), o=null;
+  if(rt<1) kinds=kinds.filter(function(k){ return k!=='tier'; }); if(S.orders<2) kinds=kinds.filter(function(k){ return k!=='golden'; });
+  if(lineM()>=250) kinds=kinds.filter(function(k){ return k!=='deep'; });
+  var k=pick(kinds);
+  if(k==='species'){ var ok=[]; SPECIES.forEach(function(s,i){ if(s.t<=Math.min(rt,3)) ok.push(i); }); var sp=pick(ok), t=SPECIES[sp].t; o={k:k,sp:sp,need:t===0?3:t===1?2:1}; }
+  if(k==='haul') o={k:k,need:Math.min(9,4+Math.floor(S.orders/2))};
+  if(k==='tier'){ var tt=Math.max(1,rt-(Math.random()<0.4?1:0)); o={k:k,t:tt,need:tt>=3?1:2}; }
+  if(k==='deep') o={k:k,m:lineM(),need:1};
+  if(k==='clean') o={k:k,need:Math.min(6,3+Math.floor(S.orders/3))};
+  if(k==='golden') o={k:k,need:1};
+  o.have=0; o.pts=Math.min(500,150+50*S.orders); S.order=o; }
+function orderText(o){ if(!o) return '';
+  if(o.k==='species') return 'Catch '+(o.need>1?o.need+' ':'a ')+SPECIES[o.sp].n;
+  if(o.k==='haul') return 'Land '+o.need+' fish in one haul';
+  if(o.k==='tier') return 'Catch '+(o.need>1?o.need+' ':/^[AEIOU]/.test(TIERS[o.t].n)?'an ':'a ')+TIERS[o.t].n+(o.t<4?'+':'')+' fish';
+  if(o.k==='deep') return 'Dodge all the way to '+o.m+' m';
+  if(o.k==='clean') return 'Land '+o.need+' fish, no junk';
+  if(o.k==='golden') return 'Hook a Golden Minnow'; }
+function orderProgress(o,v){ if(!o||S.over) return; o.have=Math.max(o.have,Math.min(o.need,v)); if(o.have<o.need) return;
+  S.orders++; var pts=Math.round(o.pts*(frenzy()?2:1)); S.score+=pts; SND.order();
+  oFlash={txt:'ORDER DONE!  +'+pts,t0:now()};
+  var p=stagePoint(cv,(W-210)*968/W,60*968/W); confetti(p[0],p[1],70,2.4); newOrder(); save(); hud(); }
+
+/* ---------- input ---------- */
+function nudge(){ var q=$('fh-q'); q.classList.remove('nudge'); void q.offsetWidth; q.classList.add('nudge'); }
+function blocked(){ return !S.started||S.over||!$('fh-shop').hidden||!$('sz-ask').hidden; }
+function press(){ if(blocked()) return;
+  if(F.st==='down'){ startUp(); return; }                                  // Space on the way down: start reeling up now
+  if(F.st!=='idle') return;
+  if(S.bait<1&&!buffOn('free')){ SND.empty(); nudge(); return; }
+  cast(); }
+function release(){}
+function cast(){ if(fish.stockedGold!==buffOn('golden')) stockLake();
+  F.st='fly'; F.t0=LT; F.x=Math.max(XMIN+20,Math.min(XMAX-20,F.aimX)); F.y=0; F.vx=0; F.deep=0; F.hooked=[]; S.casts++; SND.cast(); save(); }
+function startUp(){ if(F.st!=='down') return; F.st='up'; F.t0=now(); SND.reel(); }
+function hookable(){ return S.bait>=1||buffOn('free'); }
+function hook(o){ var free=buffOn('free'); if(!free) S.bait--; var item=o.junk?{junk:o.junk,n:o.n}:o.gold?{gold:1}:{sp:o.sp,tier:o.tier};
+  F.hooked.push(item); S.hooked=F.hooked; o.dead=1; F.lastHook=now();
+  var fishN=F.hooked.filter(function(h){ return !h.junk; }).length;
+  if(o.junk){ SND.junk(); popsW.push({x:o.x,y:o.y,t0:now(),txt:o.n+'!',col:'#93AAB8',sz:28}); }
+  else { SND.hookN(fishN); var tr=TIERS[o.tier]; if(o.gold||o.tier>0) popsW.push({x:o.x,y:o.y-20,t0:now(),txt:o.gold?'GOLDEN MINNOW!':tr.n.toUpperCase(),col:o.gold?'#FFD166':tr.c,sz:o.gold||o.tier>=3?34:26});
+    if(o.gold) orderProgress(S.order&&S.order.k==='golden'?S.order:null,1); }
+  save(); hud(); }
+
+/* ---------- the haul: everything on the line lands in the bucket ---------- */
+function itemPts(h,i){ if(h.junk) return 0; var base=h.gold?250:TIERS[h.tier].pts; return Math.round(base*U('mult')*(1+0.1*i)*(frenzy()?2:1)); }
+function landHaul(instant){ var hs=F.hooked, total=0, fishN=0, junk=0, best=null, isNew=false, o=S.order;
+  hs.forEach(function(h){ if(h.junk){ junk++; S.junk++; h.pts=0; return; }
+    h.pts=itemPts(h,fishN); fishN++; total+=h.pts; S.fish++;
+    if(h.gold) S.golden++; else { if(!S.log[h.sp]) { isNew=true; h.isNew=true; total+=25; h.pts+=25; } S.log[h.sp]++;
+      if(h.tier>S.bestTier){ S.bestTier=h.tier; S.bestName=SPECIES[h.sp].n; } }
+    if(!best||(h.gold?5:h.tier)>(best.gold?5:best.tier)) best=h; });
+  S.score+=total; S.drops++; S.bestHaul=Math.max(S.bestHaul,fishN); F.hooked=[]; S.hooked=[];
+  if(fishN) card={n:fishN,junk:junk,pts:total,best:best,isNew:isNew,t0:now()};
+  // orders that count the landed fish
+  if(o){ if(o.k==='species'){ var c=hs.filter(function(h){ return h.sp===o.sp&&!h.junk&&!h.gold; }).length; if(c) orderProgress(o,o.have+c); }
+    else if(o.k==='tier'){ var c2=hs.filter(function(h){ return !h.junk&&(h.gold||h.tier>=o.t); }).length; if(c2) orderProgress(o,o.have+c2); }
+    else if(o.k==='haul') orderProgress(o,fishN);
+    else if(o.k==='clean'&&!junk) orderProgress(o,fishN); }
+  if(!instant){ F.haul={items:hs,t0:LT}; F.st='haul';
+    if(best&&!best.junk&&(best.gold||best.tier>=3)){ var p=stagePoint(cv,(W-220)*968/W,200*968/W); confetti(p[0],p[1],best.gold||best.tier>=4?130:70,2.6); }
+    if(fishN) SND.catch(best.gold?4:best.tier); else SND.away(); }
+  else F.st='idle';
+  save(); hud(); }
+function finishDrop(){ if(F.st==='fly'||F.st==='down'||F.st==='up') landHaul(true); F.st='idle'; F.haul=null; }
+
+/* ---------- update ---------- */
+function steerTarget(dt){ if(keyL||keyR){ ptrOn=false; return F.x+(keyR-keyL)*STEER_V*dt; } if(ptrOn&&ptrX!=null) return ptrX; return F.x; }
+function moveX(dt){ var tx=steerTarget(dt), d=tx-F.x, mx=900*dt; F.x+=Math.max(-mx,Math.min(mx,d)); F.x=Math.max(XMIN,Math.min(XMAX,F.x)); }
+function touches(o,x,y,pad){ var dx=Math.abs(o.x-x), dy=Math.abs(o.y-y); return dx<o.L*0.48+pad&&dy<o.L*0.2+pad; }
+function update(dt){ var t=now(); LT+=dt;
+  fish.forEach(function(o){ if(o.dead) return; o.ph+=dt*(o.gold?3:1); o.x+=o.vx*dt; if(o.gold) o.y+=Math.sin(o.ph*2)*40*dt;
+    if(o.x<XMIN){ o.x=XMIN; o.vx=Math.abs(o.vx); } if(o.x>XMAX){ o.x=XMAX; o.vx=-Math.abs(o.vx); }
+    if(o.gold&&Math.random()<dt*0.6) o.vx=-o.vx; });
+  popsW=popsW.filter(function(p){ return t-p.t0<1200; }); pops=pops.filter(function(p){ return t-p.t0<1400; });
+  if(card&&t-card.t0>3200) card=null;
+  if(bubbles.length<14&&Math.random()<dt*8) bubbles.push({x:ri(20,W-20),y:LOGY+10,v:ri(30,70),r:ri(2,5)});
+  bubbles=bubbles.filter(function(b){ b.y-=b.v*dt; b.x+=Math.sin(b.y/30)*0.4; return b.y>-10; });
+  if(!S.started||S.over){ camY+=(-SKY-camY)*Math.min(1,dt*4); return; }
+  if(F.st==='idle'){ if(keyL||keyR){ F.aimX+=(keyR-keyL)*STEER_V*dt; ptrOn=false; } else if(ptrOn&&ptrX!=null) F.aimX=ptrX; F.aimX=Math.max(280,Math.min(XMAX-20,F.aimX)); }
+  else if(F.st==='fly'){ if(LT-F.t0>=0.38){ F.st='down'; F.t0=LT; SND.plop(); popsW.push({x:F.x,y:-40,t0:t,txt:'Dodge the fish!',col:'#5EEAD4',sz:30}); } }
+  else if(F.st==='down'){ var end=lineM()*PXM, dy=DOWN_V*dt*(F.y<40?0.6:1), steps=Math.ceil(dy/10);
+    for(var s=0;s<steps&&F.st==='down';s++){ moveX(dt/steps); F.y=Math.min(end,F.y+dy/steps); F.deep=Math.max(F.deep,F.y);
+      for(var i=0;i<fish.length;i++){ var o=fish[i]; if(!o.dead&&touches(o,F.x,F.y,6)){ hook(o); popsW.push({x:F.x,y:F.y+50,t0:t,txt:'Bite! Reel up!',col:'#FFD166',sz:30}); F.st='up'; F.t0=t; SND.reel(); break; } }
+      if(F.st==='down'&&F.y>=end){ var mm=Math.round(end/PXM); popsW.push({x:F.x,y:F.y+40,t0:t,txt:'END OF THE LINE! '+mm+' m',col:'#FFD166',sz:32}); SND.bottom();
+        if(S.order&&S.order.k==='deep'&&mm>=S.order.m) orderProgress(S.order,1); F.st='up'; F.t0=t; SND.reel(); } }
+    S.deepest=Math.max(S.deepest,Math.round(F.deep/PXM)); }
+  else if(F.st==='up'){ var dy2=UP_V*dt, st2=Math.ceil(dy2/10), mag=buffOn('magnet');
+    if(mag) fish.forEach(function(o){ if(o.dead||o.junk) return; var ddx=F.x-o.x, ddy=F.y-o.y, d=Math.sqrt(ddx*ddx+ddy*ddy); if(d<190&&d>1){ o.x+=ddx/d*560*dt; o.y+=ddy/d*560*dt; } });
+    for(var s2=0;s2<st2;s2++){ moveX(dt/st2); F.y=Math.max(0,F.y-dy2/st2);
+      if(hookable()) for(var j=0;j<fish.length;j++){ var o2=fish[j]; if(!o2.dead&&touches(o2,F.x,F.y,18)){ hook(o2); if(!hookable()) break; } } }
+    if(F.y<=0){ F.y=0; landHaul(false); } }
+  else if(F.st==='haul'){ var n=F.haul.items.length, dur=Math.min(2400,500+n*180);
+    if((LT-F.haul.t0)*1000>dur){ F.st='idle'; F.haul=null; stockLake(); } }
+  // the camera: look ahead below on the way down, above on the way up
+  var want=F.st==='down'?F.y-260:F.st==='up'?F.y-560:-SKY; if(want<-SKY) want=-SKY; if(want>BED+60-LOGY) want=BED+60-LOGY;
+  camY+=(want-camY)*Math.min(1,dt*(F.st==='down'||F.st==='up'?9:3.5)); }
+
+/* ---------- drawing ---------- */
+function text(s,x,y,size,col,align,stroke){ cx.font='700 '+size+'px '+FONT; cx.textAlign=align||'center'; cx.textBaseline='alphabetic';
+  if(stroke!==false){ cx.lineWidth=Math.max(4,size/7); cx.strokeStyle='rgba(2,8,14,.9)'; cx.lineJoin='round'; cx.strokeText(s,x,y); } cx.fillStyle=col; cx.fillText(s,x,y); }
 function drawFish(c,x,y,L,dir,body,fin,pat,t,ang){ c.save(); c.translate(x,y); if(ang) c.rotate(ang); c.scale(dir,1); var w=Math.sin((t||0)*9)*0.22;
   c.fillStyle=fin; c.beginPath(); c.moveTo(-L*0.4,0); c.lineTo(-L*0.62,-L*0.21+w*L*0.15); c.lineTo(-L*0.62,L*0.21+w*L*0.15); c.closePath(); c.fill();
   c.beginPath(); c.moveTo(-L*0.14,-L*0.15); c.quadraticCurveTo(L*0.02,-L*0.34,L*0.16,-L*0.15); c.fill();
@@ -660,157 +777,140 @@ function drawFish(c,x,y,L,dir,body,fin,pat,t,ang){ c.save(); c.translate(x,y); i
   c.fillStyle='rgba(255,255,255,.16)'; c.beginPath(); c.ellipse(L*0.04,-L*0.08,L*0.28,L*0.05,0,0,6.28); c.fill();
   c.fillStyle='#091018'; c.beginPath(); c.arc(L*0.31,-L*0.04,Math.max(2.2,L*0.035),0,6.28); c.fill();
   c.restore(); }
-
-/* ---------- input: hold to aim, let go to cast, tap at the bite ---------- */
-function nudge(){ var q=$('fh-q'); q.classList.remove('nudge'); void q.offsetWidth; q.classList.add('nudge'); }
-function press(){ if(!S.started||S.over||!$('fh-shop').hidden||!$('sz-ask').hidden) return;
-  if(F.st==='bite'){ hookIt(); return; }
-  if(F.st!=='idle') return;
-  if(S.bait<1&&!buffOn('free')){ SND.empty(); nudge(); return; }
-  F.st='aim'; F.t0=now(); F.aimX=X0; }
-function release(){ if(F.st==='aim') cast(F.aimX); }
-function cast(x){ var free=buffOn('free'); if(!free&&S.bait<1){ F.st='idle'; return; } F.spent=!free; if(!free) S.bait--; S.casts++; F.st='fly'; F.t0=now(); F.x=Math.max(X0,Math.min(X1,x)); SND.cast(); save(); hud(); }
-function land(){ var x=F.x, d=shim?Math.abs(x-shim.x):1e9, z=zoneAt(x); F.bonus=d<=45?2:d<=100?1:0;
-  if(F.bonus&&shim) shim.until=0;                                                                        // the rising fish moves on
-  var luck=ZONES[z].s+F.bonus+U('lure')*0.35+(buffOn('golden')?1:0), roll=luck-0.5+Math.random()*1.7;
-  F.tier=Math.max(0,Math.min(4,Math.floor(roll))); F.sp=pickSpecies(F.tier); if(F.bonus===2) S.perfect++;
-  F.st='wait'; F.t0=now(); F.biteAt=now()+(buffOn('chum')?300:ri(900,1900));
-  var hy=hookY(x), L=SPECIES[F.sp].L; F.fsx=x+(Math.random()<0.5?-1:1)*ri(220,300); F.fsx=Math.max(250,Math.min(W+60,F.fsx)); F.fdir=F.fsx<x?1:-1;
-  F.fsy=hy+ri(-40,40); F.fx=F.fsx; F.fy=F.fsy;
-  ripples.push({x:x,t0:now()}); SND.plop();
-  pops.push({x:x,y:WY-70,t0:now(),txt:F.bonus===2?'PERFECT CAST!':F.bonus===1?'GOOD CAST!':ZONES[z].n,col:F.bonus?'#FFD166':'#E8F1F8',sz:F.bonus?40:30});
-  save(); }
-function hookIt(){ if(F.st!=='bite') return; F.st='reel'; F.t0=now(); F.fx0=F.fx; F.fy0=F.fy; SND.hook(); SND.reel(); }
-function getAway(){ leaving.push({x:F.fx,y:F.fy,dir:-F.fdir,sp:F.sp,t0:now()}); if(F.spent) S.bait++; F.st='idle';
-  pops.push({x:F.x,y:WY-70,t0:now(),txt:'It got away! Bait back.',col:'#FF8F6B',sz:30}); SND.away(); save(); hud(); }
-function landCatch(){ var sp=SPECIES[F.sp], tr=TIERS[F.tier], pts=Math.round(tr.pts*U('mult')*(frenzy()?2:1)), isNew=!S.log[F.sp];
-  S.score+=pts; S.fish++; S.log[F.sp]++; if(F.tier>S.bestTier){ S.bestTier=F.tier; S.bestName=sp.n; }
-  card={sp:F.sp,tier:F.tier,pts:pts,t0:now(),isNew:isNew}; F.st='idle'; SND.catch(F.tier);
-  pops.push({x:210,y:WY-150,t0:now(),txt:'+'+pts,col:tr.c,sz:46});
-  if(F.tier>=3){ var p=stagePoint(cv,(W-200)*968/W,170*968/W); confetti(p[0],p[1],F.tier>=4?140:70,2.6); }
-  save(); hud(); }
-
-/* ---------- update ---------- */
-function update(dt){ var t=now();
-  AMB.forEach(function(a){ a.x+=a.v*dt; a.ph+=dt; if(a.x>W+70) a.x=250; if(a.x<250-70&&a.v<0) a.x=W+60; });
-  leaving=leaving.filter(function(o){ o.x+=o.dir*420*dt; return o.x>-100&&o.x<W+120; });
-  ripples=ripples.filter(function(r){ return t-r.t0<1400; }); pops=pops.filter(function(p){ return t-p.t0<1300; });
-  if(card&&t-card.t0>3000) card=null;
-  if(shim&&t>shim.until){ shim=null; shimNext=t+ri(500,1300); }
-  if(!shim&&t>shimNext) shim={x:ri(330,980),t0:t,until:t+ri(6000,9000)};
-  if(!S.started||S.over) return;
-  if(F.st==='aim') F.aimX=X0+(X1-X0)*tri((t-F.t0)/AIM_MS);
-  else if(F.st==='fly'){ if(t-F.t0>=600) land(); }
-  else if(F.st==='wait'){ var k=Math.min(1,(t-F.t0)/Math.max(1,F.biteAt-F.t0)), e=1-Math.pow(1-k,2), L=SPECIES[F.sp].L;
-    F.fx=F.fsx+((F.x-F.fdir*L*0.42)-F.fsx)*e; F.fy=F.fsy+(hookY(F.x)-F.fsy)*e;
-    if(t>=F.biteAt){ F.st='bite'; F.biteEnd=t+1700; SND.bite(); if(buffOn('chum')) hookIt(); } }
-  else if(F.st==='bite'){ if(t>F.biteEnd) getAway(); }
-  else if(F.st==='reel'){ var r=Math.min(1,(t-F.t0)/800); F.fx=F.fx0+(205-F.fx0)*r; F.fy=F.fy0+(WY-150-F.fy0)*r-Math.sin(r*Math.PI)*70; if(r>=1) landCatch(); } }
-
-/* ---------- drawing ---------- */
-function text(s,x,y,size,col,align,stroke){ cx.font='700 '+size+'px '+FONT; cx.textAlign=align||'center'; cx.textBaseline='alphabetic';
-  if(stroke!==false){ cx.lineWidth=Math.max(4,size/7); cx.strokeStyle='rgba(2,8,14,.9)'; cx.lineJoin='round'; cx.strokeText(s,x,y); } cx.fillStyle=col; cx.fillText(s,x,y); }
-function rodTip(){ var t=now();
-  if(F.st==='aim') return [70,WY-210];
-  if(F.st==='fly'){ var k=Math.min(1,(t-F.t0)/180); return [70+(300-70)*k,WY-210+(WY-160-(WY-210))*k]; }
-  if(F.st==='bite') return [292,WY-120+Math.sin(t/40)*6];
-  if(F.st==='reel') return [270,WY-118];
-  return [300,WY-160]; }
-function drawFisher(){ var x=150, y=WY-32, tip=rodTip(), hand=[x+24,y-40];
-  cx.lineCap='round'; cx.strokeStyle='#2B4C6F'; cx.lineWidth=13; cx.beginPath(); cx.moveTo(x+2,y-6); cx.lineTo(x+38,y-4); cx.lineTo(x+44,y+26); cx.stroke();          // legs over the edge
+function drawJunk(c,k,x,y,ang){ c.save(); c.translate(x,y); if(ang) c.rotate(ang);
+  if(k==='boot'){ c.fillStyle='#5A4030'; rr(c,-10,-24,20,30,5); c.fill(); rr(c,-10,0,34,14,6); c.fill(); c.fillStyle='#3A2A20'; c.fillRect(-12,10,38,5); }
+  else if(k==='can'){ c.fillStyle='#9AA7B2'; rr(c,-11,-18,22,36,4); c.fill(); c.fillStyle='#FF7A7A'; c.fillRect(-11,-6,22,12); c.fillStyle='#C9D3DC'; c.fillRect(-11,-18,22,4); }
+  else { c.strokeStyle='#22262C'; c.lineWidth=11; c.beginPath(); c.arc(0,0,18,0,6.28); c.stroke(); c.strokeStyle='#3A4048'; c.lineWidth=3; c.beginPath(); c.arc(0,0,23,0,6.28); c.stroke(); }
+  c.restore(); }
+function drawOne(o,t){ var sy=o.y-camY; if(sy<-80||sy>LOGY+80) return;
+  if(o.junk){ drawJunk(cx,o.junk,o.x,sy+Math.sin(o.ph)*3,Math.sin(o.ph*0.7)*0.3); return; }
+  if(o.gold){ cx.drawImage(glow('#FFD166'),o.x-60,sy-60,120,120); drawFish(cx,o.x,sy,o.L,o.vx>0?1:-1,'#FFD166','#FFF3C4',null,t/50); return; }
+  var s=SPECIES[o.sp]; if(o.tier>=2){ var gs=s.L*1.9; cx.drawImage(glow(TIERS[o.tier].c),o.x-gs/2,sy-gs/2,gs,gs); }
+  drawFish(cx,o.x,sy,s.L,o.vx>0?1:-1,s.b,s.f,s.p,o.ph+t/400); }
+function waterCol(m){ var a=[[0,[20,64,90]],[40,[14,52,74]],[80,[10,40,58]],[130,[7,28,44]],[190,[5,16,28]],[262,[3,8,16]]];
+  for(var i=1;i<a.length;i++) if(m<=a[i][0]){ var k=(m-a[i-1][0])/(a[i][0]-a[i-1][0]), c0=a[i-1][1], c1=a[i][1]; return 'rgb('+c0.map(function(v,j){ return Math.round(v+(c1[j]-v)*k); }).join(',')+')'; }
+  return 'rgb(3,8,16)'; }
+function rodTip(){ return F.st==='idle'||F.st==='haul'? [300,-150] : F.st==='fly'? [70+230*Math.min(1,(LT-F.t0)/0.16),-210+50*Math.min(1,(LT-F.t0)/0.16)] : [292,-128]; }
+function drawFisher(){ var x=150, y=-30-camY, tip=rodTip(), ty=tip[1]-camY, hand=[x+24,y-40];
+  if(y<-160) return [tip[0],ty];
+  cx.lineCap='round'; cx.strokeStyle='#2B4C6F'; cx.lineWidth=13; cx.beginPath(); cx.moveTo(x+2,y-6); cx.lineTo(x+38,y-4); cx.lineTo(x+44,y+26); cx.stroke();
   cx.fillStyle='#1A2B3A'; rr(cx,x+34,y+22,22,12,5); cx.fill();
-  cx.fillStyle='#2A9C8C'; rr(cx,x-18,y-66,40,62,16); cx.fill();                                                                                      // jacket
+  cx.fillStyle='#2A9C8C'; rr(cx,x-18,y-66,40,62,16); cx.fill();
   cx.fillStyle='#F2C9A0'; cx.beginPath(); cx.arc(x+2,y-82,16,0,6.28); cx.fill();
-  cx.fillStyle='#FF8F6B'; cx.beginPath(); cx.arc(x+2,y-86,17,Math.PI,0); cx.fill(); cx.fillRect(x+2,y-89,26,6);                                        // cap
+  cx.fillStyle='#FF8F6B'; cx.beginPath(); cx.arc(x+2,y-86,17,Math.PI,0); cx.fill(); cx.fillRect(x+2,y-89,26,6);
   cx.strokeStyle='#2A9C8C'; cx.lineWidth=11; cx.beginPath(); cx.moveTo(x+6,y-52); cx.lineTo(hand[0],hand[1]); cx.stroke();
-  cx.strokeStyle='#C9A66B'; cx.lineWidth=5; cx.beginPath(); cx.moveTo(hand[0]-14,hand[1]+12); cx.quadraticCurveTo((hand[0]+tip[0])/2,(hand[1]+tip[1])/2-18,tip[0],tip[1]); cx.stroke();
-  cx.fillStyle='#E8F1F8'; cx.beginPath(); cx.arc(hand[0]-2,hand[1]+2,6,0,6.28); cx.fill();                                                          // reel
-  return tip; }
-function lurePos(){ var t=now();
-  if(F.st==='fly'){ var k=Math.min(1,(t-F.t0)/600), tip=rodTip(); return [tip[0]+(F.x-tip[0])*k, tip[1]+(WY-tip[1])*k-Math.sin(k*Math.PI)*170]; }
-  if(F.st==='wait'||F.st==='bite') return [F.x, WY+(F.st==='bite'?12+Math.sin(t/60)*6:Math.sin(t/400)*3)];
-  return null; }
-function render(){ var t=now(); cx.drawImage(bg,0,0);
-  // moonlight on the water
-  cx.fillStyle='rgba(232,241,248,.10)'; for(var i=0;i<9;i++){ var w=120-i*9+Math.sin(t/700+i)*16; cx.fillRect(600-w/2+Math.sin(t/900+i*2)*10,WY+8+i*15,w,3); }
-  cx.fillStyle='rgba(232,241,248,.18)'; cx.fillRect(236,WY-1,W-236,2);
-  // zone labels and buoys
-  ZONES.forEach(function(z,i){ var nx=i<3?ZONES[i+1].x:X1, mid=(z.x+nx)/2; cx.globalAlpha=0.55; text(z.n.toUpperCase(),mid,WY+34,20,'#CFE3EC','center',false);
-    text('★★★★'.slice(0,i+1),mid,WY+58,18,'#FFD166','center',false); cx.globalAlpha=1;
-    if(i>0){ cx.fillStyle='#E8F1F8'; cx.beginPath(); cx.arc(z.x,WY+2+Math.sin(t/500+i)*2,7,Math.PI,0); cx.fill(); cx.fillStyle='#FF8F6B'; cx.beginPath(); cx.arc(z.x,WY+2+Math.sin(t/500+i)*2,7,0,Math.PI); cx.fill(); } });
-  // fish of the lake (shadows)
-  AMB.forEach(function(a){ cx.globalAlpha=0.5; drawFish(cx,a.x,a.y+Math.sin(a.ph)*6,a.L,a.v>0?1:-1,'#05121B','#05121B',null,a.ph); cx.globalAlpha=1; });
-  leaving.forEach(function(o){ cx.globalAlpha=0.6; drawFish(cx,o.x,o.y,SPECIES[o.sp].L,o.dir,'#05121B','#05121B',null,t/100); cx.globalAlpha=1; });
-  // the sparkle: a fish rising
-  if(shim){ var age=(t-shim.t0)/1000, fade=Math.min(1,age*2,(shim.until-t)/600);
-    cx.globalAlpha=Math.max(0,fade); for(var r=0;r<3;r++){ var p=((age+r/3)%1); cx.strokeStyle='rgba(255,209,102,'+(0.8*(1-p))+')'; cx.lineWidth=3; cx.beginPath(); cx.ellipse(shim.x,WY+4,14+p*56,(14+p*56)*0.28,0,0,6.28); cx.stroke(); }
-    for(var s=0;s<4;s++){ var a=t/600+s*1.57, sx=shim.x+Math.cos(a)*30, sy=WY-14+Math.sin(a*1.3)*10, sz=5+3*Math.sin(t/150+s); cx.fillStyle='#FFD166';
-      cx.beginPath(); cx.moveTo(sx,sy-sz*2); cx.lineTo(sx+sz*0.5,sy); cx.lineTo(sx,sy+sz*2); cx.lineTo(sx-sz*0.5,sy); cx.closePath(); cx.fill();
-      cx.beginPath(); cx.moveTo(sx-sz*2,sy); cx.lineTo(sx,sy+sz*0.5); cx.lineTo(sx+sz*2,sy); cx.lineTo(sx,sy-sz*0.5); cx.closePath(); cx.fill(); } cx.globalAlpha=1; }
-  // the fish on the line: a shadow with a glow in its rarity color until it is landed
-  if(F.st==='wait'||F.st==='bite'){ var sp=SPECIES[F.sp], gl=TIERS[F.tier].c, gr=cx.createRadialGradient(F.fx,F.fy,4,F.fx,F.fy,sp.L*0.9);
-    gr.addColorStop(0,gl+'88'); gr.addColorStop(1,gl+'00'); cx.fillStyle=gr; cx.fillRect(F.fx-sp.L,F.fy-sp.L,sp.L*2,sp.L*2);
-    drawFish(cx,F.fx,F.fy,sp.L,F.fdir,'#071722','#071722',null,t/120); }
-  ripples.forEach(function(r){ var k=(t-r.t0)/1400; cx.strokeStyle='rgba(232,241,248,'+(0.6*(1-k))+')'; cx.lineWidth=3; cx.beginPath(); cx.ellipse(r.x,WY+4,10+k*70,(10+k*70)*0.25,0,0,6.28); cx.stroke(); });
+  cx.strokeStyle='#C9A66B'; cx.lineWidth=5; cx.beginPath(); cx.moveTo(hand[0]-14,hand[1]+12); cx.quadraticCurveTo((hand[0]+tip[0])/2,(hand[1]+ty)/2-18,tip[0],ty); cx.stroke();
+  cx.fillStyle='#E8F1F8'; cx.beginPath(); cx.arc(hand[0]-2,hand[1]+2,6,0,6.28); cx.fill();
+  return [tip[0],ty]; }
+function fitRes(){ var w=cv.getBoundingClientRect().width*(window.devicePixelRatio||1), k=Math.max(0.5,Math.min(1,Math.ceil(w/W*20)/20));
+  if(k!==RK||cv.width!==Math.round(W*k)){ RK=k; cv.width=Math.round(W*k); cv.height=Math.round(H*k); } }
+function render(){ var t=now(), sy0=-camY; cx.setTransform(RK,0,0,RK,0,0);                                                // screen y of the water surface
+  // water, colored by depth
+  var top=Math.max(0,sy0), band=(LOGY-top)/10;                                        // solid bands: a gradient this size is slow on a Chromebook
+  for(var bi=0;bi<10;bi++){ var by=top+bi*band; cx.fillStyle=waterCol(Math.max(0,(by+band/2+camY)/PXM)); cx.fillRect(0,Math.floor(by),W,Math.ceil(band)+1); }
+  if(sy0>0) cx.drawImage(bg,0,sy0-SKY);
+  if(sy0>-10&&sy0<LOGY){ cx.fillStyle='rgba(232,241,248,.10)'; for(var i=0;i<8;i++){ var w=120-i*10+Math.sin(t/700+i)*16; cx.fillRect(640-w/2+Math.sin(t/900+i*2)*10,sy0+8+i*15,w,3); }
+    cx.fillStyle='rgba(232,241,248,.2)'; cx.fillRect(250,sy0-1,W-250,2);
+    cx.fillStyle='rgba(40,28,20,.8)'; for(var pl=24;pl<250;pl+=68) cx.fillRect(pl,sy0-10,14,150); }
+  // light rays near the top
+  if(sy0>-300){ cx.fillStyle='rgba(150,220,235,.05)'; for(var r=0;r<4;r++){ var rx=200+r*230+Math.sin(t/2000+r)*30; cx.beginPath(); cx.moveTo(rx,Math.max(0,sy0)); cx.lineTo(rx+60,Math.max(0,sy0)); cx.lineTo(rx+160,sy0+380); cx.lineTo(rx+40,sy0+380); cx.closePath(); cx.fill(); } }
+  // zone lines, weeds and the lake bed
+  ZONES.forEach(function(z,i){ if(!i) return; var y=z.m*PXM-camY; if(y<-40||y>LOGY+40) return;
+    cx.fillStyle='rgba(207,227,236,.16)'; for(var x=0;x<W;x+=28) cx.fillRect(x,y,14,2);
+    cx.globalAlpha=0.7; text(z.n.toUpperCase()+' · '+z.m+' m',W-24,y-10,22,'#CFE3EC','right',false); text('★★★★★'.slice(0,i+1),24,y-10,20,TIERS[Math.min(4,i)].c,'left',false); cx.globalAlpha=1; });
+  var wy0=40*PXM-camY, wy1=80*PXM-camY; if(wy1>0&&wy0<LOGY){ cx.strokeStyle='rgba(46,90,60,.75)'; cx.lineWidth=5; cx.lineCap='round';
+    for(var k=0;k<14;k++){ var wx=k<7?14+k*16:W-14-(k-7)*16, base=wy1-10-(k%3)*40, hh=120+(k*37)%110; cx.beginPath(); cx.moveTo(wx,base); cx.quadraticCurveTo(wx+Math.sin(t/900+k)*26,base-hh*0.55,wx+Math.sin(t/700+k)*14,base-hh); cx.stroke(); } }
+  var bedY=BED-camY; if(bedY<LOGY){ cx.fillStyle='#16251E'; cx.beginPath(); cx.moveTo(0,LOGY); for(var bx2=0;bx2<=W;bx2+=16) cx.lineTo(bx2,bedY+Math.sin(bx2/90)*14); cx.lineTo(W,LOGY); cx.closePath(); cx.fill(); }
+  // end of the line
+  var ey=lineM()*PXM-camY; if(ey>0&&ey<LOGY&&lineM()<250){ cx.fillStyle='rgba(255,122,122,.55)'; for(var ex=0;ex<W;ex+=24) cx.fillRect(ex,ey,12,3);
+    text('END OF YOUR LINE · '+lineM()+' m',W/2,ey+30,22,'#FF9A9A','center',false); text('Longer line in the Shop',W/2,ey+56,20,'#93AAB8','center',false); }
+  bubbles.forEach(function(b){ cx.strokeStyle='rgba(200,235,245,.25)'; cx.lineWidth=2; cx.beginPath(); cx.arc(b.x,b.y,b.r,0,6.28); cx.stroke(); });
+  // fish
+  for(var fi=0;fi<fish.length;fi++){ if(!fish[fi].dead) drawOne(fish[fi],t); }
   var tip=drawFisher();
-  // aiming: a ring sweeps across the water
-  if(F.st==='aim'){ var ax=F.aimX; cx.setLineDash([8,10]); cx.strokeStyle='rgba(94,234,212,.7)'; cx.lineWidth=3; cx.beginPath(); cx.moveTo(tip[0],tip[1]); cx.quadraticCurveTo((tip[0]+ax)/2,tip[1]-140,ax,WY); cx.stroke(); cx.setLineDash([]);
-    cx.strokeStyle='#5EEAD4'; cx.lineWidth=5; cx.beginPath(); cx.ellipse(ax,WY+4,30,10,0,0,6.28); cx.stroke(); cx.beginPath(); cx.moveTo(ax,WY-28); cx.lineTo(ax,WY-8); cx.stroke();
-    text(ZONES[zoneAt(ax)].n,ax,WY-40,26,'#5EEAD4'); }
-  // line, bobber and lure
-  var lp=lurePos();
-  if(lp){ cx.strokeStyle='rgba(232,241,248,.7)'; cx.lineWidth=2; cx.beginPath(); cx.moveTo(tip[0],tip[1]); cx.quadraticCurveTo((tip[0]+lp[0])/2,Math.max(tip[1],lp[1])+(F.st==='fly'?0:50),lp[0],lp[1]); cx.stroke();
-    if(F.st!=='fly'){ var hy=hookY(F.x); cx.strokeStyle='rgba(232,241,248,.35)'; cx.beginPath(); cx.moveTo(lp[0],lp[1]); cx.lineTo(F.x,hy); cx.stroke();
-      cx.fillStyle='#FFD166'; cx.beginPath(); cx.arc(F.x,hy,5,0,6.28); cx.fill(); }
-    cx.fillStyle='#E8F1F8'; cx.beginPath(); cx.arc(lp[0],lp[1],11,0,Math.PI); cx.fill(); cx.fillStyle='#FF8F6B'; cx.beginPath(); cx.arc(lp[0],lp[1],11,Math.PI,0); cx.fill();
-    if(F.st==='bite'){ var left=Math.max(0,(F.biteEnd-t)/1700), bob=Math.sin(t/90)*4;
-      cx.fillStyle='rgba(4,10,16,.85)'; cx.beginPath(); cx.arc(lp[0],WY-80+bob,34,0,6.28); cx.fill();
-      cx.strokeStyle='#FFD166'; cx.lineWidth=6; cx.beginPath(); cx.arc(lp[0],WY-80+bob,34,-Math.PI/2,-Math.PI/2+6.283*left); cx.stroke();
-      text('!',lp[0],WY-62+bob,52,'#FFD166',null,false); } }
-  // a fish being reeled in, in full color
-  if(F.st==='reel'){ var rs=SPECIES[F.sp]; cx.strokeStyle='rgba(232,241,248,.7)'; cx.lineWidth=2; cx.beginPath(); cx.moveTo(tip[0],tip[1]); cx.lineTo(F.fx+F.fdir*rs.L*0.4,F.fy); cx.stroke();
-    drawFish(cx,F.fx,F.fy,rs.L,-1,rs.b,rs.f,rs.p,t/60,-0.5); }
-  // the catch card
-  if(card){ var cs=SPECIES[card.sp], ct=TIERS[card.tier], k2=Math.min(1,(t-card.t0)/250), cxp=W-396, cyp=96-(1-k2)*30;
-    cx.globalAlpha=Math.min(k2,(3000-(t-card.t0))/400); cx.fillStyle='rgba(6,16,24,.92)'; rr(cx,cxp,cyp,376,156,22); cx.fill(); cx.strokeStyle=ct.c; cx.lineWidth=4; rr(cx,cxp,cyp,376,156,22); cx.stroke();
-    text(ct.n.toUpperCase(),cxp+22,cyp+36,22,ct.c,'left',false); if(card.isNew) text('NEW!',cxp+354,cyp+36,22,'#FF8F6B','right',false);
-    text(cs.n,cxp+22,cyp+74,32,'#EEF6FA','left',false); text('+'+card.pts+' points',cxp+22,cyp+114,26,'#FFD166','left',false);
-    drawFish(cx,cxp+290,cyp+108,Math.min(cs.L,100)*0.95,1,cs.b,cs.f,cs.p,t/200); cx.globalAlpha=1; }
-  // floating words
-  pops.forEach(function(p){ var k=(t-p.t0)/1300; cx.globalAlpha=Math.max(0,1-k*k); var px=Math.max(160,Math.min(W-160,p.x)); text(p.txt,px,p.y-k*50,p.sz||34,p.col||'#fff'); cx.globalAlpha=1; });
-  // hint at the top of the sky
-  if(S.started&&!S.over){ var hint=F.st==='aim'?'Let go to cast!':F.st==='fly'?'':F.st==='wait'?'Wait for the bite…':F.st==='bite'?'Tap the lake or press SPACE to hook it!':F.st==='reel'?'Reeling in…':
-      outOfBait()?'':'Hold SPACE or the lake to aim, let go to cast';
-    if(hint){ cx.font='700 28px '+FONT; var hw=cx.measureText(hint).width+50; cx.fillStyle=F.st==='bite'?'rgba(255,209,102,.95)':'rgba(4,10,16,.78)'; rr(cx,W/2-hw/2,16,hw,52,26); cx.fill();
-      text(hint,W/2,52,28,F.st==='bite'?'#1A1200':'#EEF6FA','center',false); } }
+  // the line and the lure
+  if(F.st==='idle'&&S.started&&!S.over&&sy0>0){ var ax=F.aimX; cx.strokeStyle='#5EEAD4'; cx.lineWidth=4; cx.beginPath(); cx.ellipse(ax,sy0+4,26,8,0,0,6.28); cx.stroke();
+    cx.fillStyle='#5EEAD4'; cx.beginPath(); cx.moveTo(ax-12,sy0-34); cx.lineTo(ax+12,sy0-34); cx.lineTo(ax,sy0-16); cx.closePath(); cx.fill(); }
+  var lx=F.x, ly=F.y-camY;
+  if(F.st==='fly'){ var kk=Math.min(1,(LT-F.t0)/0.38); lx=tip[0]+(F.x-tip[0])*kk; ly=tip[1]+(sy0-tip[1])*kk-Math.sin(kk*Math.PI)*120; }
+  if(F.st==='fly'||F.st==='down'||F.st==='up'){
+    cx.strokeStyle='rgba(232,241,248,.75)'; cx.lineWidth=2; cx.beginPath(); cx.moveTo(tip[0],tip[1]); if(F.st!=='fly'&&sy0>-10) cx.lineTo(F.x,sy0); cx.lineTo(lx,ly); cx.stroke();
+    F.hooked.forEach(function(h,i){ var hx=lx+((i%3)-1)*20, hy=ly+30+Math.floor(i/3)*14, sw=Math.sin(t/120+i)*0.25;
+      if(h.junk) drawJunk(cx,h.junk,hx,hy,sw); else if(h.gold) drawFish(cx,hx,hy,40,1,'#FFD166','#FFF3C4',null,t/60,Math.PI/2+sw);
+      else { var s=SPECIES[h.sp]; drawFish(cx,hx,hy,Math.min(s.L,80)*0.8,1,s.b,s.f,s.p,t/60,Math.PI/2+sw); } });
+    cx.fillStyle='#FFD166'; cx.beginPath(); cx.arc(lx,ly,8,0,6.28); cx.fill(); cx.strokeStyle='#FFF3C4'; cx.lineWidth=3; cx.beginPath(); cx.arc(lx,ly+8,8,0,Math.PI); cx.stroke();
+    if(F.st!=='fly'){ var dm=Math.round(F.y/PXM); text(dm+' m',lx+(lx>W-160?-34:34),ly+10,28,dm>=lineM()-2?'#FF9A9A':'#EEF6FA',lx>W-160?'right':'left'); } }
+  // the haul flying into the bucket
+  if(F.st==='haul'&&F.haul){ F.haul.items.forEach(function(h,i){ var k=Math.min(1,Math.max(0,((LT-F.haul.t0)*1000-i*180)/550)); if(k<=0||k>=1) return;
+      var hx=F.x+(BUCKET[0]-F.x)*k, hy=sy0-60*k-Math.sin(k*Math.PI)*190;
+      if(h.junk) drawJunk(cx,h.junk,hx,hy,k*8); else if(h.gold) drawFish(cx,hx,hy,46,-1,'#FFD166','#FFF3C4',null,t/40,k*6);
+      else { var s=SPECIES[h.sp]; drawFish(cx,hx,hy,s.L*0.9,-1,s.b,s.f,s.p,t/40,k*6); } });
+    F.haul.items.forEach(function(h,i){ var at=i*180+550, ht=(LT-F.haul.t0)*1000; if(ht>=at&&ht-at<900&&!h.junk){ var k=(ht-at)/900; cx.globalAlpha=1-k; text('+'+h.pts,BUCKET[0],sy0+BUCKET[1]-70-k*60,34,h.gold?'#FFD166':TIERS[h.tier].c); cx.globalAlpha=1; } }); }
+  popsW.forEach(function(p){ var k=(t-p.t0)/1200; cx.globalAlpha=Math.max(0,1-k*k); text(p.txt,Math.max(170,Math.min(W-170,p.x)),p.y-camY-k*40,p.sz||30,p.col); cx.globalAlpha=1; });
+  // the haul card
+  if(card){ var k2=Math.min(1,(t-card.t0)/250), cxp=W/2-190, cyp=130-(1-k2)*30, b=card.best, bc=b.gold?'#FFD166':TIERS[b.tier].c;
+    cx.globalAlpha=Math.min(k2,(3200-(t-card.t0))/400); cx.fillStyle='rgba(6,16,24,.92)'; rr(cx,cxp,cyp,380,150,22); cx.fill(); cx.strokeStyle=bc; cx.lineWidth=4; rr(cx,cxp,cyp,380,150,22); cx.stroke();
+    text('HAUL × '+card.n,cxp+22,cyp+36,22,bc,'left',false); if(card.isNew) text('NEW!',cxp+358,cyp+36,22,'#FF8F6B','right',false);
+    text(b.gold?'Golden Minnow':SPECIES[b.sp].n,cxp+22,cyp+76,32,'#EEF6FA','left',false); text('+'+card.pts.toLocaleString()+' points',cxp+22,cyp+118,28,'#FFD166','left',false);
+    if(b.gold) drawFish(cx,cxp+300,cyp+110,50,1,'#FFD166','#FFF3C4',null,t/200); else { var cs=SPECIES[b.sp]; drawFish(cx,cxp+300,cyp+110,Math.min(cs.L,100)*0.9,1,cs.b,cs.f,cs.p,t/200); }
+    cx.globalAlpha=1; }
+  // the Fishing Order
+  if(oFlash&&t-oFlash.t0<1700){ cx.font='700 34px '+FONT; var fw=cx.measureText(oFlash.txt).width+80, pulse=1+0.04*Math.sin((t-oFlash.t0)/60);
+    cx.save(); cx.translate(W-16-fw/2,62); cx.scale(pulse,pulse); cx.fillStyle='#FFD166'; rr(cx,-fw/2,-46,fw,92,20); cx.fill(); text(oFlash.txt,0,12,34,'#1A1200','center',false); cx.restore(); }
+  else if(S.started&&!S.over&&S.order){ var o=S.order, ot=orderText(o); cx.font='700 26px '+FONT; var ow=Math.max(300,cx.measureText(ot).width+150);
+    cx.fillStyle='rgba(6,16,24,.86)'; rr(cx,W-ow-16,16,ow,92,20); cx.fill(); cx.strokeStyle='#FFD166'; cx.lineWidth=3; rr(cx,W-ow-16,16,ow,92,20); cx.stroke();
+    text('FISHING ORDER',W-ow+4,46,20,'#FFD166','left',false); text('+'+o.pts,W-34,46,22,'#FFD166','right',false);
+    text(ot,W-ow+4,86,26,'#EEF6FA','left',false); text(o.have+'/'+o.need,W-34,86,26,'#5EEAD4','right',false); }
+  pops.forEach(function(p){ var k=(t-p.t0)/1400; cx.globalAlpha=Math.max(0,1-k*k); text(p.txt,p.x,p.y-k*40,p.sz||34,p.col||'#fff'); cx.globalAlpha=1; });
+  // the hint at the bottom
+  if(S.started&&!S.over){ var noBait=!hookable(), learn=S.drops<3, hint=F.st==='idle'?(outOfBait()?'':'Press SPACE or tap the lake to drop your line'):F.st==='down'?(learn?'DODGE the fish with ← → (or the mouse) · SPACE reels up':''):
+      F.st==='up'?(noBait?'Out of bait! Fish swim past. Answer for more.':learn?'HOOK fish: steer into them!':''):'';
+    if(hint){ cx.font='700 28px '+FONT; var hw=cx.measureText(hint).width+50, hc=F.st==='up'&&!noBait; cx.fillStyle=hc?'rgba(255,209,102,.95)':noBait&&F.st==='up'?'rgba(255,122,122,.95)':'rgba(4,10,16,.82)';
+      rr(cx,W/2-hw/2,LOGY-70,hw,52,26); cx.fill(); text(hint,W/2,LOGY-34,28,hc||(noBait&&F.st==='up')?'#1A1200':'#EEF6FA','center',false); } }
   // the fish log
-  var n=species(); text('FISH LOG',22,LOGY+36,22,'#93AAB8','left',false); text(n+' / 15',22,LOGY+66,26,'#5EEAD4','left',false);
-  SPECIES.forEach(function(s,i){ var sx=156+i*59, got=S.log[i]>0; cx.fillStyle=got?'rgba(20,44,58,.95)':'rgba(14,28,38,.9)'; rr(cx,sx,LOGY+12,53,60,12); cx.fill();
-    cx.strokeStyle=TIERS[s.t].c; cx.globalAlpha=got?1:0.35; cx.lineWidth=3; rr(cx,sx,LOGY+12,53,60,12); cx.stroke(); cx.globalAlpha=1;
-    drawFish(cx,sx+29,LOGY+42,44,1,got?s.b:'#1C3443',got?s.f:'#1C3443',got?s.p:null,0); });
+  cx.fillStyle='#04101A'; cx.fillRect(0,LOGY,W,H-LOGY); cx.fillStyle='#1E3A4A'; cx.fillRect(0,LOGY,W,3);
+  var lk=S.log.map(function(v){ return v>0?1:0; }).join('')+RK;
+  if(logKey!==lk){ logKey=lk; logCv.width=Math.round(W*RK); logCv.height=Math.round((H-LOGY)*RK); var lc=logCv.getContext('2d'), keep=cx; lc.setTransform(RK,0,0,RK,0,-LOGY*RK); cx=lc;   // the log is drawn once per new fish
+    var n=species(); text('FISH LOG',22,LOGY+36,22,'#93AAB8','left',false); text(n+' / 15',22,LOGY+66,26,'#5EEAD4','left',false);
+    SPECIES.forEach(function(s,i){ var sx=156+i*59, got=S.log[i]>0; cx.fillStyle=got?'rgba(20,44,58,.95)':'rgba(14,28,38,.9)'; rr(cx,sx,LOGY+12,53,60,12); cx.fill();
+      cx.strokeStyle=TIERS[s.t].c; cx.globalAlpha=got?1:0.35; cx.lineWidth=3; rr(cx,sx,LOGY+12,53,60,12); cx.stroke(); cx.globalAlpha=1;
+      drawFish(cx,sx+29,LOGY+42,44,1,got?s.b:'#1C3443',got?s.f:'#1C3443',got?s.p:null,0); }); cx=keep; }
+  cx.drawImage(logCv,0,LOGY,W,H-LOGY);
   // final 30 seconds
-  if(t-frenzyAt<2600){ var fk=(t-frenzyAt)/2600; cx.globalAlpha=Math.min(1,(1-fk)*3); text('EVENING RISE!',W/2,470,76,'#FFD166'); text('DOUBLE POINTS FOR EVERY FISH',W/2,530,34,'#EEF6FA'); cx.globalAlpha=1; }
+  if(t-frenzyAt<2600){ var fk=(t-frenzyAt)/2600; cx.globalAlpha=Math.min(1,(1-fk)*3); text('EVENING RISE!',W/2,430,76,'#FFD166'); text('DOUBLE POINTS FOR EVERY FISH',W/2,490,34,'#EEF6FA'); cx.globalAlpha=1; }
   // out of bait
-  if(outOfBait()&&F.st==='idle'){ cx.fillStyle='rgba(4,10,16,.82)'; rr(cx,W/2-330,380,660,180,28); cx.fill(); cx.strokeStyle='#FF7A7A'; cx.lineWidth=4; rr(cx,W/2-330,380,660,180,28); cx.stroke();
-    text('OUT OF BAIT',W/2,456,58,'#EEF6FA','center',false); text('←  Answer a question to get bait',W/2,515,32,'#5EEAD4','center',false); } }
-var lastF=now(); function loop(){ var t=now(), dt=Math.min(0.05,(t-lastF)/1000); lastF=t; update(dt); render(); requestAnimationFrame(loop); }
-cv.addEventListener('pointerdown',function(e){ e.preventDefault(); try{ cv.setPointerCapture(e.pointerId); }catch(x){} ac(); press(); });
-cv.addEventListener('pointerup',release); cv.addEventListener('pointercancel',release); addEventListener('pointerup',release); addEventListener('blur',release);
+  if(outOfBait()&&F.st==='idle'){ cx.fillStyle='rgba(4,10,16,.84)'; rr(cx,W/2-340,420,680,180,28); cx.fill(); cx.strokeStyle='#FF7A7A'; cx.lineWidth=4; rr(cx,W/2-340,420,680,180,28); cx.stroke();
+    text('OUT OF BAIT',W/2,496,58,'#EEF6FA','center',false); text('←  Answer a question to get bait',W/2,555,32,'#5EEAD4','center',false); } }
+function resetLake(){ F.st='idle'; F.hooked=[]; F.haul=null; card=null; pops=[]; popsW=[]; camY=-SKY; stockLake(); }
+var lastF=now(), resT=0; function loop(){ if(now()-resT>1500){ resT=now(); fitRes(); } var t=now(), dt=Math.min(0.05,(t-lastF)/1000); lastF=t; try{ if(!window.__paused) update(dt); render(); }catch(e){ if(!window.__lakeErr) window.__lakeErr=String(e); } requestAnimationFrame(loop); }
+function ptr(e){ var r=cv.getBoundingClientRect(); ptrX=(e.clientX-r.left)/r.width*W; ptrOn=true; }
+cv.addEventListener('pointermove',ptr);
+cv.addEventListener('pointerdown',function(e){ e.preventDefault(); try{ cv.setPointerCapture(e.pointerId); }catch(x){} ac(); ptr(e); if(F.st==='idle'){ F.aimX=Math.max(280,Math.min(XMAX-20,ptrX)); press(); } });
+function steerKey(e,on){ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return; var k=e.key;
+  if(k==='ArrowLeft'||k==='a'||k==='A'){ keyL=on; if(on) e.preventDefault(); } else if(k==='ArrowRight'||k==='d'||k==='D'){ keyR=on; if(on) e.preventDefault(); } }
+document.addEventListener('keydown',function(e){ if(e.metaKey||e.ctrlKey||e.altKey) return; steerKey(e,true); });
+document.addEventListener('keyup',function(e){ steerKey(e,false); }); addEventListener('blur',function(){ keyL=keyR=false; });
+
+/* ---------- sounds of the drop: soft and musical ---------- */
+SND.hookN=function(k){ var sc=[C5,D5,E5,G5,A5,C6,1174.66,E6], f=sc[Math.min(sc.length-1,k-1)]; tone(f,f,0,0.18,'triangle',0.13); tone(f*2,f*2,0.02,0.12,'sine',0.035); };
+SND.junk=function(){ tone(196,150,0,0.22,'triangle',0.14); };
+SND.bottom=function(){ tone(E5,E5,0,0.14,'sine',0.12); tone(B4,B4,0.1,0.22,'sine',0.11); };
+SND.order=function(){ [G4,C5,E5,G5,C6].forEach(function(f,i){ tone(f,f,i*0.07,0.32,'triangle',0.12); }); tone(E6,E6,0.4,0.5,'sine',0.05); };
 
 /* ================= START / END ================= */
 $('fh-nameinput').addEventListener('input',function(){ $('fh-go').disabled=!this.value.trim(); });
 $('fh-nameinput').addEventListener('keydown',function(e){ if(e.key==='Enter'&&this.value.trim()) $('fh-go').click(); });
 $('fh-go').addEventListener('click',function(){ var n=$('fh-nameinput').value.trim(); if(!n) return; ac(); S.name=n; S.started=true; S.endAt=now()+S.len*60000; $('fh-start').hidden=true;
-  $('fh-nameinput').blur(); this.blur(); newQ(); save(); hud(); });
-function endRun(){ S.over=true; F.st='idle'; clearTimeout(nextT); openShop(false); $('fh-shop').hidden=true; $('fh-lake').classList.remove('frenzy'); save(); showEnd(true); }
+  $('fh-nameinput').blur(); this.blur(); newOrder(); newQ(); save(); hud(); });
+function endRun(){ finishDrop(); S.over=true; clearTimeout(nextT); openShop(false); $('fh-shop').hidden=true; $('fh-lake').classList.remove('frenzy'); save(); showEnd(true); }
 function showEnd(celebrate){ if(window.SpitzCode) setTimeout(function(){ window.SpitzCode.show('fh','fishing',S); },0); $('fh-endname').textContent=S.name; $('fh-endscore').textContent=S.score.toLocaleString();
   var acc=S.answered?Math.round(100*S.correct/S.answered):0, bt=TIERS[S.bestTier];
-  $('fh-endbest').innerHTML=bt? 'Best catch: <b style="--c:'+bt.c+'">'+bt.n+' '+S.bestName+'</b>' : 'No fish this time. Next time, answer early and cast often.';
-  $('fh-endstats').innerHTML=[['Correct',S.correct+' / '+S.answered],['Accuracy',acc+'%'],['Best streak',S.best],['Fish caught',S.fish],['Fish log',species()+' / 15']].map(function(a){ return '<div class="fh-stat"><div class="l">'+a[0]+'</div><div class="v">'+a[1]+'</div></div>'; }).join('');
+  $('fh-endbest').innerHTML=bt? 'Best catch: <b style="--c:'+bt.c+'">'+bt.n+' '+S.bestName+'</b> · Fish log '+species()+'/15 · Deepest '+S.deepest+' m' : 'No fish this time. Next time, answer early and drop your line often.';
+  $('fh-endstats').innerHTML=[['Correct',S.correct+' / '+S.answered],['Accuracy',acc+'%'],['Best streak',S.best],['Fish caught',S.fish],['Orders done',S.orders]].map(function(a){ return '<div class="fh-stat"><div class="l">'+a[0]+'</div><div class="v">'+a[1]+'</div></div>'; }).join('');
   $('fh-endtopics').innerHTML=Object.keys(S.topics).map(function(k){ var t=S.topics[k]; return '<div class="fh-stat"><div class="l">'+k+'</div><div class="v">'+t[0]+' / '+t[1]+'</div></div>'; }).join('');
   $('fh-end').hidden=false; if(celebrate){ SND.win(); [0,350,700,1100].forEach(function(ms,i){ setTimeout(function(){ confetti(200+i*500,1070,90,1.3); confetti(1720-i*500,1070,90,1.3); },ms); }); } }
 var armT=0; $('fh-again').addEventListener('click',function(){ var b=this; if(!b.classList.contains('arm')){ b.classList.add('arm'); b.textContent='Tap again to start over'; clearTimeout(armT); armT=setTimeout(function(){ b.classList.remove('arm'); b.textContent='Play again'; },3000); return; }
-  b.classList.remove('arm'); b.textContent='Play again'; var keepName=S.name; S=fresh(); S.name=keepName; F.st='idle'; card=null; pops=[]; leaving=[]; ripples=[];
+  b.classList.remove('arm'); b.textContent='Play again'; var keepName=S.name; S=fresh(); S.name=keepName; resetLake();
   $('fh-end').hidden=true; $('fh-start').hidden=false; $('fh-nameinput').value=keepName; $('fh-go').disabled=!keepName; save(); hud(); timerDraw();
   $('fh-choices').innerHTML=''; $('fh-prompt').innerHTML=''; $('fh-visual').innerHTML=''; });
 
@@ -841,16 +941,18 @@ $('sz-mus').addEventListener('click',function(e){ e.stopPropagation(); ac(); mus
 $('fh-go').addEventListener('click',function(){ if(S.started) jingle(); });
 
 /* ================= BOOT ================= */
-S=load()||fresh(); fit(); drawBg(); initAmb();
+S=load()||fresh(); fit(); drawBg(); stockLake(); if(S.started&&S.hooked&&S.hooked.length){ F.hooked=S.hooked; landHaul(true); } if(S.started&&!S.order) newOrder();
 if(S.started){ $('fh-start').hidden=true; if(S.over||S.endAt<=now()){ S.over=true; showEnd(false); } else if(S.q){ showQ(); } else newQ(); }
 else { $('fh-nameinput').value=S.name||''; $('fh-go').disabled=!S.name; }
 hud(); timerDraw(); setInterval(timerDraw,250); requestAnimationFrame(loop);
 
 /* test hooks */
-window.__G={ state:function(){ return S; }, F:function(){ return F; }, press:press, release:release, cast:cast, hook:hookIt, build:build,
+window.__G={ state:function(){ return S; }, F:function(){ return F; }, press:press, build:build,
   show:function(type){ S.q=build(type); S.qDone=false; S.picked=-1; showQ(); }, end:function(){ S.endAt=now()-1; timerDraw(); }, types:Object.keys(GEN),
-  shim:function(){ return shim; }, setShim:function(x){ shim={x:x,t0:now()-1000,until:now()+60000}; }, card:function(){ return card; }, frenzy:function(){ frenzyAt=now(); },
-  tiers:TIERS, species:SPECIES, zoneAt:zoneAt, _land:land, nq:newQ };
+  fish:function(){ return fish; }, setFish:function(a){ fish=a; fish.stockedGold=buffOn('golden'); }, stock:stockLake, step:function(dt){ update(dt); }, render:render,
+  steer:function(l,r){ keyL=!!l; keyR=!!r; }, ptr:function(x){ ptrX=x; ptrOn=x!=null; }, card:function(){ return card; }, frenzy:function(){ frenzyAt=now(); },
+  newOrder:newOrder, orderText:orderText, cam:function(){ return camY; }, tiers:TIERS, species:SPECIES, nq:newQ, pause:function(b){ window.__paused=!!b; },
+  consts:{W:W,PXM:PXM,LOGY:LOGY,BED:BED,SKY:SKY} };
 })();
 </script>
 <script>/* the start screen names the question set the hub link picked */
