@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Spitzlberger Algebra 1 · Walk-in board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Caveat:wght@500&family=Rubik:wght@700;800&family=Bangers&display=swap" rel="stylesheet">
+<style>
+/* Walk-in board · Spitzlberger Algebra 1
+   Left: the table of contents (a published Google Doc). Right: today's warm-up.
+   Saves to Google (Apps Script) so every computer shows the same board.
+   Clicker / keyboard: → PageDown Space = show answer · ← PageUp = hide · E edit warm-ups · M what you'll need · T hide/show contents
+   C NumWorks · D Desmos · Esc close calculator · F fullscreen · S setup */
+:root{
+  --board:#2B2B2B; --grid:rgba(255,255,255,.075); --chalk:#F2F0EA; --dust:#A9A6A0;
+  --panel:#1D1D1D; --panel-glass:rgba(26,26,26,.8); --panel-edge:#444; --black:#0A0A0A;
+  --sauce:#FF4D12; --sauce-deep:#C9360A; --cheese:#FFC22E; --lettuce:#7CC243;
+  --font-title:'Bangers', Impact, 'Arial Black', sans-serif;
+  --font-display:'Rubik', 'Arial Black', system-ui, sans-serif;
+  --font-body:'Atkinson Hyperlegible', Verdana, system-ui, sans-serif;
+  --font-chalk:'Caveat', 'Segoe Print', 'Comic Sans MS', cursive;
+  color-scheme:dark;
+}
+*{ box-sizing:border-box; }
+html,body{ height:100%; margin:0; }
+body{ background:var(--board); color:var(--chalk); font-family:var(--font-body); overflow:hidden; }
+
+/* graph-paper chalkboard with faint chalk math, like the banner */
+.bg{ position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+.bg text{ font-family:var(--font-chalk); fill:#fff; }
+.vignette{ position:fixed; inset:0; z-index:0; pointer-events:none; background:radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(0,0,0,.45)); }
+
+.main{ position:relative; z-index:1; height:100%; display:flex; flex-direction:column; gap:clamp(10px,1.4vh,22px); transition:margin-right .25s;
+  padding:clamp(12px,1.8vh,30px) clamp(16px,2.2vw,44px) 60px; }
+
+/* title bar */
+header{ display:flex; align-items:center; gap:clamp(12px,1.6vw,32px); }
+.brand{ display:flex; align-items:center; gap:clamp(8px,1vw,20px); min-width:0; }
+.burger{ width:clamp(60px,6vw,120px); height:auto; flex:none; filter:drop-shadow(.06em .1em 0 rgba(0,0,0,.6)); }
+.title{ margin:0; font-family:var(--font-title); font-weight:400; line-height:.95; color:var(--sauce);
+  font-size:clamp(38px,5vw,104px); letter-spacing:.03em; white-space:nowrap;
+  -webkit-text-stroke:.09em var(--black); paint-order:stroke fill; text-shadow:.05em .07em 0 var(--black); }
+.title span{ display:inline-block; margin-left:.35em; font-size:.72em; color:var(--cheese); }
+.when{ margin-left:auto; text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:.15em; }
+.date{ white-space:nowrap; font-family:var(--font-display); font-weight:800; font-size:clamp(20px,2.2vw,46px); line-height:1; }
+.clock{ font-family:var(--font-display); font-weight:700; font-size:clamp(18px,1.9vw,40px); color:var(--cheese); font-variant-numeric:tabular-nums; }
+
+/* the three things to do, in order */
+.todo{ list-style:none; margin:0; padding:0; display:flex; gap:clamp(10px,1.6vw,34px); flex-wrap:wrap; counter-reset:t; }
+.todo li{ counter-increment:t; display:flex; align-items:center; gap:.55em; font-size:clamp(16px,1.5vw,32px); font-weight:700; white-space:nowrap; }
+.todo li::before{ content:counter(t); display:grid; place-items:center; width:1.6em; height:1.6em; border-radius:50%;
+  background:var(--sauce); color:var(--black); border:.12em solid var(--black); font-family:var(--font-display); font-weight:800; }
+
+.split{ flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1.45fr) minmax(0,1fr); gap:clamp(12px,1.6vw,32px); }
+.panel{ min-height:0; background:var(--panel-glass); border:2px solid var(--panel-edge); border-radius:16px; display:flex; flex-direction:column; overflow:hidden;
+  box-shadow:0 10px 40px rgba(0,0,0,.45); }
+.panel h2{ margin:0; padding:.5em .9em .4em; font-family:var(--font-display); font-weight:800; font-size:clamp(20px,1.9vw,38px);
+  display:flex; align-items:center; gap:.6em; border-bottom:2px solid var(--panel-edge); }
+.panel h2 .tools{ margin-left:auto; display:flex; gap:8px; }
+
+/* table of contents */
+.docwrap{ position:relative; flex:1; min-height:0; overflow:hidden; }
+.docwrap:has(iframe:not([hidden])){ background:#fff; }
+.docwrap iframe{ border:0; position:absolute; top:0; left:0; transform-origin:0 0; background:#fff; }
+.empty{ position:absolute; inset:0; display:grid; place-items:center; text-align:center; padding:6%; background:transparent; color:var(--dust); font-size:clamp(16px,1.4vw,28px); line-height:1.4; }
+.empty b{ color:var(--chalk); }
+
+/* warm-up */
+.warm{ border-color:var(--sauce); border-width:3px; }
+.warm h2{ background:var(--sauce); color:var(--black); border-bottom:3px solid var(--black); }
+.wbody{ flex:1; min-height:0; overflow:auto; padding:clamp(14px,1.4vw,30px) clamp(18px,1.8vw,38px); display:flex; flex-direction:column; gap:clamp(12px,1.4vh,24px); }
+.prompt{ margin:0; font-size:clamp(22px,2.15vw,46px); line-height:1.35; white-space:pre-wrap; overflow-wrap:anywhere; }
+.wimg{ max-width:100%; max-height:38vh; object-fit:contain; align-self:flex-start; border-radius:8px; background:#fff; }
+.choices{ list-style:none; margin:0; padding:0; display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:clamp(8px,1vh,16px) 1.4vw; }
+.choices li{ display:flex; gap:.6em; align-items:baseline; font-size:clamp(20px,1.95vw,42px); padding:.25em .45em; border-radius:10px; }
+.choices li .n{ font-family:var(--font-display); font-weight:800; color:var(--sauce); min-width:1.1em; }
+.choices li.right{ background:var(--cheese); color:var(--black); }
+.choices li.right .n{ color:var(--black); }
+.answer{ margin-top:auto; font-size:clamp(20px,1.95vw,42px); font-weight:700; color:var(--cheese); white-space:pre-wrap; }
+.answer[hidden]{ display:block !important; visibility:hidden; }
+.cue{ margin-top:auto; color:var(--dust); font-size:clamp(14px,1.1vw,22px); }
+.answer:not([hidden]) + .cue{ display:none; }
+
+/* buttons: big enough for a touch board */
+button{ font:inherit; font-size:clamp(14px,1vw,20px); font-weight:700; color:var(--chalk); background:#2E2E2E; border:2px solid var(--panel-edge);
+  border-radius:999px; padding:.35em .9em; min-height:44px; cursor:pointer; }
+button:hover{ border-color:var(--dust); }
+button:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible{ outline:3px solid var(--cheese); outline-offset:2px; }
+button.pri{ background:var(--sauce); border-color:var(--black); color:var(--black); }
+button.pri:hover{ background:#ff6a3a; }
+.corner{ position:fixed; z-index:2; right:12px; bottom:10px; display:flex; gap:8px; align-items:center; opacity:.3; transition:opacity .2s; }
+.corner:hover, .corner:focus-within{ opacity:1; }
+.status{ display:flex; align-items:center; gap:.5em; font-size:clamp(13px,.9vw,17px); color:var(--dust); padding:0 .4em; }
+.status::before{ content:""; width:.7em; height:.7em; border-radius:50%; background:var(--dust); }
+.status[data-s="synced"]::before{ background:var(--lettuce); }
+.status[data-s="busy"]::before{ background:var(--cheese); }
+.status[data-s="warn"]{ color:var(--cheese); }
+.status[data-s="warn"]::before{ background:var(--sauce); }
+.corner:has(.status[data-s="warn"]){ opacity:1; }
+
+/* dialogs */
+dialog{ border:2px solid var(--sauce); border-radius:16px; padding:0; width:min(900px,94vw); max-height:92vh; background:var(--panel); color:var(--chalk); box-shadow:0 24px 80px rgba(0,0,0,.6); }
+dialog::backdrop{ background:rgba(0,0,0,.65); }
+.dlg{ padding:26px 30px; display:flex; flex-direction:column; gap:14px; overflow:auto; max-height:92vh; }
+.dlg h3{ margin:0; font-family:var(--font-display); font-weight:800; font-size:30px; }
+.dlg label{ font-weight:700; font-size:17px; display:flex; flex-direction:column; gap:6px; }
+.dlg .hint{ font-weight:400; color:var(--dust); font-size:15px; line-height:1.45; }
+.dlg input, .dlg textarea{ font:inherit; font-weight:400; font-size:18px; color:var(--chalk); background:#121212; border:2px solid var(--panel-edge); border-radius:10px; padding:10px 12px; width:100%; }
+.dlg textarea{ min-height:90px; resize:vertical; }
+.dlg summary{ font-weight:700; cursor:pointer; }
+.row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+.days{ display:flex; gap:6px; flex-wrap:wrap; }
+.days button[aria-pressed="true"]{ background:var(--chalk); color:var(--black); border-color:var(--chalk); }
+.ch4{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.drop{ border:2px dashed var(--panel-edge); border-radius:10px; padding:12px; color:var(--dust); font-size:15px; display:flex; gap:12px; align-items:center; }
+.drop img{ max-height:90px; border-radius:6px; background:#fff; }
+.msg{ color:var(--cheese); font-weight:700; min-height:1.2em; margin:0; }
+
+/* what you'll need today */
+.needs{ display:flex; align-items:center; gap:clamp(8px,1vw,18px); flex-wrap:wrap; }
+.needs[hidden]{ display:none; }
+.needs h2{ margin:0; font-family:var(--font-display); font-weight:800; font-size:clamp(16px,1.4vw,30px); color:var(--cheese); white-space:nowrap; }
+.needs ul{ list-style:none; margin:0; padding:0; display:flex; gap:clamp(6px,.8vw,14px); flex-wrap:wrap; }
+.needs li{ display:flex; align-items:center; gap:.4em; font-size:clamp(15px,1.35vw,28px); font-weight:700; padding:.22em .75em .22em .5em;
+  border:2px solid var(--cheese); border-radius:999px; background:rgba(0,0,0,.45); white-space:nowrap; }
+.needs li .ic{ font-size:1.15em; line-height:1; }
+
+/* hide the table of contents (T): warm-up takes the whole board */
+body.no-toc .toc, body.no-toc .todo .step-toc{ display:none; }
+body.no-toc .split{ grid-template-columns:minmax(0,1fr); }
+body.no-toc .prompt{ font-size:clamp(26px,2.9vw,62px); }
+body.no-toc .choices li, body.no-toc .answer{ font-size:clamp(24px,2.6vw,56px); }
+body.no-toc .wimg{ max-height:46vh; }
+
+/* need-today picker */
+.pick{ display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:8px; }
+.pick button{ display:flex; align-items:center; gap:.5em; justify-content:flex-start; border-radius:12px; padding:.5em .8em; font-size:18px; min-height:54px; text-align:left; }
+.pick button .box{ flex:none; width:1.2em; height:1.2em; border:2px solid var(--dust); border-radius:5px; display:grid; place-items:center; font-size:.85em; }
+.pick button[aria-pressed="true"]{ border-color:var(--cheese); background:rgba(255,194,46,.14); }
+.pick button[aria-pressed="true"] .box{ background:var(--cheese); border-color:var(--cheese); color:var(--black); }
+.pick button[aria-pressed="true"] .box::after{ content:"✓"; font-weight:800; }
+.pick .rm{ margin-left:auto; color:var(--dust); font-size:14px; padding:0 .3em; }
+
+/* live calculators: NumWorks (C) docks on the right, Desmos (D) opens wide */
+.calc{ position:fixed; z-index:5; display:none; background:var(--panel); border:3px solid var(--sauce); border-radius:16px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.6); }
+.calc.open{ display:flex; flex-direction:column; }
+.calc .bar{ display:flex; align-items:center; gap:8px; padding:6px 8px 6px 14px; background:var(--sauce); color:var(--black); font-family:var(--font-display); font-weight:800; font-size:18px; }
+.calc .bar button{ min-height:36px; padding:.15em .7em; background:var(--black); color:var(--chalk); border-color:var(--black); }
+.calc .bar .sp{ margin-left:auto; }
+.calc .frame{ position:relative; flex:1; min-height:0; overflow:hidden; background:#fff; }
+.calc iframe{ border:0; display:block; }
+#calcNW{ top:10px; right:10px; bottom:10px; }
+#calcNW .frame{ background:transparent; }
+#calcNW iframe{ position:absolute; top:0; left:0; width:368px; height:720px; transform-origin:0 0; }
+#calcDS{ top:4vh; left:4vw; right:4vw; bottom:4vh; }
+#calcDS iframe{ width:100%; height:100%; }
+.handback{ display:none; }
+body.in-desmos .handback{ display:inline-flex; }
+body.nw-open .corner{ right:auto; left:12px; }
+
+@media (max-width:900px){ .split{ grid-template-columns:1fr; } body{ overflow:auto; } .main{ height:auto; } header{ flex-wrap:wrap; } .title{ white-space:normal; } }
+@media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
+</style>
+</head>
+<body>
+
+<!-- chalkboard background -->
+<svg class="bg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="grid" width="34" height="34" patternUnits="userSpaceOnUse">
+      <path d="M34 0H0V34" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="1.2"/>
+    </pattern>
+    <pattern id="chalk" width="1400" height="900" patternUnits="userSpaceOnUse">
+      <g opacity=".27">
+        <text x="1183" y="374" font-size="34" transform="rotate(-7 1183 374)">y = mx + b</text>
+        <text x="620" y="82" font-size="26" transform="rotate(-5 620 82)">m = (y₂ − y₁) / (x₂ − x₁)</text>
+        <text x="737" y="533" font-size="30" transform="rotate(-7 737 533)">y − y₁ = m(x − x₁)</text>
+        <text x="69" y="229" font-size="40" transform="rotate(7 69 229)">Ax + By = C</text>
+        <text x="144" y="523" font-size="30" transform="rotate(-2 144 523)">y = kx</text>
+        <text x="126" y="644" font-size="34" transform="rotate(-7 126 644)">f(x) = 3x − 5</text>
+        <text x="95" y="291" font-size="30" transform="rotate(5 95 291)">x = (−b ± √(b² − 4ac)) / 2a</text>
+        <text x="933" y="283" font-size="34" transform="rotate(-5 933 283)">b² − 4ac</text>
+        <text x="621" y="173" font-size="26" transform="rotate(2 621 173)">y = a(x − h)² + k</text>
+        <text x="654" y="429" font-size="40" transform="rotate(-5 654 429)">y = ax² + bx + c</text>
+        <text x="312" y="369" font-size="40" transform="rotate(2 312 369)">y = a(x − p)(x − q)</text>
+        <text x="632" y="218" font-size="26" transform="rotate(0 632 218)">x = −b / 2a</text>
+        <text x="955" y="375" font-size="30" transform="rotate(5 955 375)">y = a·bˣ</text>
+        <text x="803" y="878" font-size="34" transform="rotate(3 803 878)">aₙ = a₁ + (n − 1)d</text>
+        <text x="1162" y="626" font-size="34" transform="rotate(7 1162 626)">aₙ = a₁·rⁿ⁻¹</text>
+        <text x="1001" y="551" font-size="34" transform="rotate(5 1001 551)">a² − b² = (a + b)(a − b)</text>
+        <text x="139" y="450" font-size="26" transform="rotate(5 139 450)">(a + b)² = a² + 2ab + b²</text>
+        <text x="930" y="667" font-size="26" transform="rotate(5 930 667)">xᵐ · xⁿ = xᵐ⁺ⁿ</text>
+        <text x="557" y="836" font-size="34" transform="rotate(2 557 836)">(xᵐ)ⁿ = xᵐⁿ</text>
+        <text x="114" y="124" font-size="34" transform="rotate(5 114 124)">x⁰ = 1</text>
+        <text x="425" y="447" font-size="30" transform="rotate(-7 425 447)">x⁻ⁿ = 1 / xⁿ</text>
+        <text x="868" y="177" font-size="26" transform="rotate(-3 868 177)">a(b + c) = ab + ac</text>
+        <text x="670" y="482" font-size="30" transform="rotate(-7 670 482)">|x − 3| ≤ 5</text>
+        <text x="711" y="311" font-size="26" transform="rotate(7 711 311)">2x + 3 &gt; 11</text>
+        <text x="934" y="132" font-size="40" transform="rotate(7 934 132)">a² + b² = c²</text>
+        <text x="588" y="557" font-size="26" transform="rotate(7 588 557)">A = πr²</text>
+        <text x="521" y="302" font-size="26" transform="rotate(-2 521 302)">C = 2πr</text>
+        <text x="284" y="850" font-size="40" transform="rotate(3 284 850)">V = πr²h</text>
+        <text x="128" y="349" font-size="34" transform="rotate(2 128 349)">I = prt</text>
+        <text x="30" y="661" font-size="26" transform="rotate(7 30 661)">d = rt</text>
+        <text x="1202" y="303" font-size="40" transform="rotate(-2 1202 303)">a/b = c/d</text>
+        <text x="453" y="746" font-size="30" transform="rotate(-3 453 746)">A = ½bh</text>
+        <text x="1259" y="875" font-size="40" transform="rotate(-3 1259 875)">V = lwh</text>
+        <text x="776" y="628" font-size="34" transform="rotate(-7 776 628)">Δy / Δx</text>
+        <text x="334" y="698" font-size="30" transform="rotate(-5 334 698)">(h, k)</text>
+        <text x="1174" y="678" font-size="30" transform="rotate(-7 1174 678)">f(2) = 1</text>
+        <text x="120" y="70" font-size="30" transform="rotate(2 120 70)">y = |x|</text>
+        <text x="624" y="37" font-size="30" transform="rotate(-5 624 37)">−2 ≤ x &lt; 4</text>
+        <text x="940" y="76" font-size="30" transform="rotate(3 940 76)">√49 = 7</text>
+        <text x="1102" y="457" font-size="40" transform="rotate(-5 1102 457)">x² − 5x + 6 = 0</text>
+        <text x="970" y="231" font-size="26" transform="rotate(-7 970 231)">(x − 2)(x − 3)</text>
+        <text x="516" y="225" font-size="30" transform="rotate(-7 516 225)">PEMDAS</text>
+        <text x="299" y="224" font-size="30" transform="rotate(0 299 224)">rise / run</text>
+        <text x="517" y="880" font-size="26" transform="rotate(5 517 880)">{(1, 2), (3, 8)}</text>
+      </g>
+      <g opacity=".22">
+      <g fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M1180 140 H1380 M1280 50 V225"/><path d="M1195 215 L1370 60"/><circle cx="1240" cy="162" r="4" fill="#fff"/><circle cx="1320" cy="92" r="4" fill="#fff"/>
+        <path d="M570 610 Q 660 900 750 610"/><path d="M560 760 H770 M660 600 V790" opacity=".7"/><path d="M660 600 V790" stroke-dasharray="8 8"/>
+        <path d="M60 860 L220 860 L220 720 Z"/><path d="M204 860 V844 H220"/>
+        <path d="M990 750 H1350"/><path d="M1010 740 v20 M1070 740 v20 M1130 740 v20 M1190 740 v20 M1250 740 v20 M1310 740 v20"/><circle cx="1130" cy="750" r="8"/><path d="M1138 750 H1340 l-10 -8 M1340 750 l-10 8"/>
+        <circle cx="450" cy="105" r="55"/><path d="M450 105 H505"/>
+      </g>
+      <g font-size="28"><text x="128" y="890">a</text><text x="228" y="800">b</text><text x="118" y="780">c</text><text x="465" y="98">r</text><text x="1003" y="790">−3</text><text x="1123" y="790">−1</text><text x="1245" y="790">1</text></g>
+      </g>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+  <rect width="100%" height="100%" fill="url(#chalk)"/>
+</svg>
+<div class="vignette" aria-hidden="true"></div>
+
+<main class="main">
+  <header>
+    <div class="brand">
+      <svg class="burger" viewBox="0 0 120 110" aria-hidden="true">
+        <defs>
+          <linearGradient id="bun" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFC15E"/><stop offset=".6" stop-color="#F29A2E"/><stop offset="1" stop-color="#D9761A"/></linearGradient>
+          <linearGradient id="patty" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9A5228"/><stop offset="1" stop-color="#5C2C12"/></linearGradient>
+        </defs>
+        <g stroke="#3B1F0E" stroke-width="2" stroke-linejoin="round">
+          <path d="M12 92 H108 Q108 106 92 106 H28 Q12 106 12 92 Z" fill="url(#bun)"/>
+          <rect x="9" y="75" width="102" height="19" rx="9.5" fill="url(#patty)"/>
+          <path d="M8 67 H112 L108 74 L100 74 L96 87 L90 74 L74 74 L69 91 L63 74 L42 74 L37 85 L31 74 L12 74 Z" fill="#FFD23F"/>
+          <rect x="13" y="60" width="94" height="9" rx="4.5" fill="#FF3B30"/>
+          <path d="M5 55 q6 9 12 0 q6 9 12 0 q6 9 12 0 q6 9 12 0 q6 9 12 0 q6 9 12 0 q6 9 12 0 q6 9 12 0 q6 9 12 0 q6 9 12 0 V61 q-6 7 -12 0 q-6 7 -12 0 q-6 7 -12 0 q-6 7 -12 0 q-6 7 -12 0 q-6 7 -12 0 q-6 7 -12 0 q-6 7 -12 0 q-6 7 -12 0 q-6 7 -12 0 Z" fill="#58C93A"/>
+          <path d="M10 56 Q8 5 60 5 Q112 5 110 56 Z" fill="url(#bun)"/>
+        </g>
+        <g fill="none" stroke="#FF8A7F" stroke-width="1.6" stroke-linecap="round"><path d="M28 64.5 h10 M55 64.5 h10 M82 64.5 h10"/></g>
+        <g fill="none" stroke="#B66A3A" stroke-width="2" stroke-linecap="round"><path d="M24 81 l6 6 M44 80 l6 6 M64 80 l6 6 M84 80 l6 6"/></g>
+        <ellipse cx="38" cy="20" rx="15" ry="6" fill="#fff" opacity=".35" transform="rotate(-22 38 20)"/>
+        <g fill="#FFF4D6" stroke="#C98A3A" stroke-width=".6"><ellipse cx="34" cy="31" rx="3" ry="1.6" transform="rotate(-25 34 31)"/><ellipse cx="52" cy="17" rx="3" ry="1.6" transform="rotate(-8 52 17)"/><ellipse cx="70" cy="14" rx="3" ry="1.6" transform="rotate(12 70 14)"/><ellipse cx="86" cy="24" rx="3" ry="1.6" transform="rotate(28 86 24)"/><ellipse cx="50" cy="38" rx="3" ry="1.6" transform="rotate(8 50 38)"/><ellipse cx="68" cy="30" rx="3" ry="1.6" transform="rotate(-12 68 30)"/><ellipse cx="88" cy="42" rx="3" ry="1.6" transform="rotate(30 88 42)"/><ellipse cx="22" cy="46" rx="3" ry="1.6" transform="rotate(-38 22 46)"/><ellipse cx="72" cy="47" rx="3" ry="1.6" transform="rotate(5 72 47)"/></g>
+      </svg>
+      <h1 class="title">Spitzlberger<span>Algebra 1</span></h1>
+    </div>
+    <div class="when">
+      <div class="date" id="date">Today</div>
+      <div class="clock" id="clock" aria-label="Current time"></div>
+    </div>
+  </header>
+  <ol class="todo">
+    <li id="step1">Grab your journal and materials</li>
+    <li class="step-toc">Update your table of contents</li>
+    <li>Answer the warm-up</li>
+  </ol>
+  <section class="needs" id="needs" hidden aria-label="What you'll need today">
+    <h2>What you'll need today</h2>
+    <ul id="needList"></ul>
+  </section>
+  <div class="split">
+    <section class="panel toc">
+      <h2>Table of contents
+        <span class="tools"><button type="button" id="zoomOut" aria-label="Make the table of contents smaller">A−</button><button type="button" id="zoomIn" aria-label="Make the table of contents bigger">A+</button></span>
+      </h2>
+      <div class="docwrap" id="docwrap">
+        <iframe id="doc" title="Table of contents" hidden></iframe>
+        <div class="empty" id="docEmpty"><p>No table of contents linked yet.<br>Press <b>S</b> or tap <b>Setup</b> and paste your Google Doc's published link.</p></div>
+      </div>
+    </section>
+    <section class="panel warm" aria-live="polite">
+      <h2>Warm-up</h2>
+      <div class="wbody" id="wbody"></div>
+    </section>
+  </div>
+</main>
+
+<div class="corner">
+  <span class="status" id="status" data-s="local">Saved on this computer</span>
+  <button type="button" id="btnEdit">Edit warm-ups</button>
+  <button type="button" id="btnNeeds">Need today</button>
+  <button type="button" id="btnToc">Hide contents</button>
+  <button type="button" id="btnNW">NumWorks</button>
+  <button type="button" id="btnDS">Desmos</button>
+  <button type="button" id="btnSetup">Setup</button>
+  <button type="button" id="btnFull">Fullscreen</button>
+</div>
+
+<!-- live calculators (load the first time they open, then keep whatever was typed) -->
+<div class="calc" id="calcNW" role="region" aria-label="NumWorks calculator">
+  <div class="bar">NumWorks<span class="sp"></span><button type="button" data-close="nw" aria-label="Close NumWorks">✕</button></div>
+  <div class="frame" id="nwFrame"></div>
+</div>
+<div class="calc" id="calcDS" role="region" aria-label="Desmos graphing calculator">
+  <div class="bar">Desmos · Texas testing version<span class="sp"></span><button type="button" class="handback" id="handBack" title="Tap so the clicker works again">👆 Clicker</button><button type="button" data-close="ds" aria-label="Close Desmos">✕</button></div>
+  <div class="frame" id="dsFrame"></div>
+</div>
+
+<!-- What you'll need today -->
+<dialog id="dlgNeeds">
+  <form method="dialog" class="dlg">
+    <h3>What you'll need today</h3>
+    <div class="days" id="needDays" role="group" aria-label="Day"></div>
+    <div class="pick" id="pick"></div>
+    <div class="row"><input id="newNeed" placeholder="Add something else (e.g. protractor)" style="flex:1;min-width:220px"><button type="button" id="addNeed">Add</button></div>
+    <div class="row"><button type="button" id="needsAll">Use this list every day</button><button type="button" id="needsNone">Clear this day</button></div>
+    <p class="msg" id="needsMsg" role="status"></p>
+    <div class="row"><button type="button" class="pri" id="saveNeeds">Save</button><button value="cancel">Close without saving</button></div>
+  </form>
+</dialog>
+
+<!-- Setup -->
+<dialog id="dlgSetup">
+  <form method="dialog" class="dlg">
+    <h3>Setup</h3>
+    <label>Table of contents link
+      <input id="docUrl" placeholder="https://docs.google.com/document/d/e/…/pub">
+      <span class="hint">In Google Docs: <b>File → Share → Publish to web → Publish</b>, then copy the link. The board refreshes the doc about every 5 minutes. A normal sharing link also works if the doc is shared as "Anyone with the link can view". This link saves to every computer.</span>
+    </label>
+    <label>Teacher PIN
+      <input id="pinIn" type="password" autocomplete="off" placeholder="The PIN in your Apps Script">
+      <span class="hint">Needed once on each computer you edit from. Computers without it still show the board; they just can't change it.</span>
+    </label>
+    <details>
+      <summary>Save location (Google Apps Script)</summary>
+      <label style="margin-top:8px">Web app URL
+        <input id="urlIn" placeholder="https://script.google.com/macros/s/…/exec">
+        <span class="hint">Leave blank to use the address built into this file.</span>
+      </label>
+    </details>
+    <p class="msg" id="setupMsg" role="status"></p>
+    <div class="row"><button type="button" class="pri" id="saveSetup">Save setup</button><button value="cancel">Cancel</button></div>
+  </form>
+</dialog>
+
+<!-- Edit: one warm-up per school day -->
+<dialog id="dlgEdit">
+  <form method="dialog" class="dlg" id="editForm">
+    <h3>Warm-ups for the week</h3>
+    <div class="days" id="dayBtns" role="group" aria-label="Day"></div>
+    <label>Question<textarea id="fPrompt" placeholder="What is the slope of the line through (1, 2) and (3, 8)?"></textarea></label>
+    <div>
+      <span style="font-weight:700;font-size:17px">Choices <span class="hint">(optional; leave blank for an open response)</span></span>
+      <div class="ch4" style="margin-top:6px">
+        <input id="fC1" placeholder="1"><input id="fC2" placeholder="2"><input id="fC3" placeholder="3"><input id="fC4" placeholder="4">
+      </div>
+    </div>
+    <label>Answer shown on the click<input id="fAnswer" placeholder="2.  m = 3"></label>
+    <label>Correct choice number <span class="hint">(highlights that choice when the answer shows)</span><input id="fRight" inputmode="numeric" placeholder="2"></label>
+    <div class="drop" id="drop" tabindex="0">Paste or drop a picture of the problem here (a screenshot works). <img id="fImg" alt="" hidden><button type="button" id="rmImg" hidden>Remove picture</button></div>
+    <details>
+      <summary>Import a week from Claude</summary>
+      <label style="margin-top:8px">Warm-up code<textarea id="fImport" placeholder='{"Mon": {"prompt": "…", "choices": ["…"], "answer": "…", "right": 2}, …}'></textarea></label>
+      <div class="row" style="margin-top:6px"><button type="button" id="doImport">Import week</button><button type="button" id="doExport">Copy this week's code</button></div>
+    </details>
+    <p class="msg" id="editMsg" role="status"></p>
+    <div class="row"><button type="button" class="pri" id="saveEdit">Save warm-ups</button><button value="cancel">Close without saving</button></div>
+  </form>
+</dialog>
+
+<script>
+/* ===== Paste your Apps Script web app URL between the quotes (ends in /exec) ===== */
+const SAVE_URL = "https://script.google.com/macros/s/AKfycbwhsPZlCqzclIKMDPVww4sznHgKjiy8fkHmcmBYbJ_eMTOALgYrkGFFIaSnxK13sKE/exec";
+/* ================================================================================= */
+
+(() => {
+  const DAYS = ["Mon","Tue","Wed","Thu","Fri"];
+  const $ = id => document.getElementById(id);
+  const local = {
+    get(k, d){ try{ const v = localStorage.getItem("walkin:" + k); return v == null ? d : JSON.parse(v); }catch(e){ return d; } },
+    set(k, v){ try{ localStorage.setItem("walkin:" + k, JSON.stringify(v)); return true; }catch(e){ return false; } }
+  };
+
+  /* shared state (synced to Google): warm-ups + table of contents link.
+     Per-computer: zoom, PIN, cached copy. Older boards' saved warm-ups carry over. */
+  const tidy = d => ({ warmups: d.warmups || {}, docUrl: d.docUrl || "", needs: d.needs || {}, extraNeeds: d.extraNeeds || [] });
+  let state = tidy(local.get("state", null) || { warmups: local.get("warmups", {}), docUrl: local.get("docUrl", "") });
+  let stamp = local.get("stamp", 0);
+  let pending = local.get("pending", false);
+  let zoom = local.get("zoom", 1.6);
+  let shown = false;
+  const serverUrl = () => (local.get("saveUrl", "") || SAVE_URL).trim();
+  const cache = () => { local.set("state", state); local.set("stamp", stamp); local.set("pending", pending); };
+
+  /* status in the corner */
+  function status(kind, text){ const s = $("status"); s.dataset.s = kind; s.textContent = text; }
+  function idleStatus(){
+    if(!serverUrl()) status("local", "Saved on this computer only");
+    else if(pending) status("warn", "Not saved to Google yet");
+    else status("synced", "Saved to Google");
+  }
+
+  /* talk to the Apps Script */
+  async function pull(){
+    const url = serverUrl(); if(!url){ idleStatus(); return; }
+    if(pending){ await push(); if(pending) return; }
+    try{
+      const r = await fetch(url + (url.includes("?") ? "&" : "?") + "t=" + Date.now());
+      const j = await r.json();
+      if(!j.ok) throw new Error(j.error || "bad reply");
+      const d = j.data || {};
+      const hasData = d.warmups || d.docUrl || d.needs;
+      if(hasData && j.updated !== stamp && !document.querySelector("dialog[open]")){
+        state = tidy(d);
+        stamp = j.updated; cache(); loadDoc(); render(); renderNeeds();
+      }
+      if(!hasData && (Object.keys(state.warmups || {}).length || state.docUrl)){ pending = true; cache(); await push(); }
+      idleStatus();
+    }catch(e){ status("warn", "Can't reach Google · showing the last saved board"); }
+  }
+  async function push(){
+    const url = serverUrl();
+    if(!url){ idleStatus(); return "local"; }
+    const pin = local.get("pin", "");
+    if(!pin){ status("warn", "Add your PIN in Setup to save to every computer"); return "nopin"; }
+    status("busy", "Saving to Google…");
+    try{
+      const r = await fetch(url, { method:"POST", headers:{ "Content-Type":"text/plain;charset=utf-8" }, body: JSON.stringify({ pin, data: state }) });
+      const j = await r.json();
+      if(j.ok){ pending = false; stamp = j.updated; cache(); idleStatus(); return "ok"; }
+      if(j.error === "pin"){ status("warn", "Wrong PIN · fix it in Setup"); return "badpin"; }
+      throw new Error(j.error);
+    }catch(e){ status("warn", "Can't reach Google · saved on this computer, will retry"); return "offline"; }
+  }
+  async function saveShared(){ pending = true; cache(); return push(); }
+
+  /* date + clock */
+  const today = () => { const d = new Date().getDay(); return DAYS[d - 1] || "Mon"; };
+  let lastDay = today();
+  function tick(){
+    const n = new Date();
+    $("date").textContent = n.toLocaleDateString(undefined, { weekday:"long", month:"long", day:"numeric" });
+    $("clock").textContent = n.toLocaleTimeString(undefined, { hour:"numeric", minute:"2-digit" });
+    if(today() !== lastDay){ lastDay = today(); shown = false; render(); renderNeeds(); applyToc(); }
+  }
+  tick(); setInterval(tick, 15000);
+
+  /* table of contents */
+  function embedUrl(raw){
+    const u = (raw || "").trim(); if(!u) return "";
+    let m = u.match(/docs\.google\.com\/document\/d\/e\/([\w-]+)/);
+    if(m) return "https://docs.google.com/document/d/e/" + m[1] + "/pub?embedded=true";
+    m = u.match(/docs\.google\.com\/document\/d\/([\w-]+)/);
+    if(m) return "https://docs.google.com/document/d/" + m[1] + "/preview";
+    return /^https?:\/\//.test(u) ? u : "";
+  }
+  function fitDoc(){
+    const f = $("doc"), w = $("docwrap");
+    f.style.width = (w.clientWidth / zoom) + "px"; f.style.height = (w.clientHeight / zoom) + "px"; f.style.transform = "scale(" + zoom + ")";
+  }
+  function loadDoc(){
+    const src = embedUrl(state.docUrl);
+    $("doc").hidden = !src; $("docEmpty").hidden = !!src;
+    if(src && $("doc").getAttribute("src") !== src) $("doc").src = src;
+    fitDoc();
+  }
+  function setZoom(z){ zoom = Math.min(3, Math.max(.6, Math.round(z * 10) / 10)); local.set("zoom", zoom); fitDoc(); }
+  $("zoomIn").onclick = () => setZoom(zoom + .1);
+  $("zoomOut").onclick = () => setZoom(zoom - .1);
+  addEventListener("resize", fitDoc);
+  setInterval(() => { const f = $("doc"); if(!f.hidden && f.src) f.src = f.src; }, 5 * 60 * 1000);   // pick up doc edits
+
+  /* warm-up */
+  const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c]));
+  function render(){
+    const w = (state.warmups || {})[today()] || {};
+    const ch = (w.choices || []).filter(c => String(c).trim());
+    const body = $("wbody");
+    if(!w.prompt && !w.image){
+      body.innerHTML = '<p class="prompt" style="color:var(--dust)">No warm-up for ' + today() + ' yet.</p><p class="cue">Tap Edit warm-ups (or press E) to add one.</p>';
+      return;
+    }
+    body.innerHTML =
+      (w.prompt ? '<p class="prompt">' + esc(w.prompt) + '</p>' : "") +
+      (w.image ? '<img class="wimg" src="' + esc(w.image) + '" alt="Warm-up problem">' : "") +
+      (ch.length ? '<ol class="choices">' + ch.map((c, i) => '<li data-i="' + (i + 1) + '"><span class="n">' + (i + 1) + '</span><span>' + esc(c) + '</span></li>').join("") + '</ol>' : "") +
+      '<p class="answer" id="ans"' + (shown ? "" : " hidden") + '>' + esc(w.answer || "") + '</p>' +
+      '<p class="cue">Work silently. The answer shows when class starts.</p>';
+    body.querySelectorAll(".choices li").forEach(li => li.classList.toggle("right", shown && +li.dataset.i === +w.right));
+  }
+  function reveal(on){ shown = on; render(); }
+
+  /* editor */
+  let editDay = today(), draft = {};
+  function fillForm(){
+    const w = draft[editDay] || {};
+    $("fPrompt").value = w.prompt || "";
+    ["fC1","fC2","fC3","fC4"].forEach((id, i) => $(id).value = (w.choices || [])[i] || "");
+    $("fAnswer").value = w.answer || ""; $("fRight").value = w.right || "";
+    $("fImg").hidden = !w.image; $("rmImg").hidden = !w.image; if(w.image) $("fImg").src = w.image; else $("fImg").removeAttribute("src");
+    $("dayBtns").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.d === editDay));
+  }
+  function readForm(){
+    const prev = draft[editDay] || {};
+    draft[editDay] = {
+      prompt: $("fPrompt").value.trim(),
+      choices: ["fC1","fC2","fC3","fC4"].map(id => $(id).value.trim()).filter(Boolean),
+      answer: $("fAnswer").value.trim(),
+      right: parseInt($("fRight").value, 10) || null,
+      image: prev.image || null
+    };
+  }
+  DAYS.forEach(d => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = d; b.dataset.d = d;
+    b.onclick = () => { readForm(); editDay = d; fillForm(); };
+    $("dayBtns").appendChild(b);
+  });
+  function openEdit(){ draft = JSON.parse(JSON.stringify(state.warmups || {})); editDay = today(); fillForm(); $("editMsg").textContent = ""; $("dlgEdit").showModal(); }
+  $("btnEdit").onclick = openEdit;
+  $("saveEdit").onclick = async () => {
+    readForm(); state.warmups = draft; render();
+    $("editMsg").textContent = "Saving…";
+    const r = await saveShared();
+    if(r === "ok" || r === "local"){ $("dlgEdit").close("save"); return; }
+    $("editMsg").textContent = r === "nopin" ? "Saved on this computer. Add your PIN in Setup to save to every computer."
+      : r === "badpin" ? "Saved on this computer, but the PIN is wrong. Fix it in Setup."
+      : "Saved on this computer. Google didn't answer; the board will keep trying.";
+  };
+
+  /* pictures: shrink before saving so they sync quickly */
+  function shrink(dataUrl){
+    return new Promise(res => {
+      const im = new Image();
+      im.onload = () => {
+        const s = Math.min(1, 1600 / Math.max(im.width, im.height));
+        const c = document.createElement("canvas"); c.width = Math.round(im.width * s); c.height = Math.round(im.height * s);
+        const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0, c.width, c.height);
+        res(c.toDataURL("image/jpeg", .88));
+      };
+      im.onerror = () => res(dataUrl); im.src = dataUrl;
+    });
+  }
+  function takeImage(file){
+    if(!file || !file.type.startsWith("image/")) return;
+    const r = new FileReader();
+    r.onload = async () => { const img = await shrink(r.result); readForm(); draft[editDay].image = img; fillForm(); };
+    r.readAsDataURL(file);
+  }
+  $("dlgEdit").addEventListener("paste", e => { const it = [...(e.clipboardData?.items || [])].find(i => i.type.startsWith("image/")); if(it){ e.preventDefault(); takeImage(it.getAsFile()); } });
+  $("drop").addEventListener("dragover", e => e.preventDefault());
+  $("drop").addEventListener("drop", e => { e.preventDefault(); takeImage(e.dataTransfer.files[0]); });
+  $("rmImg").onclick = () => { readForm(); draft[editDay].image = null; fillForm(); };
+  $("doImport").onclick = () => {
+    try{
+      const data = JSON.parse($("fImport").value);
+      let n = 0;
+      for(const [k, v] of Object.entries(data)){
+        const d = DAYS.find(x => k.toLowerCase().startsWith(x.toLowerCase())); if(!d || typeof v !== "object") continue;
+        draft[d] = { prompt: v.prompt || "", choices: v.choices || [], answer: v.answer || v.exemplar || "", right: v.right || null, image: (draft[d] || {}).image || null }; n++;
+      }
+      fillForm(); $("editMsg").textContent = n ? "Imported " + n + " day(s). Save warm-ups to keep them." : "No Mon–Fri days found in that code.";
+    }catch(err){ $("editMsg").textContent = "That code isn't complete. Copy the whole block, from { to }."; }
+  };
+  $("doExport").onclick = async () => {
+    readForm();
+    const out = {}; DAYS.forEach(d => { if(draft[d]){ const { image, ...rest } = draft[d]; out[d] = rest; } });
+    const txt = JSON.stringify(out, null, 1);
+    try{ await navigator.clipboard.writeText(txt); $("editMsg").textContent = "Copied (pictures aren't included)."; }
+    catch(e){ $("fImport").value = txt; $("editMsg").textContent = "Copy the code from the box above."; }
+  };
+
+  /* setup */
+  $("btnSetup").onclick = () => {
+    $("docUrl").value = state.docUrl || ""; $("pinIn").value = local.get("pin", ""); $("urlIn").value = local.get("saveUrl", "");
+    $("setupMsg").textContent = ""; $("dlgSetup").showModal();
+  };
+  $("saveSetup").onclick = async () => {
+    const v = $("docUrl").value.trim(), u = $("urlIn").value.trim();
+    if(v && !embedUrl(v)){ $("setupMsg").textContent = "The table of contents link should start with https://"; return; }
+    if(u && !/^https:\/\/script\.google(usercontent)?\.com\//.test(u)){ $("setupMsg").textContent = "The web app URL should start with https://script.google.com/"; return; }
+    local.set("pin", $("pinIn").value.trim()); local.set("saveUrl", u);
+    const changed = v !== (state.docUrl || "");
+    state.docUrl = v; loadDoc();
+    if(!serverUrl()){ cache(); idleStatus(); $("dlgSetup").close(); return; }
+    $("setupMsg").textContent = "Checking with Google…";
+    const r = changed || pending ? await saveShared() : await push();
+    if(r === "ok"){ $("dlgSetup").close(); pull(); return; }
+    $("setupMsg").textContent = r === "nopin" ? "Saved on this computer. Add your PIN to save to every computer."
+      : r === "badpin" ? "That PIN doesn't match the one in your Apps Script."
+      : "Google didn't answer. Check the web app URL and that it's deployed with access for Anyone.";
+  };
+
+
+  /* ---------- what you'll need today (M) ---------- */
+  const NEEDS = [
+    ["journal","📓","Journal"], ["calc","🧮","Calculator"], ["chromebook","💻","Chromebook"], ["pencil","✏️","Pencil"],
+    ["highlighter","🖍️","Highlighter"], ["colors","🎨","Colored pencils"], ["glue","🧴","Glue stick"], ["scissors","✂️","Scissors"],
+    ["notes","📄","Notes page"], ["homework","📝","Homework"], ["graph","📈","Graph paper"], ["ruler","📏","Ruler"],
+    ["whiteboard","⬜","Whiteboard + marker"], ["headphones","🎧","Headphones"]
+  ];
+  const allNeeds = () => NEEDS.concat((state.extraNeeds || []).map(x => [x.id, x.icon || "⭐", x.label]));
+  function renderNeeds(){
+    const ids = (state.needs || {})[today()] || [];
+    const items = allNeeds().filter(n => ids.includes(n[0]));
+    $("needs").hidden = !items.length;
+    $("needList").innerHTML = items.map(n => '<li><span class="ic" aria-hidden="true">' + n[1] + '</span>' + esc(n[2]) + '</li>').join("");
+    $("step1").textContent = items.length ? "Grab what you'll need today" : "Grab your journal and materials";
+  }
+  let needDay = today(), needDraft = {}, extraDraft = [];
+  function fillPick(){
+    const on = needDraft[needDay] || [];
+    const list = NEEDS.concat(extraDraft.map(x => [x.id, x.icon || "⭐", x.label, true]));
+    $("pick").innerHTML = list.map(n => '<button type="button" data-id="' + n[0] + '" aria-pressed="' + on.includes(n[0]) + '"><span class="box" aria-hidden="true"></span><span aria-hidden="true">' + n[1] + '</span>' + esc(n[2]) +
+      (n[3] ? '<span class="rm" data-rm="' + n[0] + '" title="Remove from the list">✕</span>' : '') + '</button>').join("");
+    $("needDays").querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", b.dataset.d === needDay));
+  }
+  DAYS.forEach(d => {
+    const b = document.createElement("button"); b.type = "button"; b.textContent = d; b.dataset.d = d;
+    b.onclick = () => { needDay = d; fillPick(); };
+    $("needDays").appendChild(b);
+  });
+  $("pick").addEventListener("click", e => {
+    const rm = e.target.closest("[data-rm]");
+    if(rm){ const id = rm.dataset.rm; extraDraft = extraDraft.filter(x => x.id !== id); DAYS.forEach(d => needDraft[d] = (needDraft[d] || []).filter(x => x !== id)); fillPick(); return; }
+    const b = e.target.closest("button[data-id]"); if(!b) return;
+    const cur = new Set(needDraft[needDay] || []); cur.has(b.dataset.id) ? cur.delete(b.dataset.id) : cur.add(b.dataset.id);
+    needDraft[needDay] = allIds().filter(id => cur.has(id)); fillPick();
+  });
+  const allIds = () => NEEDS.map(n => n[0]).concat(extraDraft.map(x => x.id));
+  function addNeed(){
+    const label = $("newNeed").value.trim(); if(!label) return;
+    const id = "x" + Date.now().toString(36);
+    extraDraft.push({ id, label, icon:"⭐" });
+    needDraft[needDay] = (needDraft[needDay] || []).concat(id);
+    $("newNeed").value = ""; fillPick();
+  }
+  $("addNeed").onclick = addNeed;
+  $("newNeed").addEventListener("keydown", e => { if(e.key === "Enter"){ e.preventDefault(); addNeed(); } });
+  $("needsAll").onclick = () => { const on = needDraft[needDay] || []; DAYS.forEach(d => needDraft[d] = on.slice()); $("needsMsg").textContent = "Copied to Mon–Fri. Save to keep it."; };
+  $("needsNone").onclick = () => { needDraft[needDay] = []; fillPick(); };
+  function openNeeds(){
+    needDraft = JSON.parse(JSON.stringify(state.needs || {})); extraDraft = JSON.parse(JSON.stringify(state.extraNeeds || []));
+    needDay = today(); fillPick(); $("needsMsg").textContent = ""; $("dlgNeeds").showModal();
+  }
+  $("btnNeeds").onclick = openNeeds;
+  $("saveNeeds").onclick = async () => {
+    state.needs = needDraft; state.extraNeeds = extraDraft; renderNeeds();
+    $("needsMsg").textContent = "Saving…";
+    const r = await saveShared();
+    if(r === "ok" || r === "local"){ $("dlgNeeds").close(); return; }
+    $("needsMsg").textContent = r === "nopin" ? "Saved on this computer. Add your PIN in Setup to save to every computer."
+      : r === "badpin" ? "Saved on this computer, but the PIN is wrong. Fix it in Setup."
+      : "Saved on this computer. Google didn't answer; the board will keep trying.";
+  };
+
+  /* ---------- hide the table of contents (T) — just for today, on this computer ---------- */
+  const dayKey = () => new Date().toDateString();
+  function applyToc(){
+    const off = local.get("tocOff", "") === dayKey();
+    document.body.classList.toggle("no-toc", off);
+    $("btnToc").textContent = off ? "Show contents" : "Hide contents";
+    if(!off) setTimeout(fitDoc, 0);
+  }
+  function toggleToc(){ local.set("tocOff", local.get("tocOff", "") === dayKey() ? "" : dayKey()); applyToc(); }
+  $("btnToc").onclick = toggleToc;
+
+  /* ---------- live calculators: C = NumWorks, D = Desmos (same keys as the lesson decks) ---------- */
+  const CALC = {
+    nw: { el:"calcNW", frame:"nwFrame", src:"https://www.numworks.com/simulator/embed/", script:"https://www.numworks.com/simulator/embed.js", title:"NumWorks calculator" },
+    ds: { el:"calcDS", frame:"dsFrame", src:"https://www.desmos.com/testing/texas/graphing", title:"Desmos graphing calculator" }
+  };
+  function fitNW(){
+    const box = $("calcNW"); if(!box.classList.contains("open")) return;
+    const fr = $("nwFrame"), f = fr.querySelector("iframe"); if(!f) return;
+    const h = innerHeight - 20 - box.querySelector(".bar").offsetHeight - 6;
+    const sc = h / 720, w = Math.round(368 * sc);
+    box.style.width = (w + 6) + "px"; fr.style.width = w + "px";
+    f.style.transform = "scale(" + sc + ")";
+    document.querySelector(".main").style.marginRight = (w + 22) + "px";
+    fitDoc();
+  }
+  function setCalc(name, on){
+    const c = CALC[name], box = $(c.el);
+    if(on && !$(c.frame).querySelector("iframe")){
+      const f = document.createElement("iframe"); f.src = c.src; f.title = c.title; f.allow = "fullscreen";
+      $(c.frame).appendChild(f);
+      if(c.script){ const sc = document.createElement("script"); sc.src = c.script; sc.async = true; document.body.appendChild(sc); }
+    }
+    box.classList.toggle("open", on);
+    if(name === "nw"){
+      document.body.classList.toggle("nw-open", on);
+      if(on) fitNW(); else { document.querySelector(".main").style.marginRight = ""; setTimeout(fitDoc, 300); }
+    }
+    $(name === "nw" ? "btnNW" : "btnDS").setAttribute("aria-pressed", on);
+    if(!on) takeFocusBack();
+  }
+  const toggleCalc = name => setCalc(name, !$(CALC[name].el).classList.contains("open"));
+  $("btnNW").onclick = () => toggleCalc("nw");
+  $("btnDS").onclick = () => toggleCalc("ds");
+  document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => setCalc(b.dataset.close, false));
+  addEventListener("resize", fitNW);
+
+  /* clicker hand-back: a tap on NumWorks gives it the keyboard; a few seconds later the board takes it back
+     so the clicker works again. Desmos keeps its typing cursor, so it gets a 👆 Clicker button instead. */
+  let handT = null;
+  function takeFocusBack(){ const a = document.activeElement; if(a && a.tagName === "IFRAME") a.blur(); try{ window.focus(); }catch(e){} document.body.classList.remove("in-desmos"); }
+  addEventListener("blur", () => setTimeout(() => {
+    const a = document.activeElement; if(!a || a.tagName !== "IFRAME") return;
+    if(a.closest("#calcNW")){ clearTimeout(handT); handT = setTimeout(() => { if(document.activeElement === a) takeFocusBack(); }, 3500); }
+    if(a.closest("#calcDS")) document.body.classList.add("in-desmos");
+  }, 0));
+  addEventListener("focus", () => { clearTimeout(handT); document.body.classList.remove("in-desmos"); });
+  $("handBack").onclick = takeFocusBack;
+
+  /* fullscreen */
+  const full = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
+  $("btnFull").onclick = full;
+
+  /* clicker + keys (ignored while typing in a dialog) */
+  addEventListener("keydown", e => {
+    if(document.querySelector("dialog[open]")) return;
+    const k = e.key;
+    if(["ArrowRight","PageDown"," ","Enter","ArrowDown"].includes(k)){ e.preventDefault(); reveal(true); }
+    else if(["ArrowLeft","PageUp","ArrowUp","Backspace"].includes(k)){ e.preventDefault(); reveal(false); }
+    else if(k === "f" || k === "F") full();
+    else if(k === "e" || k === "E"){ e.preventDefault(); openEdit(); }
+    else if(k === "s" || k === "S"){ e.preventDefault(); $("btnSetup").click(); }
+    else if(k === "m" || k === "M"){ e.preventDefault(); openNeeds(); }
+    else if(k === "t" || k === "T"){ e.preventDefault(); toggleToc(); }
+    else if(k === "c" || k === "C"){ e.preventDefault(); toggleCalc("nw"); }
+    else if(k === "d" || k === "D"){ e.preventDefault(); toggleCalc("ds"); }
+    else if(k === "Escape"){ if($("calcDS").classList.contains("open")) setCalc("ds", false); else if($("calcNW").classList.contains("open")) setCalc("nw", false); }
+    else if(k === "+" || k === "=") setZoom(zoom + .1);
+    else if(k === "-") setZoom(zoom - .1);
+  });
+  $("wbody").addEventListener("click", () => reveal(!shown));   // tap the warm-up on the board to show / hide
+
+  /* start: show the cached board right away, then check Google; re-check every 2 minutes while visible */
+  applyToc(); loadDoc(); render(); renderNeeds(); idleStatus(); pull();
+  setInterval(() => { if(!document.hidden) pull(); }, 2 * 60 * 1000);
+  document.addEventListener("visibilitychange", () => { if(!document.hidden) pull(); });
+})();
+</script>
+</body>
+</html>
