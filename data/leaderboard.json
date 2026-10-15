@@ -1,1 +1,29 @@
-{"updated":null,"games":{}}
+{
+ "updated": "2026-10-15T16:13:53.347Z",
+ "games": {
+  "star_swarm": {
+   "name": "Star Swarm",
+   "top": [
+    {
+     "name": "Spitz",
+     "score": "195,818",
+     "acc": 93,
+     "set": "Multiplication facts",
+     "date": "2026-10-12"
+    }
+   ]
+  },
+  "burger_shop": {
+   "name": "Burger Shop",
+   "top": [
+    {
+     "name": "A. De Leon",
+     "score": "9,500",
+     "acc": 89,
+     "set": "Slope-intercept form",
+     "date": "2026-10-14"
+    }
+   ]
+  }
+ }
+}
