@@ -895,6 +895,55 @@ function makeFindSlope(PFX){
       shuffle(q.choices); q.visual=q.visual||''; delete q.check; return q; } throw new Error('generator failed: '+type); }
   return { build:build }; }
 
+function makeStdForm(PFX){
+  /* ================= QUESTION GENERATOR: standard form intercepts =================
+     Ax + By = C with whole-number intercepts, like Kody's "Graphing Using Intercepts" worksheet
+     (3x + 5y = 15, x − 2y = 4, 5x + 4y = −20, 3x − y = −3). Students use the cover-up method and
+     answer with the intercept as a point. The check plugs the point back into the equation. */
+  var MINUS='−';
+  function gcd(a,b){ a=Math.abs(a); b=Math.abs(b); while(b){ var t=a%b; a=b; b=t; } return a; }
+  function ri(a,b){ return a+Math.floor(Math.random()*(b-a+1)); }
+  function nz(a,b){ var v; do{ v=ri(a,b); }while(v===0); return v; }
+  function shuffle(a){ for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)), t=a[i]; a[i]=a[j]; a[j]=t; } return a; }
+  function num(n){ return n<0? MINUS+(-n) : ''+n; }
+  function pt(x,y){ return '('+num(x)+', '+num(y)+')'; }
+  function C(x,y,why){ var h=pt(x,y); return {html:h,val:{x:x,y:y},why:why||'',key:h}; }
+  function eq(h){ return '<span class="'+PFX+'-eq">'+h+'</span>'; }
+  function term(a,v){ return a===1? v : a===-1? MINUS+v : num(a)+v; }
+  function lhs(A,B){ return term(A,'x')+(B<0? ' '+MINUS+' ' : ' + ')+term(Math.abs(B),'y'); }
+  /* intercepts a (x) and b (y) first, then the smallest whole-number equation through them, x coefficient positive */
+  function line(){ var a=nz(-6,6), b=nz(-6,6), c=Math.abs(a*b)/gcd(a,b);
+    if(Math.random()<0.5) c=-c; var A=c/a, B=c/b; if(A<0){ A=-A; B=-B; c=-c; }
+    if(Math.abs(A)>9||Math.abs(B)>9||Math.abs(c)>40) return null;
+    return {a:a,b:b,A:A,B:B,c:c}; }
+  function onLine(L,v){ return L.A*v.x+L.B*v.y===L.c; }
+  var GEN={
+  sfX:function(){ var L=line(); if(!L) return null; var a=L.a, b=L.b;
+    var wrong=[C(0,a,'Order matters: the x-intercept is (x, 0), so y is 0.'), C(-a,0,'Check the sign when you divide.'),
+      C(b,0,'That divides by the y coefficient. Cover up the y term instead.'), C(0,b,'That is the y-intercept, not the x-intercept.')];
+    if(L.A!==1) wrong.push(C(L.c,0,'Divide '+num(L.c)+' by '+L.A+', the number with x.'));
+    return { topic:'x-intercept', prompt:'What is the <span class="c-m">x-intercept</span> of '+eq(lhs(L.A,L.B)+' = '+num(L.c))+'?', data:L,
+      check:function(v){ return v.y===0 && onLine(L,v); },
+      choices:[C(a,0)].concat(shuffle(wrong)),
+      explain:'Cover up the y term: '+term(L.A,'x')+' = '+num(L.c)+(L.A===1?'':', so x = '+num(a))+'. The x-intercept is <span class="c-ans">'+pt(a,0)+'</span>.' }; },
+  sfY:function(){ var L=line(); if(!L) return null; var a=L.a, b=L.b;
+    var wrong=[C(b,0,'Order matters: the y-intercept is (0, y), so x is 0.'), C(0,-b,'Check the sign when you divide.'),
+      C(0,a,'That divides by the x coefficient. Cover up the x term instead.'), C(a,0,'That is the x-intercept, not the y-intercept.')];
+    if(Math.abs(L.B)!==1) wrong.push(C(0,L.c,'Divide '+num(L.c)+' by '+num(L.B)+', the number with y.'));
+    return { topic:'y-intercept', prompt:'What is the <span class="c-m">y-intercept</span> of '+eq(lhs(L.A,L.B)+' = '+num(L.c))+'?', data:L,
+      check:function(v){ return v.x===0 && onLine(L,v); },
+      choices:[C(0,b)].concat(shuffle(wrong)),
+      explain:'Cover up the x term: '+term(L.B,'y')+' = '+num(L.c)+(L.B===1?'':', so y = '+num(b))+'. The y-intercept is <span class="c-ans">'+pt(0,b)+'</span>.' }; }
+  };
+  function build(type){ for(var tries=0;tries<400;tries++){ var q=GEN[type](); if(!q) continue;
+      var seen={}; q.choices=q.choices.filter(function(c){ if(seen[c.key]) return false; seen[c.key]=1; return true; }).slice(0,4);
+      if(q.choices.length!==4) continue;
+      if(!q.check(q.choices[0].val)) continue;                                                  // the answer must pass the independent check
+      if(q.choices.slice(1).some(function(c){ return q.check(c.val); })) continue;              // and no distractor may pass it
+      q.type=type; q.choices.forEach(function(c,i){ c.ok=i===0; });
+      shuffle(q.choices); q.visual=''; delete q.check; return q; } throw new Error('generator failed: '+type); }
+  return { build:build }; }
+
 var SETS={
   mult:{ name:'Multiplication facts', make:makeMult, big:true, topics:[['f03','Facts 0–3',['Facts 0–3'],1],['f46','Facts 4–6',['Facts 4–6'],2],['f79','Facts 7–9',['Facts 7–9'],3],['f1012','Facts 10–12',['Facts 10–12'],2]] },
   slope:{ name:'Slope-intercept form', make:makeLinear, topics:[['write','Write the equation',['siBuild']],['slope','Find the slope',['siSlope']],['yint','Find the y-intercept',['siYInt']],['graph','Read a graph',['graphSlope','graphYInt','graphXInt']]] },
@@ -907,7 +956,8 @@ var SETS={
   plot0:{ name:'Graphing y = mx', make:makePlot0, topics:[['match','Pick the line',['plotMatch']],['eq','Write the equation',['plotEq']]] },
   plot:{ name:'Graphing y = mx + b', make:makePlotB, topics:[['match','Pick the line',['plotMatch']],['eq','Write the equation',['plotEq']]] },
   fam:{ name:'Function families', make:makeFam, topics:[['eq','From the equation',['famEq']],['graph','From the graph',['famGraph']]] },
-  fslope:{ name:'Finding slope', make:makeFindSlope, topics:[['pts','From two points',['fsPoints']],['graph','From a graph',['fsGraph']],['table','From a table',['fsTable']],['eq','From an equation',['fsEq']]] }
+  fslope:{ name:'Finding slope', make:makeFindSlope, topics:[['pts','From two points',['fsPoints']],['graph','From a graph',['fsGraph']],['table','From a table',['fsTable']],['eq','From an equation',['fsEq']]] },
+  stdform:{ name:'Standard form', make:makeStdForm, topics:[['x','x-intercept',['sfX']],['y','y-intercept',['sfY']]] }
 };
 
 function plain(h){ return String(h).replace(/<span class="[a-z]+-fr"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g,'$1/$2').replace(/<[^>]+>/g,''); }
