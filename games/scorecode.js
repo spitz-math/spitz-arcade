@@ -90,10 +90,11 @@ function make(gameId,S){ var g=GAMES[gameId]; if(!g) throw new Error('Unknown ga
   return code; }
 
 /* -> null if the code is malformed or does not belong to this name, else what the code holds */
-function read(code,name){ var c=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,''); if(c.length!==16) return null;
+/* any=true skips the name check (the teacher's override for a mistyped name); the rest of the checks still apply */
+function read(code,name,any){ var c=String(code||'').toUpperCase().replace(/[^A-Z0-9]/g,''); if(c.length!==16) return null;
   var full=0n; for(var i=0;i<16;i++){ var v=ALPH.indexOf(c[i]); if(v<0) return null; full=(full<<5n)|BigInt(v); }
   full^=MASK; var chk=full&0xFFFFn, P=(full>>16n)^stream(chk), ok=false;
-  for(var salt=0;salt<4&&!ok;salt++) ok=check(P,name,salt)===chk; if(!ok) return null;
+  for(var salt=0;salt<4&&!ok;salt++) ok=check(P,name,salt)===chk; if(!ok&&!any) return null;
   var W=(P>>62n)===0n?LAYOUT_B:LAYOUT_A, f=unpack(P,W), id=null; Object.keys(GAMES).forEach(function(k){ if(GAMES[k][0]===f.game) id=k; });
   if(!id||f.set>=SETS.length||f.correct>f.answered) return null;
   var g=GAMES[id], set=SETS[f.set], r={ code:c.slice(0,4)+'-'+c.slice(4,8)+'-'+c.slice(8,12)+'-'+c.slice(12), game:id, gameName:g[1], kind:g[2],

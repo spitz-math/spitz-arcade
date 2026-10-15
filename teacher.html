@@ -65,6 +65,7 @@ select{ background:var(--paper); color:var(--ink); border:2px solid var(--line);
 .empty{ color:var(--muted); padding:22px; text-align:center; border:2px dashed var(--line); border-radius:14px; }
 .problems{ margin-top:14px; font-size:14px; color:var(--muted); }
 .problems summary{ cursor:pointer; color:var(--no); font-weight:800; }
+.problems .okbtn{ padding:4px 10px; font-size:13px; border-radius:99px; margin-left:4px; }
 .problems li{ margin:4px 0; overflow-wrap:anywhere; }
 .big{ position:fixed; inset:0; background:var(--paper); z-index:10; padding:3vh 4vw; overflow:auto; display:flex; flex-direction:column; gap:2vh; }
 .big .top{ display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap; }
@@ -128,6 +129,7 @@ select{ background:var(--paper); color:var(--ink); border:2px solid var(--line);
     </div>
     <div class="board" id="board"></div>
     <div class="hidden-names" id="hidden" hidden></div>
+    <div class="hidden-names" id="counted" hidden></div>
     <details class="problems" id="problems" hidden><summary></summary><ul id="plist"></ul></details>
   </section>
 
@@ -165,8 +167,11 @@ select{ background:var(--paper); color:var(--ink); border:2px solid var(--line);
 <script>
 (function(){
 var $=function(i){ return document.getElementById(i); }, C=window.SpitzCode;
-var KEY='spitz_leaderboard_v1', HKEY='spitz_hidden_v1', TKEY='spitz_gh_key', entries=[], problems=[], st={game:null,set:'*',when:'all'}, hidden={};
+var KEY='spitz_leaderboard_v1', HKEY='spitz_hidden_v1', OKEY='spitz_counted_v1', okd={}, TKEY='spitz_gh_key', entries=[], problems=[], st={game:null,set:'*',when:'all'}, hidden={};
 try{ hidden=JSON.parse(localStorage.getItem(HKEY)||'{}')||{}; }catch(e){}
+try{ okd=JSON.parse(localStorage.getItem(OKEY)||'{}')||{}; }catch(e){}
+function saveOk(){ try{ localStorage.setItem(OKEY,JSON.stringify(okd)); }catch(e){} }
+function okId(code,name){ return String(code).toUpperCase().replace(/[^A-Z0-9]/g,'')+'|'+C.normName(name); }
 function saveHidden(){ try{ localStorage.setItem(HKEY,JSON.stringify(hidden)); }catch(e){} }
 
 /* Splat Range / Star Swarm codes from before October 2026 (SR-xxxx-xxxx-xxxx / SW-...): score, correct, answered only */
@@ -192,7 +197,10 @@ function parse(text){ entries=[]; problems=[]; var seen={};
     if(!m){ if(name&&!/^(timestamp|name)/i.test(line.trim())) problems.push(esc(name)+': no score code in this row'); return; }
     if(!name){ problems.push(esc(m[0])+': no name in this row'); return; }
     var r=OLD.test(m[0])?readOld(m[0]):C.read(m[0],name);
-    if(!r){ problems.push('<b>'+esc(name)+'</b>: '+esc(m[0].toUpperCase())+' doesn’t check out for this name (mistyped, or someone else’s code)'); return; }
+    if(!r&&!OLD.test(m[0])){ var any=C.read(m[0],name,true), id=okId(m[0],name); if(any&&(any.day<C.today()-60||any.day>C.today())) any=null;   /* a typo in the code itself decodes to a date that can’t be right */
+      if(any&&okd[id]){ r=any; r.counted=id; }
+      else if(any){ problems.push('<b>'+esc(name)+'</b>: '+esc(m[0].toUpperCase())+' doesn’t match this name. It reads <b>'+esc(any.gameName)+' · '+esc(any.display)+'</b> ('+any.correct+' of '+any.answered+' correct'+(any.date?', '+fmtDate(any.date):'')+'). If this is their own score and they just typed their name differently, <button class="okbtn" data-ok="'+esc(id)+'" data-name="'+esc(name)+'">Count it</button>'); return; } }
+    if(!r){ problems.push('<b>'+esc(name)+'</b>: '+esc(m[0].toUpperCase())+' isn’t a real score code (a typo in the code itself)'); return; }
     var k=r.code; if(seen[k]){ if(seen[k]!==C.normName(name)) problems.push('<b>'+esc(name)+'</b>: same code as '+esc(seen[k])); return; } seen[k]=C.normName(name);
     r.name=name; r.who=C.normName(name); if(!r.date) r.date=stampDate(fields); entries.push(r); });
   var ids=Object.keys(C.GAMES).filter(function(id){ return entries.some(function(e){ return e.game===id; }); });
@@ -230,6 +238,8 @@ function render(){
   $('show').disabled=!rows.length;
   var hk=Object.keys(hidden); $('hidden').hidden=!hk.length;
   $('hidden').innerHTML='Hidden names:'+hk.map(function(k){ return '<button data-unhide="'+esc(k)+'" title="Show this name again"><s>'+esc(hidden[k])+'</s> · Show</button>'; }).join('');
+  var ok=entries.filter(function(e){ return e.counted; }); $('counted').hidden=!ok.length;
+  $('counted').innerHTML='Counted by you (name didn’t match):'+ok.map(function(e){ return '<button data-uncount="'+esc(e.counted)+'" title="Stop counting this score">'+esc(e.name)+' · '+esc(e.display)+' · Undo</button>'; }).join('');
   $('problems').hidden=!problems.length; $('problems').querySelector('summary').textContent=problems.length+' row'+(problems.length===1?'':'s')+' to check';
   $('plist').innerHTML=problems.map(function(p){ return '<li>'+p+'</li>'; }).join('');
 }
@@ -283,6 +293,8 @@ $('publish').addEventListener('click',publish); $('download').addEventListener('
 $('tok-save').addEventListener('click',function(){ var v=$('token').value.trim(); if(!v) return; try{ localStorage.setItem(TKEY,v); }catch(e){} $('token').value=''; tokState(); });
 $('tok-state').addEventListener('click',function(e){ if(e.target.id!=='tok-forget') return; e.preventDefault(); try{ localStorage.removeItem(TKEY); }catch(err){} tokState(); });
 $('board').addEventListener('click',function(e){ var b=e.target.closest('[data-hide]'); if(!b) return; hidden[b.dataset.hide]=b.dataset.name; saveHidden(); render(); });
+$('plist').addEventListener('click',function(e){ var b=e.target.closest('[data-ok]'); if(!b) return; okd[b.dataset.ok]=b.dataset.name; saveOk(); parse($('paste').value); });
+$('counted').addEventListener('click',function(e){ var b=e.target.closest('[data-uncount]'); if(!b) return; delete okd[b.dataset.uncount]; saveOk(); parse($('paste').value); });
 $('hidden').addEventListener('click',function(e){ var b=e.target.closest('[data-unhide]'); if(!b) return; delete hidden[b.dataset.unhide]; saveHidden(); render(); });
 tokState();
 
