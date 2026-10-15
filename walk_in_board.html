@@ -11,8 +11,8 @@
 /* Walk-in board · Spitzlberger Algebra 1
    Left: the table of contents (a published Google Doc). Right: today's warm-up.
    Saves to Google (Apps Script) so every computer shows the same board.
-   Clicker / keyboard: → PageDown Space = show answer · ← PageUp = hide · E edit warm-ups · M what you'll need · T hide/show contents
-   C NumWorks · D Desmos · Esc close calculator · F fullscreen · S setup */
+   Clicker / keyboard: → PageDown Space = show answer · ← PageUp = hide · E edit warm-ups · M what you'll need · H hide/show contents
+   T timer · Q pen (1–6 colors, H highlighter, X eraser, Z undo, Delete clear) · W whiteboard · C NumWorks · D Desmos · Esc close · F fullscreen · S setup */
 :root{
   --board:#2B2B2B; --grid:rgba(255,255,255,.075); --chalk:#F2F0EA; --dust:#A9A6A0;
   --panel:#1D1D1D; --panel-glass:rgba(26,26,26,.8); --panel-edge:#444; --black:#0A0A0A;
@@ -179,6 +179,101 @@ body.no-toc .wimg{ max-height:46vh; }
 body.in-desmos .handback{ display:inline-flex; }
 body.nw-open .corner{ right:auto; left:12px; }
 
+  /* classroom timer — deliberately generic "digital clock" hardware look, separate from the deck's theme ---------- */
+  .tmr-panel, .tmr-chip, .tmr-done{ --led:#ff3326; --led-off:rgba(255,51,38,.075); --bezel:#0c0c0c; --face:#050505; --key:#2a2a2a; --key-hi:#3a3a3a; --key-t:#e8e8e8; --lbl:#8a8a8a;
+    font-family:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif; }
+  .seg7{ display:inline-flex; align-items:center; gap:.08em; }
+  .seg7 svg{ height:1em; width:auto; display:block; overflow:visible; }
+  .seg7 .d{ width:.6em; }
+  .seg7 .c{ width:.22em; }
+  .seg7 polygon, .seg7 rect{ fill:var(--led-off); }
+  .seg7 .on{ fill:var(--led); filter:drop-shadow(0 0 .02em var(--led)); }
+  .tmr-panel{ position:fixed; inset:0; z-index:95; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.72); }
+  .tmr-panel.open{ display:flex; }
+  .tmr-card{ background:linear-gradient(#1b1b1b,#101010); border:1px solid #333; border-radius:1.6vmin; box-shadow:0 3vmin 8vmin -2vmin #000, inset 0 1px 0 #3a3a3a;
+    padding:3vmin 4vmin 2.6vmin; display:flex; flex-direction:column; align-items:center; gap:2.2vmin; width:min(94vw, 112vmin); position:relative; color:var(--key-t); }
+  .tmr-title{ font-size:2.2vmin; font-weight:700; letter-spacing:.3em; text-transform:uppercase; color:var(--lbl); margin:0; font-family:inherit; }
+  .tmr-x{ position:absolute; top:1.6vmin; right:1.6vmin; width:6.4vmin; height:6.4vmin; border-radius:1vmin; border:1px solid #444; background:var(--key); color:var(--key-t); font:inherit; font-size:3.4vmin; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+  .tmr-screen{ background:var(--face); border:1px solid #000; border-radius:1vmin; box-shadow:inset 0 .6vmin 1.6vmin rgba(0,0,0,.9), 0 0 0 .5vmin #222; padding:2.4vmin 4vmin; }
+  .tmr-face{ display:grid; grid-template-columns:auto auto auto; grid-template-rows:auto auto auto auto; align-items:center; justify-items:center; column-gap:1vmin; row-gap:1.4vmin; }
+  .tmr-face .seg7{ font-size:20vmin; }
+  .tmr-face .colon{ grid-row:2; grid-column:2; font-size:20vmin; }
+  .tmr-lbl{ font-size:1.8vmin; font-weight:700; letter-spacing:.25em; color:var(--lbl); text-transform:uppercase; }
+  .tmr-step{ width:15vmin; height:7.5vmin; border-radius:1vmin; border:1px solid #444; background:linear-gradient(var(--key-hi),var(--key)); color:var(--key-t);
+    font:inherit; font-size:3vmin; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 .4vmin 0 #000; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+  .tmr-step:active, .tmr-pre:active, .tmr-btn:active{ transform:translateY(.3vmin); box-shadow:0 .1vmin 0 #000; }
+  .tmr-presets{ display:flex; gap:1.2vmin; flex-wrap:wrap; justify-content:center; }
+  .tmr-pre{ min-width:11vmin; height:7vmin; padding:0 1.8vmin; border-radius:1vmin; border:1px solid #444; background:linear-gradient(var(--key-hi),var(--key)); color:var(--key-t);
+    font:inherit; font-size:2.6vmin; font-weight:600; cursor:pointer; box-shadow:0 .4vmin 0 #000; touch-action:manipulation; }
+  .tmr-pre.on{ border-color:var(--led); color:#fff; box-shadow:0 .4vmin 0 #000, inset 0 0 0 1px var(--led); }
+  .tmr-actions{ display:flex; gap:1.4vmin; flex-wrap:wrap; justify-content:center; }
+  .tmr-btn{ height:9vmin; padding:0 4.4vmin; border-radius:1.2vmin; border:1px solid #444; background:linear-gradient(var(--key-hi),var(--key)); color:var(--key-t);
+    font:inherit; font-size:3.2vmin; font-weight:700; letter-spacing:.04em; cursor:pointer; box-shadow:0 .4vmin 0 #000; touch-action:manipulation; }
+  .tmr-btn.go{ background:linear-gradient(#f4f4f4,#d6d6d6); border-color:#fff; color:#111; min-width:30vmin; }
+  .tmr-btn.pause{ min-width:30vmin; }
+  .tmr-btn[hidden]{ display:none; }
+  .tmr-hint{ font-size:1.8vmin; color:var(--lbl); margin:0; text-align:center; }
+  .tmr-hint kbd{ font-family:inherit; font-size:.95em; background:#222; border:1px solid #444; box-shadow:none; color:#ccc; }
+
+  .tmr-chip{ position:fixed; z-index:60; left:calc(1.4vmin + env(safe-area-inset-left,0px)); top:calc(1.6vmin + env(safe-area-inset-top,0px));
+    display:none; flex-direction:column; align-items:stretch; gap:.8vmin; padding:1.1vmin 1.6vmin 1vmin; border-radius:1.2vmin;
+    background:var(--bezel); border:1px solid #333; box-shadow:0 1.2vmin 3vmin -1vmin #000, inset 0 1px 0 #2a2a2a; cursor:pointer; -webkit-tap-highlight-color:transparent; }
+  .tmr-chip.show{ display:flex; }
+  .tmr-chip .seg7{ font-size:6.6vmin; }
+  .tmr-chip .bar{ height:.6vmin; background:#1e1e1e; border-radius:1vmin; overflow:hidden; }
+  .tmr-chip .bar i{ display:block; height:100%; width:100%; background:var(--led); opacity:.75; transform-origin:left; transition:transform .2s linear; }
+  .tmr-chip .pz{ position:absolute; right:1.4vmin; top:.5vmin; font-size:1.4vmin; font-weight:800; letter-spacing:.2em; color:var(--lbl); display:none; }
+  .tmr-chip.paused .pz{ display:block; }
+  .tmr-chip.paused .seg7 .on{ opacity:.45; }
+  .tmr-chip.warn{ border-color:rgba(255,51,38,.55); }
+  .tmr-chip.hurry{ border-color:var(--led); }
+  .tmr-chip.hurry .seg7, .tmr-chip.done .seg7, .tmr-done .seg7{ animation:ledBlink 1s steps(1) infinite; }
+  .colon-blink .colon{ animation:ledBlink 1s steps(1) infinite; }
+  @keyframes ledBlink{ 50%{ opacity:.2; } }
+
+  .tmr-done{ position:fixed; inset:0; z-index:96; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.6); }
+  .tmr-done.show{ display:flex; }
+  .tmr-done .msg{ cursor:pointer; background:linear-gradient(#1b1b1b,#101010); border:1px solid #333; border-radius:1.6vmin; padding:3vmin 5vmin 2.6vmin;
+    display:flex; flex-direction:column; align-items:center; gap:2vmin; box-shadow:0 3vmin 8vmin -2vmin #000; }
+  .tmr-done .tmr-screen .seg7{ font-size:22vmin; }
+  .tmr-done .big{ font-size:7vmin; font-weight:800; letter-spacing:.14em; color:#fff; text-transform:uppercase; }
+  .tmr-done small{ font-size:2vmin; color:var(--lbl); }
+  @media (prefers-reduced-motion: reduce){ .tmr-chip.hurry .seg7{ animation:none; } }
+
+  /* the timer chip sits in the open space between the title and the date */
+  .tmr-chip{ left:61%; top:calc(1.2vmin + env(safe-area-inset-top,0px)); transform:translateX(-50%); }
+
+  /* ---------- pen (Q) and whiteboard (W): same tools as the lesson decks ---------- */
+  .ink{ position:fixed; inset:0; width:100vw; height:100vh; z-index:4; pointer-events:none; touch-action:none; }
+  body.drawing .ink{ pointer-events:auto; cursor:crosshair; }
+  .pentools{ position:fixed; z-index:6; left:12px; top:50%; transform:translateY(-50%); display:none; flex-direction:column; gap:6px; padding:8px;
+    background:#1B1B1B; border:2px solid var(--panel-edge); border-radius:22px; box-shadow:0 12px 40px rgba(0,0,0,.6); }
+  body.drawing .pentools{ display:flex; }
+  .pentools button{ width:clamp(46px,3.6vw,68px); height:clamp(46px,3.6vw,68px); min-height:0; padding:0; border-radius:15px; border:0; background:transparent; color:var(--chalk);
+    display:flex; align-items:center; justify-content:center; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+  .pentools button:active{ transform:scale(.92); }
+  .pentools button svg{ width:55%; height:55%; }
+  .pentools .sw i{ width:58%; height:58%; border-radius:50%; background:var(--sw); box-shadow:inset 0 0 0 2px rgba(0,0,0,.25); }
+  .pentools button.on{ background:#2E2E2E; box-shadow:inset 0 0 0 3px var(--cheese); }
+  .pentools .sep{ height:2px; margin:2px 8px; background:var(--panel-edge); border-radius:2px; }
+  .pentools .done{ background:var(--sauce); color:var(--black); }
+  .wboard{ position:fixed; inset:0; z-index:3; display:none; background:#1C1C1C; }
+  body.wb .wboard{ display:block; }
+  .wboard[data-bg="grid"]{ background-image:linear-gradient(rgba(255,255,255,.1) 1.5px, transparent 1.5px), linear-gradient(90deg, rgba(255,255,255,.1) 1.5px, transparent 1.5px); background-size:3.2vw 3.2vw; }
+  .wboard .plane{ position:absolute; inset:0; width:100%; height:100%; display:none; }
+  .wboard[data-bg="plane"] .plane{ display:block; }
+  .wbbar{ position:fixed; z-index:6; left:12px; top:12px; display:none; align-items:center; gap:6px; padding:6px; background:#262626; border:2px solid var(--panel-edge); border-radius:20px; box-shadow:0 12px 40px rgba(0,0,0,.6); }
+  body.wb .wbbar{ display:flex; }
+  body.wb .pentools{ top:calc(50% + 30px); }
+  .wbbar button{ height:clamp(42px,3.2vw,60px); min-width:64px; padding:0 18px; border-radius:14px; border:0; background:transparent; color:var(--chalk); font:700 clamp(16px,1.2vw,24px)/1 var(--font-display); }
+  .wbbar button.on{ background:#1C1C1C; box-shadow:inset 0 0 0 3px var(--cheese); }
+  .wbbar .sep{ width:2px; height:36px; background:var(--panel-edge); margin:0 4px; }
+  .wbbar .wbback{ background:var(--sauce); color:var(--black); }
+  .toast{ position:fixed; z-index:70; left:50%; top:18px; transform:translate(-50%,-14px); opacity:0; pointer-events:none; background:var(--chalk); color:var(--black);
+    font:700 clamp(16px,1.4vw,28px)/1.2 var(--font-body); padding:.6em 1.2em; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.5); transition:opacity .25s, transform .25s; }
+  .toast.show{ opacity:1; transform:translate(-50%,0); }
+  body.wb .toast{ top:90px; }
+
 @media (max-width:900px){ .split{ grid-template-columns:1fr; } body{ overflow:auto; } .main{ height:auto; } header{ flex-wrap:wrap; } .title{ white-space:normal; } }
 @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
 </style>
@@ -314,6 +409,41 @@ body.nw-open .corner{ right:auto; left:12px; }
   <span class="status" id="status" data-s="local">Saved on this computer</span>
 </div>
 
+<!-- whiteboard (W), pen (Q), timer (T): the same tools as the lesson decks -->
+<div class="wboard" id="wboard" data-bg="blank"><svg class="plane" id="wbPlane" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg></div>
+<canvas class="ink" id="ink"></canvas>
+<div class="wbbar" id="wbBar" role="toolbar" aria-label="Whiteboard"><button data-bg="blank">Blank</button><button data-bg="grid">Grid</button><button data-bg="plane">Graph</button><span class="sep"></span><button class="wbback" data-act="back">Back to board</button></div>
+<div class="pentools" id="penTools" role="toolbar" aria-label="Pen tools"></div>
+<div class="toast" id="toast" role="status"></div>
+<div class="tmr-panel" id="tmrPanel" role="dialog" aria-label="Timer">
+  <div class="tmr-card">
+    <div class="tmr-title">Timer</div>
+    <button class="tmr-x" id="tmrClose" aria-label="Close timer">×</button>
+    <div class="tmr-screen">
+      <div class="tmr-face">
+        <button class="tmr-step" style="grid-row:1;grid-column:1" data-d="60" aria-label="Add a minute">▲</button>
+        <button class="tmr-step" style="grid-row:1;grid-column:3" data-d="15" aria-label="Add 15 seconds">▲</button>
+        <div style="grid-row:2;grid-column:1" id="tmrMin"></div>
+        <div class="colon" id="tmrColon"></div>
+        <div style="grid-row:2;grid-column:3" id="tmrSec"></div>
+        <button class="tmr-step" style="grid-row:3;grid-column:1" data-d="-60" aria-label="Subtract a minute">▼</button>
+        <button class="tmr-step" style="grid-row:3;grid-column:3" data-d="-15" aria-label="Subtract 15 seconds">▼</button>
+        <span class="tmr-lbl" style="grid-row:4;grid-column:1">Min</span>
+        <span class="tmr-lbl" style="grid-row:4;grid-column:3">Sec</span>
+      </div>
+    </div>
+    <div class="tmr-presets" id="tmrPresets"></div>
+    <div class="tmr-actions">
+      <button class="tmr-btn go" id="tmrGo">▶ Start</button>
+      <button class="tmr-btn" id="tmrPlus" hidden>+1 min</button>
+      <button class="tmr-btn" id="tmrReset" hidden>↺ Reset</button>
+    </div>
+    <p class="tmr-hint"><kbd>↑</kbd><kbd>↓</kbd> minutes · <kbd>←</kbd><kbd>→</kbd> 15 sec · <kbd>1</kbd>–<kbd>9</kbd> quick set · <kbd>Enter</kbd> start / pause · <kbd>T</kbd> hide</p>
+  </div>
+</div>
+<button class="tmr-chip" id="tmrChip" aria-label="Timer — tap for controls"><span class="pz">PAUSED</span><span id="tmrChipT"></span><span class="bar"><i id="tmrBar"></i></span></button>
+<div class="tmr-done" id="tmrDone"><div class="msg"><div class="tmr-screen" id="tmrDoneDigits"></div><div class="big">Time's up</div><small>tap or press T to close</small></div></div>
+
 <!-- live calculators (load the first time they open, then keep whatever was typed) -->
 <div class="calc" id="calcNW" role="region" aria-label="NumWorks calculator">
   <div class="bar">NumWorks<span class="sp"></span><button type="button" data-close="nw" aria-label="Close NumWorks">✕</button></div>
@@ -356,7 +486,7 @@ body.nw-open .corner{ right:auto; left:12px; }
         <span class="hint">Leave blank to use the address built into this file.</span>
       </label>
     </details>
-    <p class="hint" style="margin:0"><b>Table of contents status:</b> <span id="tocInfo"></span><br>Board version 2026-10-15d</p>
+    <p class="hint" style="margin:0"><b>Table of contents status:</b> <span id="tocInfo"></span><br>Board version 2026-10-15e</p>
     <p class="msg" id="setupMsg" role="status"></p>
     <div class="row"><button type="button" class="pri" id="saveSetup">Save setup</button><button value="cancel">Cancel</button></div>
   </form>
@@ -824,20 +954,284 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbx639KsczdlRGLuWguhvJO
   addEventListener("focus", () => { clearTimeout(handT); document.body.classList.remove("in-desmos"); });
   $("handBack").onclick = takeFocusBack;
 
+
+  /* ---------- pen (Q) + whiteboard (W), ported from the lesson decks ----------
+     Ink is kept while the page is open: one drawing for the board, one for the whiteboard. Delete clears. */
+  const toastEl = $("toast"); let toastT = null;
+  function toast(msg){ toastEl.textContent = msg; toastEl.classList.add("show"); clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove("show"), 2200); }
+  const inkC = $("ink"), ictx = inkC.getContext("2d"), penTools = $("penTools");
+  const inkStore = { board: [], wb: [] }, inkCleared = { board: null, wb: null };
+  let wbOn = false, drawing = false, tool = { kind: "pen", pen: 0 }, inkQueued = false, inkRes = 1;
+  const IK = () => wbOn ? "wb" : "board";
+  const PENS = ["#F2F0EA", "#FFC22E", "#FF4D12", "#7CC243", "#5CC8FF", "#FF5CA8"];   // chalk, cheese, sauce, lettuce, sky, pink
+  const activeStrokes = new Map();
+  const W = () => innerWidth, Hh = () => innerHeight;
+  function inkSize(){ inkRes = Math.min(2.5, Math.max(1, devicePixelRatio || 1)); inkC.width = Math.round(W() * inkRes); inkC.height = Math.round(Hh() * inkRes); inkDraw(); }
+  function strokePath(s){                                    // points are stored as fractions of the screen so ink survives a resize
+    const p = s.pts.map(q => [q[0] * W(), q[1] * Hh()]); if(!p.length) return;
+    ictx.beginPath(); ictx.moveTo(p[0][0], p[0][1]);
+    if(p.length === 1) ictx.lineTo(p[0][0] + .01, p[0][1]);
+    else if(p.length === 2) ictx.lineTo(p[1][0], p[1][1]);
+    else { for(let k = 1; k < p.length - 1; k++) ictx.quadraticCurveTo(p[k][0], p[k][1], (p[k][0] + p[k+1][0]) / 2, (p[k][1] + p[k+1][1]) / 2); ictx.lineTo(p[p.length-1][0], p[p.length-1][1]); }
+    ictx.globalAlpha = s.a || 1; ictx.strokeStyle = s.color; ictx.lineWidth = s.w * W(); ictx.lineCap = "round"; ictx.lineJoin = "round"; ictx.stroke();
+  }
+  function inkDraw(){
+    inkQueued = false; ictx.setTransform(inkRes, 0, 0, inkRes, 0, 0); ictx.clearRect(0, 0, W(), Hh());
+    const list = inkStore[IK()]; list.forEach(s => { if(s.hl) strokePath(s); }); list.forEach(s => { if(!s.hl) strokePath(s); }); ictx.globalAlpha = 1;
+  }
+  function inkQueue(){ if(!inkQueued){ inkQueued = true; requestAnimationFrame(inkDraw); } }
+  const toFrac = e => [e.clientX / W(), e.clientY / Hh()];
+  function eraseAt(p){
+    const before = inkStore[IK()].length, r = 24 / 1920;
+    inkStore[IK()] = inkStore[IK()].filter(s => !s.pts.some(q => Math.hypot((q[0] - p[0]), (q[1] - p[1]) * Hh() / W()) < r + s.w / 2));
+    if(inkStore[IK()].length !== before) inkQueue();
+  }
+  /* pen only (same as the decks): once the board sees the stylus, only the stylus writes; a finger tap passes through */
+  let penSeen = false, fingerTap = null;
+  inkC.addEventListener("pointerdown", e => {
+    if(!drawing) return;
+    if(e.pointerType === "pen" && !penSeen){ penSeen = true; toast("Pen found: only the pen writes now. Fingers tap"); }
+    if(e.pointerType === "touch" && penSeen){ fingerTap = { id: e.pointerId, x: e.clientX, y: e.clientY, t: Date.now() }; return; }
+    e.preventDefault(); try{ inkC.setPointerCapture(e.pointerId); }catch(_){}
+    const p = toFrac(e);
+    if(tool.kind === "erase"){ activeStrokes.set(e.pointerId, { erase: true }); eraseAt(p); return; }
+    const s = tool.kind === "hl" ? { hl: true, color: "#FFE14D", w: 40 / 1920, a: .45, pts: [p] } : { color: PENS[tool.pen], w: 7 / 1920, pts: [p] };
+    inkStore[IK()].push(s); inkCleared[IK()] = null; activeStrokes.set(e.pointerId, s); inkQueue();
+  });
+  inkC.addEventListener("pointermove", e => {
+    const s = activeStrokes.get(e.pointerId); if(!s) return;
+    const evs = (e.getCoalescedEvents && e.getCoalescedEvents().length) ? e.getCoalescedEvents() : [e];
+    evs.forEach(ev => { const p = toFrac(ev); if(s.erase){ eraseAt(p); return; }
+      const l = s.pts[s.pts.length - 1]; if(Math.hypot((p[0] - l[0]) * W(), (p[1] - l[1]) * Hh()) > 1.5) s.pts.push(p); });
+    if(!s.erase) inkQueue();
+  });
+  ["pointerup", "pointercancel", "lostpointercapture"].forEach(t => inkC.addEventListener(t, e => activeStrokes.delete(e.pointerId)));
+  inkC.addEventListener("pointerup", e => {
+    const f = fingerTap; if(!f || f.id !== e.pointerId) return; fingerTap = null;
+    if(Math.hypot(e.clientX - f.x, e.clientY - f.y) > 18 || Date.now() - f.t > 600) return;
+    const under = document.elementsFromPoint(e.clientX, e.clientY).find(el => el !== inkC);
+    if(under){ (under.closest("button,a,.wbody") || under).click(); }
+  });
+  function inkUndo(){ if(inkStore[IK()].length) inkStore[IK()].pop(); else if(inkCleared[IK()]){ inkStore[IK()] = inkCleared[IK()]; inkCleared[IK()] = null; } inkQueue(); }
+  function inkClear(){ if(!inkStore[IK()].length) return; inkCleared[IK()] = inkStore[IK()]; inkStore[IK()] = []; inkQueue(); toast("Cleared. Undo (Z) brings it back"); }
+  const ICON = {
+    hl:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14l-4 4v2h5l3-3"/><path d="M9 14l6-10 5 3-6 10z" fill="#FFE14D"/></svg>',
+    erase:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h13"/><path d="M4.5 13.5l8-8a2 2 0 0 1 2.8 0l3.2 3.2a2 2 0 0 1 0 2.8L12 18H8z"/><path d="M9 9l6 6"/></svg>',
+    undo:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>',
+    clear:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
+    done:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>'
+  };
+  penTools.innerHTML = PENS.map((c, i) => '<button class="sw" data-pen="' + i + '" aria-label="Pen color ' + (i + 1) + '" style="--sw:' + c + '"><i></i></button>').join("") +
+    '<div class="sep"></div><button data-tool="hl" aria-label="Highlighter (H)">' + ICON.hl + '</button><button data-tool="erase" aria-label="Eraser (X)">' + ICON.erase + '</button>' +
+    '<div class="sep"></div><button data-act="undo" aria-label="Undo (Z)">' + ICON.undo + '</button><button data-act="clear" aria-label="Clear (Delete)">' + ICON.clear + '</button>' +
+    '<button class="done" data-act="done" aria-label="Done drawing (Q)">' + ICON.done + '</button>';
+  function penUI(){ penTools.querySelectorAll("button").forEach(b => b.classList.toggle("on", !!((b.dataset.pen != null && tool.kind === "pen" && +b.dataset.pen === tool.pen) || (b.dataset.tool && b.dataset.tool === tool.kind)))); }
+  function setTool(kind, pen){ tool = { kind, pen: pen != null ? pen : tool.pen }; penUI(); }
+  function setDrawing(on, msg){ drawing = !!on; document.body.classList.toggle("drawing", drawing); if(drawing){ penUI(); if(msg !== "") toast(msg || "Pen on. Q or ✓ when you're done"); } else activeStrokes.clear(); }
+  penTools.addEventListener("click", e => {
+    const b = e.target.closest("button"); if(!b) return;
+    if(b.dataset.pen != null) setTool("pen", +b.dataset.pen);
+    else if(b.dataset.tool) setTool(b.dataset.tool);
+    else if(b.dataset.act === "undo") inkUndo();
+    else if(b.dataset.act === "clear") inkClear();
+    else if(b.dataset.act === "done"){ if(wbOn) setWb(false); setDrawing(false); }
+    b.blur();
+  });
+  const wboard = $("wboard"), wbBar = $("wbBar"); let wbPrevDraw = false;
+  (function drawPlane(){                                     // −10…10 coordinate plane, like the decks
+    const u = 48, cx = 960, cy = 540, g = [], L = [], lab = k => (k < 0 ? "−" + (-k) : "" + k);
+    for(let k = -10; k <= 10; k++){ if(!k) continue;
+      g.push('<line x1="' + (cx + k*u) + '" y1="' + (cy - 10*u) + '" x2="' + (cx + k*u) + '" y2="' + (cy + 10*u) + '"/>');
+      g.push('<line x1="' + (cx - 10*u) + '" y1="' + (cy + k*u) + '" x2="' + (cx + 10*u) + '" y2="' + (cy + k*u) + '"/>');
+      if(k % 2 === 0){ L.push('<text x="' + (cx + k*u) + '" y="' + (cy + 32) + '" text-anchor="middle">' + lab(k) + '</text>'); L.push('<text x="' + (cx - 12) + '" y="' + (cy - k*u + 9) + '" text-anchor="end">' + lab(k) + '</text>'); } }
+    const ah = (x, y, dx, dy) => '<path d="M' + x + ' ' + y + ' l' + (-dx*16 - dy*9) + ' ' + (-dy*16 - dx*9) + ' M' + x + ' ' + y + ' l' + (-dx*16 + dy*9) + ' ' + (-dy*16 + dx*9) + '"/>';
+    $("wbPlane").innerHTML = '<g stroke="rgba(255,255,255,.14)" stroke-width="2">' + g.join("") + '</g>' +
+      '<g stroke="#F2F0EA" stroke-width="4" stroke-linecap="round" fill="none"><line x1="' + (cx - 10*u - 24) + '" y1="' + cy + '" x2="' + (cx + 10*u + 24) + '" y2="' + cy + '"/><line x1="' + cx + '" y1="' + (cy + 10*u + 24) + '" x2="' + cx + '" y2="' + (cy - 10*u - 24) + '"/>' +
+      ah(cx + 10*u + 24, cy, 1, 0) + ah(cx - 10*u - 24, cy, -1, 0) + ah(cx, cy - 10*u - 24, 0, -1) + ah(cx, cy + 10*u + 24, 0, 1) + '</g>' +
+      '<g fill="#F2F0EA" font-family="Rubik, Atkinson Hyperlegible, sans-serif" font-weight="700" font-size="26">' + L.join("") +
+      '<text x="' + (cx + 10*u + 34) + '" y="' + (cy - 16) + '" font-style="italic" font-size="32">x</text><text x="' + (cx + 18) + '" y="' + (cy - 10*u - 26) + '" font-style="italic" font-size="32">y</text></g>';
+  })();
+  function wbSetBg(b){ wboard.dataset.bg = b; wbBar.querySelectorAll("[data-bg]").forEach(x => x.classList.toggle("on", x.dataset.bg === b)); }
+  function setWb(on){
+    on = !!on; if(on === wbOn) return;
+    wbOn = on; document.body.classList.toggle("wb", wbOn); activeStrokes.clear();
+    if(wbOn){ wbPrevDraw = drawing; if(!drawing) setDrawing(true, ""); toast("Whiteboard. W or Back to board returns"); }
+    else if(!wbPrevDraw) setDrawing(false);
+    inkDraw();
+  }
+  wbBar.addEventListener("click", e => { const b = e.target.closest("button"); if(!b) return; if(b.dataset.bg) wbSetBg(b.dataset.bg); else if(b.dataset.act === "back") setWb(false); b.blur(); });
+  wbSetBg("blank"); addEventListener("resize", inkSize); inkSize();
+  function penKeys(e){                                         // while the pen is on: 1–6 colors · H highlighter · X eraser · Z undo · Delete clear · Q/Esc done
+    const k = e.key;
+    if(/^[1-6]$/.test(k)) setTool("pen", +k - 1);
+    else if(k === "h" || k === "H") setTool("hl");
+    else if(k === "x" || k === "X") setTool("erase");
+    else if(k === "z" || k === "Z") inkUndo();
+    else if(k === "Delete") inkClear();
+    else if(k === "q" || k === "Q" || k === "Escape"){ if(wbOn) setWb(false); setDrawing(false); }
+    else return false;
+    e.preventDefault(); return true;
+  }
+
+  /* ---------- timer (T): the same red-LED timer as the lesson decks ---------- */
+/* ----- classroom timer (T) — unchanged from v1.1 except the data-timer preset ----- */
+const T={ panel:document.getElementById('tmrPanel'), chip:document.getElementById('tmrChip'), done:document.getElementById('tmrDone'),
+  min:document.getElementById('tmrMin'), sec:document.getElementById('tmrSec'), colon:document.getElementById('tmrColon'), bar:document.getElementById('tmrBar'), chipT:document.getElementById('tmrChipT'),
+  go:document.getElementById('tmrGo'), plus:document.getElementById('tmrPlus'), reset:document.getElementById('tmrReset'), presets:document.getElementById('tmrPresets') };
+// 7-segment LED digits drawn as SVG (no font needed)
+const SEGS={a:'9,6 14,1 46,1 51,6 46,11 14,11', b:'54,9 59,14 59,42 54,47 49,42 49,14', c:'54,53 59,58 59,86 54,91 49,86 49,58',
+  d:'9,94 14,89 46,89 51,94 46,99 14,99', e:'6,53 11,58 11,86 6,91 1,86 1,58', f:'6,9 11,14 11,42 6,47 1,42 1,14', g:'9,50 14,45 46,45 51,50 46,55 14,55'};
+const DIG=['abcdef','bc','abdeg','abcdg','bcfg','acdfg','acdefg','abc','abcdefg','abcdfg'];
+const segDigit=n=>'<svg class="d" viewBox="0 0 60 100" style="transform:skewX(-6deg)">'+Object.keys(SEGS).map(k=>'<polygon points="'+SEGS[k]+'"'+(DIG[n].includes(k)?' class="on"':'')+'/>').join('')+'</svg>';
+const segColon='<svg class="c" viewBox="0 0 22 100"><rect class="on" x="4" y="26" width="12" height="12" rx="2"/><rect class="on" x="4" y="62" width="12" height="12" rx="2"/></svg>';
+const seg2=v=>'<span class="seg7">'+segDigit(Math.floor(v/10)%10)+segDigit(v%10)+'</span>';
+const segClock=(m,s)=>'<span class="seg7">'+segDigit(Math.floor(m/10)%10)+segDigit(m%10)+segColon+segDigit(Math.floor(s/10))+segDigit(s%10)+'</span>';
+T.colon.innerHTML='<span class="seg7">'+segColon+'</span>';
+document.getElementById('tmrDoneDigits').innerHTML=segClock(0,0);
+const PRESETS=[1,2,3,5,10,15];
+T.presets.innerHTML=PRESETS.map(m=>'<button class="tmr-pre" data-m="'+m+'">'+m+' min</button>').join('');
+let tSet=3*60*1000, tLeft=tSet, tEnd=0, tState='idle', tTick=null, tDoneT=null, actx=null, tPrev=0, tTickedSec=-1, lastShown='';   // idle | running | paused | done
+const MAXMS=99*60*1000+59*1000;
+const fmt=ms=>{ const s=Math.max(0,Math.ceil(ms/1000)); return [Math.floor(s/60), s%60]; };
+function tRemaining(){ return tState==='running' ? Math.max(0,tEnd-Date.now()) : tLeft; }
+function tRender(){
+  const ms=tRemaining(), [m,s]=fmt(ms), key=m+':'+s;
+  if(key!==lastShown){ lastShown=key; T.min.innerHTML=seg2(m); T.sec.innerHTML=seg2(s); T.chipT.innerHTML=segClock(m,s); }
+  const frac = tState==='idle' ? 1 : (tSet>0 ? ms/tSet : 0);
+  T.bar.style.transform='scaleX('+Math.max(0,Math.min(1,frac)).toFixed(4)+')';
+  const active=tState==='running'||tState==='paused';
+  T.chip.classList.toggle('paused', tState==='paused');
+  T.chip.classList.toggle('done', tState==='done');
+  T.chip.classList.toggle('hurry', tState==='running' && ms<=10000);
+  T.chip.classList.toggle('warn', active && ms>10000 && ms<=60000);
+  T.chip.classList.toggle('colon-blink', tState==='running');
+  T.chip.classList.toggle('show', tState!=='idle');
+  T.go.textContent = tState==='running' ? '❚❚ Pause' : tState==='paused' ? '▶ Resume' : '▶ Start';
+  T.go.className='tmr-btn '+(tState==='running'?'pause':'go');
+  T.plus.hidden = !active; T.reset.hidden = tState==='idle';
+  T.presets.querySelectorAll('.tmr-pre').forEach(b=>b.classList.toggle('on', tState==='idle' && +b.dataset.m*60000===tSet));
+}
+function tAdjust(deltaSec){
+  if(tState==='done') tClear();
+  if(tState==='running'){ tEnd=Math.min(Date.now()+MAXMS, Math.max(Date.now()+1000, tEnd+deltaSec*1000)); tSet=Math.max(tSet, tEnd-Date.now()); tPrev=tEnd-Date.now(); }
+  else if(tState==='paused'){ tLeft=Math.min(MAXMS, Math.max(1000, tLeft+deltaSec*1000)); tSet=Math.max(tSet,tLeft); }
+  else { tSet=Math.min(MAXMS, Math.max(15000, tSet+deltaSec*1000)); tLeft=tSet; }
+  tRender();
+}
+function tSetMinutes(m){ tClear(); tSet=tLeft=m*60000; tRender(); }
+
+/* sounds — all synthesized, nothing to download */
+function audio(){ try{ if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==='suspended') actx.resume(); }catch(e){} return actx; }
+function tone(ctx, f, at, len, amp, type){
+  const o=ctx.createOscillator(), g=ctx.createGain();
+  o.type=type||'sine'; o.frequency.value=f;
+  g.gain.setValueAtTime(0.0001,at); g.gain.exponentialRampToValueAtTime(amp,at+.008); g.gain.exponentialRampToValueAtTime(0.0001,at+len);
+  o.connect(g); g.connect(ctx.destination); o.start(at); o.stop(at+len+.05);
+}
+// digital-watch style beeps — same crisp family as the last-10-seconds ticks
+function beep(ctx, f, at, len, amp){
+  const o=ctx.createOscillator(), o2=ctx.createOscillator(), g=ctx.createGain(), g2=ctx.createGain();
+  o.type='triangle'; o.frequency.value=f; o2.type='sine'; o2.frequency.value=f*2; g2.gain.value=.18;
+  g.gain.setValueAtTime(0,at); g.gain.linearRampToValueAtTime(amp,at+.006);
+  g.gain.setValueAtTime(amp,at+len-.018); g.gain.linearRampToValueAtTime(0,at+len);
+  o.connect(g); o2.connect(g2); g2.connect(g); g.connect(ctx.destination);
+  o.start(at); o2.start(at); o.stop(at+len+.02); o2.stop(at+len+.02);
+}
+function chime60(){ const c=audio(); if(!c) return; const t=c.currentTime+.05;   // 1 minute left: beep-beep
+  beep(c,1760,t,.09,.22); beep(c,1760,t+.2,.09,.22); }
+function chime30(){ const c=audio(); if(!c) return; const t=c.currentTime+.05;   // 30 seconds left: beep-beep-beep
+  [0,.16,.32].forEach(d=>beep(c,1760,t+d,.08,.22)); }
+function chimeDone(){ const c=audio(); if(!c) return; const t=c.currentTime+.05;  // time's up: classic digital alarm, 4 quick beeps × 3
+  for(let r=0;r<3;r++) for(let k=0;k<4;k++) beep(c,2093,t+r*.9+k*.11,.07,.26);
+}
+function tickAt(delaySec, high){ const c=audio(); if(!c) return;                 // light clock tick for the last 10 seconds
+  const at=c.currentTime+Math.max(0,delaySec);
+  tone(c, high?2400:1900, at, .045, .09, 'triangle'); tone(c, high?4800:3800, at, .02, .03, 'sine'); }
+
+function tLoop(){
+  clearInterval(tTick);
+  tTick=setInterval(()=>{
+    if(tState!=='running'){ clearInterval(tTick); return; }
+    const ms=tEnd-Date.now();
+    if(ms<=0){ tFinish(); return; }
+    if(tPrev>60000 && ms<=60000) chime60();
+    if(tPrev>30000 && ms<=30000) chime30();
+    // schedule each tick right on the second it happens (10, 9, … 1), so it stays in time with the display
+    const v=Math.ceil(ms/1000)-1;
+    if(v>=1 && v<=10 && v!==tTickedSec && ms-v*1000<=150){ tTickedSec=v; tickAt((ms-v*1000)/1000, v%2===0); }
+    tPrev=ms;
+    tRender();
+  },50);
+}
+function tStart(){
+  audio();                                   // unlock sound on this tap/keypress so the chimes can play later
+  if(tState==='done') tClear();
+  if(tState==='idle') tLeft=tSet;
+  if(tLeft<=0) return;
+  tEnd=Date.now()+tLeft; tPrev=tLeft; tTickedSec=-1; tState='running'; tLoop(); tRender(); tClose();
+}
+function tPause(){ if(tState!=='running') return; tLeft=Math.max(0,tEnd-Date.now()); tState='paused'; clearInterval(tTick); tRender(); }
+function tToggleRun(){ tState==='running' ? tPause() : tStart(); }
+function tFinish(){
+  clearInterval(tTick); tState='done'; tLeft=0; tRender(); chimeDone();
+  T.done.classList.add('show'); clearTimeout(tDoneT); tDoneT=setTimeout(()=>T.done.classList.remove('show'),8000);
+}
+function tClear(){ clearInterval(tTick); clearTimeout(tDoneT); T.done.classList.remove('show'); tState='idle'; tLeft=tSet; tRender(); }
+function tOpen(){ if(tState==='done') tClear(); tRender(); T.panel.classList.add('open'); }
+function tClose(){ T.panel.classList.remove('open'); }
+function tKey(){
+  if(tState==='done' || T.done.classList.contains('show')){ tClear(); return; }
+  T.panel.classList.contains('open') ? tClose() : tOpen();
+}
+T.panel.addEventListener('click',e=>{
+  e.stopPropagation();
+  const st=e.target.closest('.tmr-step'); if(st){ tAdjust(+st.dataset.d); return; }
+  const pr=e.target.closest('.tmr-pre'); if(pr){ tSetMinutes(+pr.dataset.m); return; }
+  if(e.target.closest('#tmrGo')){ tToggleRun(); return; }
+  if(e.target.closest('#tmrPlus')){ tAdjust(60); return; }
+  if(e.target.closest('#tmrReset')){ tClear(); return; }
+  if(e.target.closest('#tmrClose') || e.target===T.panel) tClose();
+});
+T.chip.addEventListener('click',e=>{ e.stopPropagation(); if(tState==='done'){ tClear(); return; } tOpen(); });
+T.done.addEventListener('click',e=>{ e.stopPropagation(); tClear(); });
+tRender();
+function timerPanelKeys(e){
+  const k=e.key;
+  if(k==='ArrowUp'){ tAdjust(60); }
+  else if(k==='ArrowDown'){ tAdjust(-60); }
+  else if(k==='ArrowRight'){ tAdjust(15); }
+  else if(k==='ArrowLeft'){ tAdjust(-15); }
+  else if(k==='Enter'||k===' '||k==='PageDown'){ tToggleRun(); }
+  else if(k==='Escape'||k==='t'||k==='T'||k==='PageUp'){ tClose(); }
+  else if(/^[0-9]$/.test(k)){ tSetMinutes(k==='0'?10:+k); }
+  else if(k==='w'||k==='W'||k==='q'||k==='Q'){ tClose(); return false; }   // let the whiteboard / pen through
+  else if(k==='f'||k==='F'||k==='F5'){ return false; }
+  else return true;
+  e.preventDefault(); return true;
+}
+
+
   /* fullscreen */
   const full = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
 
   /* clicker + keys (ignored while typing in a dialog) */
   addEventListener("keydown", e => {
     if(document.querySelector("dialog[open]")) return;
+    if(T.panel.classList.contains("open") && timerPanelKeys(e)) return;
+    if(T.done.classList.contains("show") && (e.key === "t" || e.key === "T" || e.key === "Escape")){ e.preventDefault(); tClear(); return; }
+    if(drawing && penKeys(e)) return;
     const k = e.key;
+    if(wbOn && ["ArrowRight","PageDown"," ","Enter","ArrowDown","ArrowLeft","PageUp","ArrowUp"].includes(k)){ e.preventDefault(); setWb(false); return; }   // clicker returns from the whiteboard, like the decks
     if(["ArrowRight","PageDown"," ","Enter","ArrowDown"].includes(k)){ e.preventDefault(); reveal(true); }
     else if(["ArrowLeft","PageUp","ArrowUp","Backspace"].includes(k)){ e.preventDefault(); reveal(false); }
     else if(k === "f" || k === "F") full();
     else if(k === "e" || k === "E"){ e.preventDefault(); openEdit(); }
     else if(k === "s" || k === "S"){ e.preventDefault(); openSetup(); }
     else if(k === "m" || k === "M"){ e.preventDefault(); openNeeds(); }
-    else if(k === "t" || k === "T"){ e.preventDefault(); toggleToc(); }
+    else if(k === "h" || k === "H"){ e.preventDefault(); toggleToc(); }
+    else if(k === "t" || k === "T"){ e.preventDefault(); tKey(); }
+    else if(k === "q" || k === "Q"){ e.preventDefault(); setDrawing(!drawing); }
+    else if(k === "w" || k === "W"){ e.preventDefault(); setWb(!wbOn); }
     else if(k === "c" || k === "C"){ e.preventDefault(); toggleCalc("nw"); }
     else if(k === "d" || k === "D"){ e.preventDefault(); toggleCalc("ds"); }
     else if(k === "Escape"){ if($("calcDS").classList.contains("open")) setCalc("ds", false); else if($("calcNW").classList.contains("open")) setCalc("nw", false); }
