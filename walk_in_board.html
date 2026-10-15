@@ -90,8 +90,8 @@ button:hover{ border-color:var(--dust); }
 button:focus-visible, input:focus-visible, textarea:focus-visible, summary:focus-visible{ outline:3px solid var(--cheese); outline-offset:2px; }
 button.pri{ background:var(--sauce); border-color:var(--black); color:var(--black); }
 button.pri:hover{ background:#ff6a3a; }
-.corner{ position:fixed; z-index:2; right:12px; bottom:10px; display:flex; gap:8px; align-items:center; opacity:.3; transition:opacity .2s; }
-.corner:hover, .corner:focus-within{ opacity:1; }
+.corner{ position:fixed; z-index:2; right:12px; bottom:10px; display:flex; align-items:center; padding:.4em .8em; border-radius:999px; background:rgba(0,0,0,.75); }
+.corner:not(:has(.status[data-s="warn"])){ display:none; }
 .status{ display:flex; align-items:center; gap:.5em; font-size:clamp(13px,.9vw,17px); color:var(--dust); padding:0 .4em; }
 .status::before{ content:""; width:.7em; height:.7em; border-radius:50%; background:var(--dust); }
 .status[data-s="synced"]::before{ background:var(--lettuce); }
@@ -280,7 +280,7 @@ body.nw-open .corner{ right:auto; left:12px; }
       </h2>
       <div class="docwrap" id="docwrap">
         <iframe id="doc" title="Table of contents" hidden></iframe>
-        <div class="empty" id="docEmpty"><p>No table of contents linked yet.<br>Press <b>S</b> or tap <b>Setup</b> and paste your Google Doc's published link.</p></div>
+        <div class="empty" id="docEmpty"><p>No table of contents linked yet.<br>Press <b>S</b> and paste your Google Doc's published link.</p></div>
       </div>
     </section>
     <section class="panel warm" aria-live="polite">
@@ -292,13 +292,6 @@ body.nw-open .corner{ right:auto; left:12px; }
 
 <div class="corner">
   <span class="status" id="status" data-s="local">Saved on this computer</span>
-  <button type="button" id="btnEdit">Edit warm-ups</button>
-  <button type="button" id="btnNeeds">Need today</button>
-  <button type="button" id="btnToc">Hide contents</button>
-  <button type="button" id="btnNW">NumWorks</button>
-  <button type="button" id="btnDS">Desmos</button>
-  <button type="button" id="btnSetup">Setup</button>
-  <button type="button" id="btnFull">Fullscreen</button>
 </div>
 
 <!-- live calculators (load the first time they open, then keep whatever was typed) -->
@@ -482,7 +475,7 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbwhsPZlCqzclIKMDPVww4s
     const ch = (w.choices || []).filter(c => String(c).trim());
     const body = $("wbody");
     if(!w.prompt && !w.image){
-      body.innerHTML = '<p class="prompt" style="color:var(--dust)">No warm-up for ' + today() + ' yet.</p><p class="cue">Tap Edit warm-ups (or press E) to add one.</p>';
+      body.innerHTML = '<p class="prompt" style="color:var(--dust)">No warm-up for ' + today() + ' yet.</p><p class="cue">Press E to add one.</p>';
       return;
     }
     body.innerHTML =
@@ -521,7 +514,6 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbwhsPZlCqzclIKMDPVww4s
     $("dayBtns").appendChild(b);
   });
   function openEdit(){ draft = JSON.parse(JSON.stringify(state.warmups || {})); editDay = today(); fillForm(); $("editMsg").textContent = ""; $("dlgEdit").showModal(); }
-  $("btnEdit").onclick = openEdit;
   $("saveEdit").onclick = async () => {
     readForm(); state.warmups = draft; render();
     $("editMsg").textContent = "Saving…";
@@ -575,10 +567,10 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbwhsPZlCqzclIKMDPVww4s
   };
 
   /* setup */
-  $("btnSetup").onclick = () => {
+  function openSetup(){
     $("docUrl").value = state.docUrl || ""; $("pinIn").value = local.get("pin", ""); $("urlIn").value = local.get("saveUrl", "");
     $("setupMsg").textContent = ""; $("dlgSetup").showModal();
-  };
+  }
   $("saveSetup").onclick = async () => {
     const v = $("docUrl").value.trim(), u = $("urlIn").value.trim();
     if(v && !embedUrl(v)){ $("setupMsg").textContent = "The table of contents link should start with https://"; return; }
@@ -647,7 +639,6 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbwhsPZlCqzclIKMDPVww4s
     needDraft = JSON.parse(JSON.stringify(state.needs || {})); extraDraft = JSON.parse(JSON.stringify(state.extraNeeds || []));
     needDay = today(); fillPick(); $("needsMsg").textContent = ""; $("dlgNeeds").showModal();
   }
-  $("btnNeeds").onclick = openNeeds;
   $("saveNeeds").onclick = async () => {
     state.needs = needDraft; state.extraNeeds = extraDraft; renderNeeds();
     $("needsMsg").textContent = "Saving…";
@@ -663,11 +654,9 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbwhsPZlCqzclIKMDPVww4s
   function applyToc(){
     const off = local.get("tocOff", "") === dayKey();
     document.body.classList.toggle("no-toc", off);
-    $("btnToc").textContent = off ? "Show contents" : "Hide contents";
     if(!off) setTimeout(fitDoc, 0);
   }
   function toggleToc(){ local.set("tocOff", local.get("tocOff", "") === dayKey() ? "" : dayKey()); applyToc(); }
-  $("btnToc").onclick = toggleToc;
 
   /* ---------- live calculators: C = NumWorks, D = Desmos (same keys as the lesson decks) ---------- */
   const CALC = {
@@ -696,12 +685,9 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbwhsPZlCqzclIKMDPVww4s
       document.body.classList.toggle("nw-open", on);
       if(on) fitNW(); else { document.querySelector(".main").style.marginRight = ""; setTimeout(fitDoc, 300); }
     }
-    $(name === "nw" ? "btnNW" : "btnDS").setAttribute("aria-pressed", on);
     if(!on) takeFocusBack();
   }
   const toggleCalc = name => setCalc(name, !$(CALC[name].el).classList.contains("open"));
-  $("btnNW").onclick = () => toggleCalc("nw");
-  $("btnDS").onclick = () => toggleCalc("ds");
   document.querySelectorAll("[data-close]").forEach(b => b.onclick = () => setCalc(b.dataset.close, false));
   addEventListener("resize", fitNW);
 
@@ -719,7 +705,6 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbwhsPZlCqzclIKMDPVww4s
 
   /* fullscreen */
   const full = () => document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.();
-  $("btnFull").onclick = full;
 
   /* clicker + keys (ignored while typing in a dialog) */
   addEventListener("keydown", e => {
@@ -729,7 +714,7 @@ const SAVE_URL = "https://script.google.com/macros/s/AKfycbwhsPZlCqzclIKMDPVww4s
     else if(["ArrowLeft","PageUp","ArrowUp","Backspace"].includes(k)){ e.preventDefault(); reveal(false); }
     else if(k === "f" || k === "F") full();
     else if(k === "e" || k === "E"){ e.preventDefault(); openEdit(); }
-    else if(k === "s" || k === "S"){ e.preventDefault(); $("btnSetup").click(); }
+    else if(k === "s" || k === "S"){ e.preventDefault(); openSetup(); }
     else if(k === "m" || k === "M"){ e.preventDefault(); openNeeds(); }
     else if(k === "t" || k === "T"){ e.preventDefault(); toggleToc(); }
     else if(k === "c" || k === "C"){ e.preventDefault(); toggleCalc("nw"); }
