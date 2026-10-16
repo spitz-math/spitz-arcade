@@ -1,14 +1,35 @@
 {
- "updated": "2026-10-16T16:30:03.614Z",
+ "updated": "2026-10-16T21:42:28.018Z",
  "games": {
   "splat_range": {
    "name": "Splat Range",
    "top": [
     {
+     "name": "Sebastian E",
+     "score": "65,480",
+     "acc": 91,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Juan M",
+     "score": "18,531",
+     "acc": 85,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
      "name": "Sylvestre Cantu",
      "score": "8,822",
      "acc": 81,
      "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Grace W",
+     "score": "5,081",
+     "acc": 91,
+     "set": "Standard form",
      "date": "2026-10-16"
     }
    ]
@@ -18,44 +39,72 @@
    "top": [
     {
      "name": "Spitz",
-     "score": "195,818",
-     "acc": 93,
+     "score": "631,125",
+     "acc": 98,
      "set": "Multiplication facts",
-     "date": "2026-10-12"
+     "date": "2026-10-16"
     },
     {
-     "name": "Ethan Alvarado",
+     "name": "Adrian V",
+     "score": "421,478",
+     "acc": 100,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "JOHN S",
+     "score": "303,625",
+     "acc": 94,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Sebastian E",
+     "score": "222,129",
+     "acc": 90,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Leonardo A",
+     "score": "120,527",
+     "acc": 96,
+     "set": "Multiplication facts · Facts 4–6, Facts 7–9, Facts 10–12",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Ethan A",
      "score": "110,010",
      "acc": 91,
      "set": "Multiplication facts",
      "date": "2026-10-16"
     },
     {
-     "name": "Sebastian Ellis",
-     "score": "109,075",
-     "acc": 86,
+     "name": "Marcos L",
+     "score": "105,675",
+     "acc": 95,
      "set": "Multiplication facts",
      "date": "2026-10-16"
     },
     {
-     "name": "tanix zane banda",
+     "name": "tanix B",
      "score": "94,501",
      "acc": 70,
      "set": "Slope-intercept form",
      "date": "2026-10-16"
     },
     {
-     "name": "william escalona",
+     "name": "william E",
      "score": "88,295",
      "acc": 97,
      "set": "Multiplication facts · Facts 0–3",
      "date": "2026-10-16"
     },
     {
-     "name": "Erick.Desiga",
-     "score": "25,015",
-     "acc": 88,
-     "set": "Multiplication facts",
+     "name": "arian V",
+     "score": "79,075",
+     "acc": 90,
+     "set": "Multiplication facts · Facts 0–3, Facts 10–12",
      "date": "2026-10-16"
     }
    ]
@@ -64,14 +113,28 @@
    "name": "Shift Racer",
    "top": [
     {
-     "name": "tanix zane banda",
+     "name": "Juan M",
+     "score": "22,970",
+     "acc": 78,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "tanix B",
      "score": "22,905",
      "acc": 93,
      "set": "Multiplication facts",
      "date": "2026-10-16"
     },
     {
-     "name": "Ethan Alvarado",
+     "name": "Noah C",
+     "score": "22,363",
+     "acc": 100,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Ethan A",
      "score": "11,310",
      "acc": 88,
      "set": "Multiplication facts",
@@ -90,10 +153,24 @@
    "name": "Jump Man",
    "top": [
     {
-     "name": "Charlotte Espitia",
+     "name": "Noah C",
+     "score": "1,119",
+     "acc": 98,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Charlotte E",
      "score": "1,053",
      "acc": 95,
      "set": "Multiplication facts · Facts 0–3, Facts 4–6, Facts 7–9",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Lorena Barroso",
+     "score": "1,021",
+     "acc": 95,
+     "set": "Multiplication facts",
      "date": "2026-10-16"
     },
     {
@@ -116,17 +193,31 @@
      "date": "2026-10-16"
     },
     {
-     "name": "damian schmidt",
+     "name": "Marcus. T",
+     "score": "28 – 0",
+     "acc": 100,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "damian S",
      "score": "28 – 14",
      "acc": 100,
      "set": "Multiplication facts",
      "date": "2026-10-16"
     },
     {
-     "name": "SERGIO CAMACHO",
+     "name": "SERGIO C",
      "score": "14 – 7",
      "acc": 92,
      "set": "Standard form",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Noah Cuadra",
+     "score": "14 – 7",
+     "acc": 94,
+     "set": "Multiplication facts",
      "date": "2026-10-16"
     }
    ]
@@ -135,35 +226,42 @@
    "name": "Hoop Buds",
    "top": [
     {
-     "name": "Ozzy Galan",
+     "name": "Ozzy G",
      "score": "42 – 8",
      "acc": 98,
      "set": "Multiplication facts",
      "date": "2026-10-16"
     },
     {
-     "name": "william escalona",
+     "name": "Noah C",
+     "score": "22 – 8",
+     "acc": 95,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "william E",
      "score": "27 – 14",
      "acc": 98,
      "set": "Multiplication facts · Facts 0–3, Facts 4–6",
      "date": "2026-10-16"
     },
     {
-     "name": "Ethan Alvarado",
+     "name": "Ethan A",
      "score": "17 – 9",
      "acc": 90,
      "set": "Multiplication facts",
      "date": "2026-10-16"
     },
     {
-     "name": "Erick Desiga",
+     "name": "Erick D",
      "score": "24 – 19",
      "acc": 90,
      "set": "Multiplication facts",
      "date": "2026-10-16"
     },
     {
-     "name": "Alexa Munoz",
+     "name": "Alexa M",
      "score": "12 – 13",
      "acc": 85,
      "set": "Standard form",
@@ -175,42 +273,63 @@
    "name": "Dash",
    "top": [
     {
-     "name": "EMily Rodirguez",
+     "name": "EMily R",
      "score": "13,300",
      "acc": 93,
      "set": "Functions",
      "date": "2026-10-16"
     },
     {
-     "name": "Emily Rodriguez",
-     "score": "10,370",
-     "acc": 100,
-     "set": "Functions",
-     "date": "2026-10-16"
-    },
-    {
-     "name": "william escalona",
+     "name": "william E",
      "score": "9,310",
      "acc": 100,
      "set": "Multiplication facts · Facts 0–3, Facts 4–6",
      "date": "2026-10-16"
     },
     {
-     "name": "Janet Flores",
+     "name": "Alexander Limon",
+     "score": "7,440",
+     "acc": 98,
+     "set": "Multiplication facts · Facts 4–6, Facts 7–9, Facts 10–12",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Leonardo A",
+     "score": "5,610",
+     "acc": 88,
+     "set": "Standard form",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Ann A",
+     "score": "4,870",
+     "acc": 71,
+     "set": "Standard form",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Kaelyn M",
+     "score": "4,160",
+     "acc": 100,
+     "set": "Standard form",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Janet F",
      "score": "3,950",
      "acc": 98,
      "set": "Multiplication facts",
      "date": "2026-10-16"
     },
     {
-     "name": "AMY NERI",
+     "name": "AMY N",
      "score": "3,330",
      "acc": 97,
      "set": "Multiplication facts · Facts 0–3",
      "date": "2026-10-16"
     },
     {
-     "name": "Erick desiga",
+     "name": "Erick D",
      "score": "3,290",
      "acc": 78,
      "set": "Multiplication facts",
@@ -222,27 +341,6 @@
      "acc": 75,
      "set": "Multiplication facts",
      "date": "2026-10-16"
-    },
-    {
-     "name": "melanie guerra",
-     "score": "1,430",
-     "acc": 96,
-     "set": "Multiplication facts",
-     "date": "2026-10-16"
-    },
-    {
-     "name": "Charlotte Espitia",
-     "score": "420",
-     "acc": 84,
-     "set": "Multiplication facts · Facts 0–3, Facts 4–6, Facts 7–9",
-     "date": "2026-10-16"
-    },
-    {
-     "name": "Irlanda Cazares",
-     "score": "0",
-     "acc": 86,
-     "set": "Slope-intercept form",
-     "date": "2026-10-16"
     }
    ]
   },
@@ -250,7 +348,7 @@
    "name": "Skate",
    "top": [
     {
-     "name": "Charlotte Espitia",
+     "name": "Charlotte E",
      "score": "7,666",
      "acc": 82,
      "set": "Multiplication facts · Facts 0–3, Facts 4–6, Facts 7–9",
@@ -262,24 +360,73 @@
    "name": "Go Fish",
    "top": [
     {
-     "name": "Evelyn Gonzalez",
+     "name": "Leonardo A",
+     "score": "190,074",
+     "acc": 100,
+     "set": "Multiplication facts · Facts 4–6, Facts 7–9, Facts 10–12",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Justin R",
+     "score": "56,705",
+     "acc": 89,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "arian V",
+     "score": "27,626",
+     "acc": 94,
+     "set": "Multiplication facts · Facts 0–3, Facts 10–12",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Aiden D",
+     "score": "24,707",
+     "acc": 94,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Juan M",
+     "score": "18,882",
+     "acc": 92,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Marcos L",
+     "score": "16,206",
+     "acc": 100,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Evelyn G",
      "score": "6,125",
      "acc": 70,
      "set": "Function families",
      "date": "2026-10-16"
     },
     {
-     "name": "Elisabeth Cordova",
+     "name": "Ann A",
+     "score": "5,835",
+     "acc": 95,
+     "set": "Standard form",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Elisabeth C",
      "score": "2,966",
      "acc": 92,
      "set": "Standard form",
      "date": "2026-10-16"
     },
     {
-     "name": "Irlanda Cazares",
-     "score": "1,989",
-     "acc": 94,
-     "set": "Slope-intercept form",
+     "name": "Aiden",
+     "score": "2,602",
+     "acc": 78,
+     "set": "Multiplication facts",
      "date": "2026-10-16"
     }
    ]
@@ -302,6 +449,13 @@
      "date": "2026-10-16"
     },
     {
+     "name": "Ann A",
+     "score": "5,308",
+     "acc": 94,
+     "set": "Standard form",
+     "date": "2026-10-16"
+    },
+    {
      "name": "Sylvestre Cantu",
      "score": "4,529",
      "acc": 63,
@@ -309,14 +463,28 @@
      "date": "2026-10-16"
     },
     {
-     "name": "Irlanda Cazares",
+     "name": "Irlanda C",
      "score": "4,498",
      "acc": 88,
      "set": "Slope-intercept form",
      "date": "2026-10-16"
     },
     {
-     "name": "Elisabeth Cordova",
+     "name": "Leah C",
+     "score": "2,942",
+     "acc": 93,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Kaelyn M",
+     "score": "2,773",
+     "acc": 86,
+     "set": "Standard form",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Elisabeth C",
      "score": "2,332",
      "acc": 100,
      "set": "Standard form",
