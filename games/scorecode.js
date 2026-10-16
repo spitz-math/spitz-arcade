@@ -138,7 +138,7 @@ function button(link,code){ return '<a href="'+link+'" target="_blank" rel="noop
   /* Answer log for Kody's Class Stats page (2026-10-16). Every game saves its run right after an answer, so when a save shows
      answered going up we log that question (topic, right or wrong, the prompt) to Kody's private Google Sheet through LOG.
      Off while LOG is empty. Nothing is shown to students and nothing here ever reaches a public page. */
-  var LOG='', QK='spitz_log_q', DK='spitz_dev', seen={}, timer=0;
+  var LOG='https://script.google.com/macros/s/AKfycbzreQYIxkM2PM_e9WxNRT5WxoRHPpeWYnC9sVelc4GNumtzgHEVElr22FmvLUA9tpgfmQ/exec', QK='spitz_log_q', DK='spitz_dev', seen={}, timer=0;
   function plain(h){ return String(h||'').replace(/<span class="[a-z]+-fr"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g,'$1/$2').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/\s+/g,' ').trim(); }
   function queue(){ try{ return JSON.parse(ls.getItem(QK)||'[]')||[]; }catch(e){ return []; } }
   function dev(){ var d=''; try{ d=ls.getItem(DK); if(!d){ d=Math.random().toString(36).slice(2,10); set.call(ls,DK,d); } }catch(e){} return d; }
