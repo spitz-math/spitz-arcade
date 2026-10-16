@@ -132,8 +132,33 @@ function button(link,code){ return '<a href="'+link+'" target="_blank" rel="noop
       var t=+ls.getItem(k+'_t')||0, limit=20*60e3;
       if(!t||Date.now()-t>limit){ ls.removeItem(k); ls.removeItem(k+'_t'); } });
     var set=Storage.prototype.setItem;
-    Storage.prototype.setItem=function(k,v){ set.call(this,k,v); if(this===ls&&run(k)) try{ set.call(this,k+'_t',String(Date.now())); }catch(e){} };
+    Storage.prototype.setItem=function(k,v){ set.call(this,k,v); if(this===ls&&run(k)) try{ set.call(this,k+'_t',String(Date.now())); watch(k,v); }catch(e){} };
   }catch(e){}
+
+  /* Answer log for Kody's Class Stats page (2026-10-16). Every game saves its run right after an answer, so when a save shows
+     answered going up we log that question (topic, right or wrong, the prompt) to Kody's private Google Sheet through LOG.
+     Off while LOG is empty. Nothing is shown to students and nothing here ever reaches a public page. */
+  var LOG='', QK='spitz_log_q', DK='spitz_dev', seen={}, timer=0;
+  function plain(h){ return String(h||'').replace(/<span class="[a-z]+-fr"><span>(.*?)<\/span><span>(.*?)<\/span><\/span>/g,'$1/$2').replace(/<[^>]+>/g,'').replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/\s+/g,' ').trim(); }
+  function queue(){ try{ return JSON.parse(ls.getItem(QK)||'[]')||[]; }catch(e){ return []; } }
+  function dev(){ var d=''; try{ d=ls.getItem(DK); if(!d){ d=Math.random().toString(36).slice(2,10); set.call(ls,DK,d); } }catch(e){} return d; }
+  function flush(beacon){ clearTimeout(timer); timer=0; var q=queue(); if(!q.length||!LOG) return;
+    var body=JSON.stringify({ v:1, rows:q.slice(0,100) }), sent=false;
+    try{ if(beacon&&navigator.sendBeacon) sent=navigator.sendBeacon(LOG,new Blob([body],{type:'text/plain'})); }catch(e){}
+    if(sent){ try{ set.call(ls,QK,JSON.stringify(q.slice(100))); }catch(e){} return; }
+    try{ fetch(LOG,{ method:'POST', mode:'no-cors', keepalive:true, headers:{'Content-Type':'text/plain'}, body:body }).then(function(){
+      var now=queue(); try{ set.call(ls,QK,JSON.stringify(now.slice(Math.min(100,q.length)))); }catch(e){} },function(){}); }catch(e){} }
+  function watch(k,v){ if(!LOG) return; var m=/"answered":(\d+)/.exec(v); if(!m) return; var n=+m[1], was=seen[k]||0; seen[k]=n; if(n<=was) return;
+    var S=JSON.parse(v), q=S.q, ok=null, pick=null, right=null;
+    if(q&&S.qDone&&q.choices&&q.choices[S.picked]){ ok=!!q.choices[S.picked].ok; pick=plain(q.choices[S.picked].html); q.choices.forEach(function(c){ if(c.ok) right=plain(c.html); }); }
+    var p={}; (location.search||'').replace(/^\?/,'').split('&').forEach(function(kv){ var a=kv.split('='); if(a[0]) try{ p[a[0]]=decodeURIComponent(a[1]||''); }catch(e){} });
+    var row={ t:Date.now(), d:dev(), n:String(S.name||'').slice(0,40), g:f, s:p.set||'', ts:String(p.topics||'').slice(0,60), r:n,
+      tp:ok===null?'':String(q.topic||'').slice(0,40), ty:ok===null?'':String(q.type||'').slice(0,30), ok:ok===null?'':ok?1:0,
+      q:ok===null?'':plain(q.prompt).slice(0,120), a:pick===null?'':pick.slice(0,40), c:right===null?'':right.slice(0,40) };
+    var all=queue(); all.push(row); if(all.length>500) all=all.slice(-500); try{ set.call(ls,QK,JSON.stringify(all)); }catch(e){}
+    if(all.length>=10) flush(); else if(!timer) timer=setTimeout(flush,60e3); }
+  try{ Object.keys(ls).filter(run).forEach(function(k){ var m=/"answered":(\d+)/.exec(ls.getItem(k)||''); seen[k]=m?+m[1]:0; }); }catch(e){}
+  if(LOG){ setTimeout(flush,4000); addEventListener('pagehide',function(){ flush(true); }); document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='hidden') flush(true); }); }
 })();
 /* tab icon: each game has its own emoji icon (Kody, 2026-10-11), picked from the file name; unknown pages get the Spitz burger */
 (function(){ if(document.querySelector('link[rel~="icon"]')) return;
