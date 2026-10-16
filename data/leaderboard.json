@@ -1,6 +1,18 @@
 {
- "updated": "2026-10-15T16:15:48.427Z",
+ "updated": "2026-10-16T16:30:03.614Z",
  "games": {
+  "splat_range": {
+   "name": "Splat Range",
+   "top": [
+    {
+     "name": "Sylvestre Cantu",
+     "score": "8,822",
+     "acc": 81,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    }
+   ]
+  },
   "star_swarm": {
    "name": "Star Swarm",
    "top": [
@@ -10,6 +22,265 @@
      "acc": 93,
      "set": "Multiplication facts",
      "date": "2026-10-12"
+    },
+    {
+     "name": "Ethan Alvarado",
+     "score": "110,010",
+     "acc": 91,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Sebastian Ellis",
+     "score": "109,075",
+     "acc": 86,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "tanix zane banda",
+     "score": "94,501",
+     "acc": 70,
+     "set": "Slope-intercept form",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "william escalona",
+     "score": "88,295",
+     "acc": 97,
+     "set": "Multiplication facts · Facts 0–3",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Erick.Desiga",
+     "score": "25,015",
+     "acc": 88,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    }
+   ]
+  },
+  "shift_racer": {
+   "name": "Shift Racer",
+   "top": [
+    {
+     "name": "tanix zane banda",
+     "score": "22,905",
+     "acc": 93,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Ethan Alvarado",
+     "score": "11,310",
+     "acc": 88,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "melanie guerra",
+     "score": "9,028",
+     "acc": 100,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    }
+   ]
+  },
+  "jump_man_multiplication": {
+   "name": "Jump Man",
+   "top": [
+    {
+     "name": "Charlotte Espitia",
+     "score": "1,053",
+     "acc": 95,
+     "set": "Multiplication facts · Facts 0–3, Facts 4–6, Facts 7–9",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "melanie guerra",
+     "score": "953",
+     "acc": 97,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    }
+   ]
+  },
+  "football_buds": {
+   "name": "Football Buds",
+   "top": [
+    {
+     "name": "Marcus.Trevino",
+     "score": "35 – 7",
+     "acc": 100,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "damian schmidt",
+     "score": "28 – 14",
+     "acc": 100,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "SERGIO CAMACHO",
+     "score": "14 – 7",
+     "acc": 92,
+     "set": "Standard form",
+     "date": "2026-10-16"
+    }
+   ]
+  },
+  "hoop_buds": {
+   "name": "Hoop Buds",
+   "top": [
+    {
+     "name": "Ozzy Galan",
+     "score": "42 – 8",
+     "acc": 98,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "william escalona",
+     "score": "27 – 14",
+     "acc": 98,
+     "set": "Multiplication facts · Facts 0–3, Facts 4–6",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Ethan Alvarado",
+     "score": "17 – 9",
+     "acc": 90,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Erick Desiga",
+     "score": "24 – 19",
+     "acc": 90,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Alexa Munoz",
+     "score": "12 – 13",
+     "acc": 85,
+     "set": "Standard form",
+     "date": "2026-10-16"
+    }
+   ]
+  },
+  "dash": {
+   "name": "Dash",
+   "top": [
+    {
+     "name": "EMily Rodirguez",
+     "score": "13,300",
+     "acc": 93,
+     "set": "Functions",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Emily Rodriguez",
+     "score": "10,370",
+     "acc": 100,
+     "set": "Functions",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "william escalona",
+     "score": "9,310",
+     "acc": 100,
+     "set": "Multiplication facts · Facts 0–3, Facts 4–6",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Janet Flores",
+     "score": "3,950",
+     "acc": 98,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "AMY NERI",
+     "score": "3,330",
+     "acc": 97,
+     "set": "Multiplication facts · Facts 0–3",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Erick desiga",
+     "score": "3,290",
+     "acc": 78,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Sylvestre Cantu",
+     "score": "2,220",
+     "acc": 75,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "melanie guerra",
+     "score": "1,430",
+     "acc": 96,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Charlotte Espitia",
+     "score": "420",
+     "acc": 84,
+     "set": "Multiplication facts · Facts 0–3, Facts 4–6, Facts 7–9",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Irlanda Cazares",
+     "score": "0",
+     "acc": 86,
+     "set": "Slope-intercept form",
+     "date": "2026-10-16"
+    }
+   ]
+  },
+  "skate": {
+   "name": "Skate",
+   "top": [
+    {
+     "name": "Charlotte Espitia",
+     "score": "7,666",
+     "acc": 82,
+     "set": "Multiplication facts · Facts 0–3, Facts 4–6, Facts 7–9",
+     "date": "2026-10-16"
+    }
+   ]
+  },
+  "fishing": {
+   "name": "Go Fish",
+   "top": [
+    {
+     "name": "Evelyn Gonzalez",
+     "score": "6,125",
+     "acc": 70,
+     "set": "Function families",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Elisabeth Cordova",
+     "score": "2,966",
+     "acc": 92,
+     "set": "Standard form",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Irlanda Cazares",
+     "score": "1,989",
+     "acc": 94,
+     "set": "Slope-intercept form",
+     "date": "2026-10-16"
     }
    ]
   },
@@ -22,6 +293,34 @@
      "acc": 89,
      "set": "Slope-intercept form",
      "date": "2026-10-14"
+    },
+    {
+     "name": "melanie guerra",
+     "score": "6,909",
+     "acc": 96,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Sylvestre Cantu",
+     "score": "4,529",
+     "acc": 63,
+     "set": "Multiplication facts",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Irlanda Cazares",
+     "score": "4,498",
+     "acc": 88,
+     "set": "Slope-intercept form",
+     "date": "2026-10-16"
+    },
+    {
+     "name": "Elisabeth Cordova",
+     "score": "2,332",
+     "acc": 100,
+     "set": "Standard form",
+     "date": "2026-10-16"
     }
    ]
   }
