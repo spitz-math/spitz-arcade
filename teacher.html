@@ -189,6 +189,12 @@ function esc(t){ return String(t).replace(/[&<>"]/g,function(c){ return {'&':'&a
 function isStamp(f){ return /\d{1,4}[\/\-.]\d{1,2}[\/\-.]\d{1,4}/.test(f)||/^\d{1,2}:\d{2}/.test(f); }
 function stampDate(fields){ for(var i=0;i<fields.length;i++){ var m=fields[i].match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/); if(m) return new Date(Date.UTC(+m[3],+m[1]-1,+m[2])); } return null; }
 
+/* The form asks for a full name but the game asks for first name + last initial, so "Levi Smith" on the form
+   also tries "Levi S" and "Levi". A match shows as the shorter name the student typed in the game. */
+function nameTries(n){ var w=String(n).trim().split(/\s+/).filter(Boolean), t=[String(n).trim()];
+  if(w.length>1){ t.push(w[0]+' '+w[w.length-1].charAt(0).toUpperCase()); if(w.length>2) t.push(w[0]+' '+w[1].charAt(0).toUpperCase()); t.push(w[0]); }
+  return t; }
+function readAs(code,n){ var t=nameTries(n); for(var i=0;i<t.length;i++){ var r=C.read(code,t[i]); if(r){ if(i) r.as=t[i]; return r; } } return null; }
 function parse(text){ entries=[]; problems=[]; var seen={};
   text.split(/\r?\n/).forEach(function(line){ if(!line.trim()) return;
     var m=line.match(OLD)||line.match(NEW), fields=line.split(/\t|,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map(function(f){ return f.replace(/^"|"$/g,'').trim(); });
@@ -196,7 +202,7 @@ function parse(text){ entries=[]; problems=[]; var seen={};
     rest.split(/\t|,/).some(function(f){ f=f.replace(/^"|"$/g,'').trim(); if(!f||isStamp(f)||!/[a-z]/i.test(f)||/^(name|score code|code|timestamp)$/i.test(f)||f.indexOf('@')>=0) return false; name=f; return true; });
     if(!m){ if(name&&!/^(timestamp|name)/i.test(line.trim())) problems.push(esc(name)+': no score code in this row'); return; }
     if(!name){ problems.push(esc(m[0])+': no name in this row'); return; }
-    var r=OLD.test(m[0])?readOld(m[0]):C.read(m[0],name);
+    var r=OLD.test(m[0])?readOld(m[0]):readAs(m[0],name); if(r&&r.as) name=r.as;
     if(!r&&!OLD.test(m[0])){ var any=C.read(m[0],name,true), id=okId(m[0],name); if(any&&(any.day<C.today()-60||any.day>C.today())) any=null;   /* a typo in the code itself decodes to a date that can’t be right */
       if(any&&okd[id]){ r=any; r.counted=id; }
       else if(any){ problems.push('<b>'+esc(name)+'</b>: '+esc(m[0].toUpperCase())+' doesn’t match this name. It reads <b>'+esc(any.gameName)+' · '+esc(any.display)+'</b> ('+any.correct+' of '+any.answered+' correct'+(any.date?', '+fmtDate(any.date):'')+'). If this is their own score and they just typed their name differently, <button class="okbtn" data-ok="'+esc(id)+'" data-name="'+esc(name)+'">Count it</button>'); return; } }
@@ -254,7 +260,7 @@ function closeBig(){ $('big').hidden=true; try{ if(document.fullscreenElement) d
 
 function checkOne(){ var n=$('one-name').value.trim(), c=$('one-code').value.trim(), o=$('one-out');
   if(!n||!c){ o.className='check'; o.textContent='Type a name and code.'; return; }
-  var r=OLD.test(c)?readOld(c):C.read(c,n);
+  var r=OLD.test(c)?readOld(c):readAs(c,n);
   if(!r){ o.className='check bad'; o.textContent='This code doesn’t check out for '+n+'. Check the spelling of the name and the code.'; return; }
   o.className='check good'; o.innerHTML='<b>'+esc(r.gameName)+'</b> · '+esc(r.display)+'<br>'+r.correct+' of '+r.answered+' correct · '+esc(setLabel(r))+(r.len?' · '+r.len+' min':'')+(r.date?' · '+fmtDate(r.date):'')+(r.old?' · older code':''); }
 
