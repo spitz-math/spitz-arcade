@@ -813,7 +813,8 @@ function update(dt){ if(!S.started||S.over) return;
   gt+=dt;
   if(PL.kick){ updKick(dt); hudLive(); return; }
   if(!PL.live){ if(actQ){ if(S.ask4) choose('go'); else if(S.ready) hike(); else tryMove(); } actQ=false; hudLive(); return; }
-  PL.t+=dt; S.clock=Math.max(0,S.clock-dt*RATE); updPlay(dt); hudLive(); }
+  PL.t+=dt; S.clock=Math.max(0,S.clock-dt*RATE); updPlay(dt); keepOn(); hudLive(); }
+function keepOn(){ if(PL&&PL.all) PL.all.forEach(function(o){ o.x=clamp(o.x,-9.5,109.5); if(o!==PL.carrier) o.y=clamp(o.y,-0.8,FW+0.8); }); }   // nobody runs past the end zones or into the stands
 /* ---- drawing ---- */
 function sxw(x){ return (x-cam)*YD+camx+(shk>0?Math.sin(gt*90)*shk*14:0); }
 function syw(y){ return FT+y*ZY; }
