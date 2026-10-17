@@ -158,7 +158,7 @@ button:disabled{ cursor:default; }
 [class$="-logo"]{ cursor:pointer; }
 
 /* the full-screen reminder sits in the empty middle of the top bar during play */
-body:has(#bl-start[hidden]):has(#bl-end[hidden]) .sz-fs{ top:24px !important; bottom:auto !important; left:41% !important; }
+:root{ --sz-fs-x:0.41; --sz-fs-y:top; --sz-fs-top:24; }
 </style>
 </head>
 <body>
@@ -783,7 +783,7 @@ window.__verify=function(n){ var bad=[], i; for(i=0;i<n;i++){ var q=QS.next(), o
     var sg=document.getElementById('stage'); if(sg){ var r=sg.getBoundingClientRect(), k=r.width/1920; if(k>0){ var cs=getComputedStyle(document.documentElement),
         x=parseFloat(cs.getPropertyValue('--sz-fs-x'))||0.5, en=document.querySelector('[id$="-end"]'), over=onStart||!!(en&&!en.hidden&&en.offsetParent);
       if(over&&cs.getPropertyValue('--sz-fs-corner').trim()!=='0'){ b.style.top=(r.top+24*k)+'px'; b.style.bottom='auto'; b.style.left=(r.right-24*k)+'px'; b.style.transformOrigin='100% 0'; b.style.transform='translateX(-100%) scale('+k+')'; }
-      else{ b.style.top=''; b.style.transformOrigin=''; b.style.left=(r.left+r.width*x)+'px'; b.style.bottom=(window.innerHeight-r.bottom+16*k)+'px'; b.style.transform='translateX(-50%) scale('+k+')'; } } } }
+      else{ var top=!over&&cs.getPropertyValue('--sz-fs-y').trim()==='top'; b.style.top=top?(r.top+(parseFloat(cs.getPropertyValue('--sz-fs-top'))||30)*k)+'px':''; b.style.transformOrigin=top?'50% 0':''; b.style.left=(r.left+r.width*x)+'px'; b.style.bottom=top?'auto':(window.innerHeight-r.bottom+16*k)+'px'; b.style.transform='translateX(-50%) scale('+k+')'; } } } }
   b.addEventListener('click',function(){ document.dispatchEvent(new KeyboardEvent('keydown',{key:'f',bubbles:true})); setTimeout(upd,300); });
   ['click','keydown'].forEach(function(n){ document.addEventListener(n,function(){ setTimeout(upd,60); },true); });   // follow Start / Play again right away
   window.addEventListener('resize',function(){ setTimeout(upd,50); }); document.addEventListener('fullscreenchange',upd); document.addEventListener('webkitfullscreenchange',upd); setInterval(upd,1000); upd(); })();
